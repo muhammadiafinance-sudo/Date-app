@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tri-Calendar · বাংলা · English · হিজরি</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f5f4;--card:#fff;--tx:#14211c;--mu:#66756e;--bd:#e2e8e5;--in:#f6f8f7;--sh:0 10px 30px -12px rgba(15,60,45,.25);
+--en:#2457d6;--bn:#0f8a63;--hj:#b9650d;--ev:#fff3dd;--evt:#8a4b06}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1412;--card:#16201c;--tx:#e9f1ed;--mu:#8fa299;--bd:#25332d;--in:#1b2722;--sh:0 10px 30px -12px rgba(0,0,0,.6);--en:#7aa2ff;--bn:#3fd1a0;--hj:#f0ad5e;--ev:#3b2d14;--evt:#f5c883}}
+:root[data-theme="dark"]{--bg:#0d1412;--card:#16201c;--tx:#e9f1ed;--mu:#8fa299;--bd:#25332d;--in:#1b2722;--sh:0 10px 30px -12px rgba(0,0,0,.6);--en:#7aa2ff;--bn:#3fd1a0;--hj:#f0ad5e;--ev:#3b2d14;--evt:#f5c883}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.hero{background:linear-gradient(135deg,#0b3d2e 0%,#0f8a63 55%,#2457d6 130%);color:#fff;padding:34px 16px 84px;position:relative;overflow:hidden}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero:before{width:260px;height:260px;right:-60px;top:-90px}.hero:after{width:180px;height:180px;left:-50px;bottom:-90px}
+.in{max-width:760px;margin:0 auto;position:relative}
+.pill{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;letter-spacing:.04em}
+h1{font-size:30px;line-height:1.2;margin:12px 0 6px;font-weight:800}
+h1 small{display:block;font-size:15px;font-weight:500;opacity:.85;margin-top:4px}
+.hero p{margin:0;opacity:.8;font-size:14px}
+main{max-width:760px;margin:-56px auto 30px;padding:0 14px;position:relative}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:20px;box-shadow:var(--sh);padding:16px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--in);border:1px solid var(--bd);border-radius:14px;padding:4px}
+.tab{border:0;background:transparent;color:var(--mu);font:inherit;font-size:14px;font-weight:600;padding:10px 4px;border-radius:10px;cursor:pointer;transition:.2s;line-height:1.2}
+.tab small{display:block;font-size:11px;font-weight:500;opacity:.8}
+.tab.on{background:var(--card);color:var(--tx);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.tab[data-t=en].on{color:var(--en)}.tab[data-t=bn].on{color:var(--bn)}.tab[data-t=hj].on{color:var(--hj)}
+.fg{display:grid;grid-template-columns:90px 1fr 110px;gap:10px;margin-top:14px}
+label{font-size:12px;font-weight:600;color:var(--mu);display:block;margin-bottom:5px}
+input,select{width:100%;font:inherit;font-size:16px;color:var(--tx);background:var(--in);border:1.5px solid var(--bd);border-radius:12px;padding:11px 12px;outline:0;transition:.15s}
+input:focus,select:focus{border-color:var(--bn);box-shadow:0 0 0 4px color-mix(in srgb,var(--bn) 18%,transparent)}
+.ac{display:flex;gap:10px;margin-top:14px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:13px 18px;cursor:pointer;transition:.15s}
+.btn:active{transform:scale(.98)}
+.pri{flex:1;color:#fff;background:linear-gradient(135deg,#0f8a63,#0b6b4e);box-shadow:0 8px 18px -8px #0f8a63}
+.gh{background:var(--in);color:var(--tx);border:1.5px solid var(--bd)}
+.ba{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--mu)}
+.ba select{width:auto;padding:5px 8px;font-size:12px;border-radius:8px}
+#err{color:#d03b2c;font-size:13px;font-weight:500;margin-top:10px;min-height:0}
+#out{margin-top:16px;animation:up .35s ease}
+@keyframes up{from{opacity:0;transform:translateY(10px)}}
+.top{background:var(--card);border:1px solid var(--bd);border-radius:20px;box-shadow:var(--sh);padding:16px;display:flex;align-items:center;gap:12px}
+.nv{flex:none;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--bd);background:var(--in);color:var(--tx);font-size:20px;cursor:pointer}
+.mid{flex:1;text-align:center;min-width:0}
+.wd{font-size:21px;font-weight:800}.wd span{color:var(--mu);font-weight:500;font-size:15px}
+.rel{color:var(--mu);font-size:13px;margin-top:2px}
+.chips{margin-top:8px}
+.chip{display:inline-block;background:var(--ev);color:var(--evt);border-radius:99px;padding:4px 12px;font-size:12.5px;font-weight:600;margin:2px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.k{background:var(--card);border:1px solid var(--bd);border-radius:20px;box-shadow:var(--sh);padding:16px 12px 14px;text-align:center;position:relative;overflow:hidden}
+.k:before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:var(--c)}
+.k.e{--c:var(--en)}.k.b{--c:var(--bn)}.k.h{--c:var(--hj)}
+.k .l{font-size:11.5px;font-weight:700;letter-spacing:.05em;color:var(--c);text-transform:uppercase}
+.k .n{font-size:52px;font-weight:800;line-height:1.05;margin:8px 0 2px;color:var(--c)}
+.k .mo{font-size:17px;font-weight:700}
+.k .yr{color:var(--mu);font-size:13px;margin-top:3px}
+.k .sub{display:inline-block;margin-top:8px;font-size:11.5px;background:var(--in);border-radius:99px;padding:3px 10px;color:var(--mu)}
+.ft{margin-top:12px;background:var(--card);border:1px dashed var(--bd);border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:13px;color:var(--mu)}
+.ft button{flex:none;font-size:13px;padding:8px 14px}
+.note{text-align:center;color:var(--mu);font-size:12px;margin-top:18px;line-height:1.6}
+@media(max-width:620px){.g3{grid-template-columns:1fr}.k{display:grid;grid-template-columns:auto 1fr;text-align:left;align-items:center;gap:0 16px}.k .n{grid-row:1/4;margin:0;font-size:46px}.k .l{grid-column:2}.k .sub{justify-self:start}.fg{grid-template-columns:80px 1fr 100px}.hero{padding-bottom:78px}h1{font-size:25px}.ft{flex-direction:column;align-items:stretch;text-align:center}}
+</style><meta name="theme-color" content="#0b3d2e">
+<meta name="description" content="Bangla, English and Hijri date converter. Works offline.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tri-Calendar">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+</head><body>
+<div class="hero"><div class="in"><span class="pill">📅 TRI-CALENDAR</span>
+<h1>তারিখ রূপান্তর<small>Bangla · English · Hijri date converter</small></h1>
+<p>যেকোনো ক্যালেন্ডারের তারিখ দিন, তিনটিতেই দেখুন।</p></div></div>
+<main>
+<section class="panel">
+<div class="tabs" role="tablist">
+<button class="tab on" data-t="en">English<small>ইংরেজি</small></button>
+<button class="tab" data-t="bn">বাংলা<small>Bangla (BS)</small></button>
+<button class="tab" data-t="hj">হিজরি<small>Hijri (AH)</small></button></div>
+<div class="fg">
+<div><label for="dd">দিন · Day</label><input id="dd" inputmode="numeric" placeholder="DD" autocomplete="off"></div>
+<div><label for="mm">মাস · Month</label><select id="mm"></select></div>
+<div><label for="yy">সাল · Year</label><input id="yy" inputmode="numeric" placeholder="YYYY" autocomplete="off"></div></div>
+<div class="ac"><button class="btn pri" id="go">🔍 খুঁজুন · Search</button><button class="btn gh" id="td">আজ · Today</button></div>
+<div class="ba">হিজরি গণনা · Hijri basis:
+<select id="off"><option value="-1">বাংলাদেশ (−১ দিন)</option><option value="0">সৌদি Umm al-Qura</option><option value="1">+১ দিন</option></select></div>
+<div id="err"></div></section>
+<section id="out"></section>
+<div class="note">বাংলা: বাংলাদেশ সংশোধিত পঞ্জিকা · হিজরি তারিখ চাঁদ দেখার উপর নির্ভরশীল, ±১ দিন হতে পারে।<br>Range: English 1900–2200 · বাংলা 1307–1607 · হিজরি 1318–1600</div>
+</main>
+<script>
+const BD='০১২৩৪৫৬৭৮৯',B=n=>String(n).replace(/\d/g,d=>BD[d]),N=s=>s.replace(/[০-৯]/g,c=>BD.indexOf(c));
+const BM=['বৈশাখ','জ্যৈষ্ঠ','আষাঢ়','শ্রাবণ','ভাদ্র','আশ্বিন','কার্তিক','অগ্রহায়ণ','পৌষ','মাঘ','ফাল্গুন','চৈত্র'];
+const BE=['Boishakh','Joishtho','Asharh','Srabon','Bhadro','Ashwin','Kartik','Agrahayan','Poush','Magh','Falgun','Chaitra'];
+const SS=['গ্রীষ্ম','গ্রীষ্ম','বর্ষা','বর্ষা','শরৎ','শরৎ','হেমন্ত','হেমন্ত','শীত','শীত','বসন্ত','বসন্ত'];
+const SE=['Summer','Summer','Monsoon','Monsoon','Autumn','Autumn','Late autumn','Late autumn','Winter','Winter','Spring','Spring'];
+const GM=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const GB=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const HB=['মুহাররম','সফর','রবিউল আউয়াল','রবিউস সানি','জমাদিউল আউয়াল','জমাদিউস সানি','রজব','শা’বান','রমজান','শাওয়াল','জিলকদ','জিলহজ'];
+const HE=['Muharram','Safar',"Rabi' I","Rabi' II",'Jumada I','Jumada II','Rajab',"Sha'ban",'Ramadan','Shawwal',"Dhu al-Qa'dah",'Dhu al-Hijjah'];
+const WB=['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
+const WE=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const ST=[[14,9],[13,10],[15,11],[14,0],[15,1],[15,2],[16,3],[16,4],[16,5],[16,6],[15,7],[15,8]];
+const BS=[];ST.forEach((s,g)=>BS[s[1]]=[g,s[0]]);
+const GE={'0-1':'ইংরেজি নববর্ষ · New Year','1-21':'শহীদ দিবস · Language Martyrs Day','2-26':'স্বাধীনতা দিবস · Independence Day','3-14':'পহেলা বৈশাখ · Pohela Boishakh','4-1':'মে দিবস · May Day','11-16':'বিজয় দিবস · Victory Day','11-25':'বড়দিন · Christmas'};
+const HEV={'1-1':'হিজরি নববর্ষ · Islamic New Year','1-10':'আশুরা · Ashura','3-12':'ঈদে মিলাদুন্নবী · Eid-e-Miladunnabi','7-27':'শবে মিরাজ · Shab-e-Meraj','8-15':'শবে বরাত · Shab-e-Barat','9-1':'রমজান শুরু · Ramadan begins','9-27':'শবে কদর · Shab-e-Qadr','10-1':'ঈদুল ফিতর · Eid ul-Fitr','12-9':'আরাফার দিন · Day of Arafah','12-10':'ঈদুল আযহা · Eid ul-Adha'};
+function bn(y,m,d){let sm=m,sy=y;if(d<ST[m][0]){sm=m-1;if(sm<0){sm=11;sy--}}const s=Date.UTC(sy,sm,ST[sm][0]);return{d:Math.round((Date.UTC(y,m,d)-s)/864e5)+1,m:ST[sm][1],y:(m>3||(m==3&&d>=14))?y-593:y-594}}
+let hf;try{hf=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric',timeZone:'UTC'})}catch(e){hf=new Intl.DateTimeFormat('en-u-ca-islamic-civil-nu-latn',{day:'numeric',month:'numeric',year:'numeric',timeZone:'UTC'})}
+function hjMs(ms,o){const p=hf.formatToParts(new Date(ms+12*36e5+o*864e5)),g=t=>parseInt(p.find(x=>x.type===t).value);return{d:g('day'),m:g('month')-1,y:g('year')}}
+function parts(ms){const t=new Date(ms);return{d:t.getUTCDate(),m:t.getUTCMonth(),y:t.getUTCFullYear()}}
+const $=id=>document.getElementById(id);
+const now=new Date(),TMS=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
+let T='en',CUR=TMS,SUM='';
+function fillMonths(){const L=T==='en'?GM.map((e,i)=>GB[i]+' · '+e):T==='bn'?BM.map((b,i)=>b+' · '+BE[i]):HB.map((b,i)=>b+' · '+HE[i]);$('mm').innerHTML=L.map((x,i)=>`<option value="${i}">${i+1}. ${x}</option>`).join('')}
+function conv(ms){const g=parts(ms);return T==='en'?g:T==='bn'?bn(g.y,g.m,g.d):hjMs(ms,+$('off').value)}
+function sync(){const p=conv(CUR);$('dd').value=p.d;$('mm').value=p.m;$('yy').value=p.y}
+function toMs(t,d,m,y,o){
+ if(t==='en'){if(y<1900||y>2200)return null;const ms=Date.UTC(y,m,d),p=parts(ms);return p.d===d&&p.m===m&&p.y===y?ms:null}
+ if(t==='bn'){if(y<1307||y>1607)return null;const gy=m<=8?y+593:y+594,ms=Date.UTC(gy,BS[m][0],BS[m][1]+d-1),g=parts(ms),b=bn(g.y,g.m,g.d);return b.d===d&&b.m===m&&b.y===y?ms:null}
+ if(y<1318||y>1600)return null;const a=Math.floor(y*0.970229+621.57);
+ for(let ms=Date.UTC(a-1,0,1),e=Date.UTC(a+2,0,1);ms<e;ms+=864e5){const h=hjMs(ms,o);if(h.y===y&&h.m===m&&h.d===d)return ms}
+ return null}
+function show(ms){
+ const o=+$('off').value,g=parts(ms),b=bn(g.y,g.m,g.d),h=hjMs(ms,o),wd=new Date(ms).getUTCDay(),evs=[];
+ if(GE[g.m+'-'+g.d])evs.push(GE[g.m+'-'+g.d]);if(HEV[(h.m+1)+'-'+h.d])evs.push(HEV[(h.m+1)+'-'+h.d]);
+ const df=Math.round((ms-TMS)/864e5),rel=df===0?'আজ · Today':df>0?`${B(df)} দিন পরে · in ${df} day${df>1?'s':''}`:`${B(-df)} দিন আগে · ${-df} day${df<-1?'s':''} ago`;
+ const doy=Math.round((ms-Date.UTC(g.y,0,1))/864e5)+1;
+ SUM=`${WE[wd]}, ${g.d} ${GM[g.m]} ${g.y} = ${b.d} ${BE[b.m]} ${b.y} BS (${B(b.d)} ${BM[b.m]} ${B(b.y)}) = ${h.d} ${HE[h.m]} ${h.y} AH (${B(h.d)} ${HB[h.m]} ${B(h.y)})`;
+ $('out').innerHTML=`<div class="top"><button class="nv" data-s="-1" aria-label="Previous day">‹</button><div class="mid"><div class="wd">${WB[wd]} <span>· ${WE[wd]}</span></div><div class="rel">${rel} · বছরের ${B(doy)} তম দিন</div>${evs.length?`<div class="chips">${evs.map(e=>`<span class="chip">🟧 ${e}</span>`).join('')}</div>`:''}</div><button class="nv" data-s="1" aria-label="Next day">›</button></div>
+<div class="g3">
+<div class="k e"><div class="l">English</div><div class="n">${g.d}</div><div><div class="mo">${GM[g.m]}</div><div class="yr">${GB[g.m]} ${g.y}</div></div></div>
+<div class="k b"><div class="l">বাংলা · Bangla</div><div class="n">${B(b.d)}</div><div><div class="mo">${BM[b.m]}</div><div class="yr">${BE[b.m]} ${B(b.y)}</div><span class="sub">ঋতু · ${SS[b.m]} (${SE[b.m]})</span></div></div>
+<div class="k h"><div class="l">হিজরি · Hijri</div><div class="n">${B(h.d)}</div><div><div class="mo">${HB[h.m]}</div><div class="yr">${HE[h.m]} ${B(h.y)} AH</div></div></div></div>
+<div class="ft"><span>${g.d} ${GM[g.m]} ${g.y} = ${b.d} ${BE[b.m]} ${b.y} = ${h.d} ${HE[h.m]} ${h.y}</span><button class="btn gh" id="cp">📋 কপি · Copy</button></div>`}
+function run(){
+ const d=parseInt(N($('dd').value)),y=parseInt(N($('yy').value)),m=+$('mm').value;$('err').textContent='';
+ if(!d||!y){$('err').textContent='দিন ও সাল লিখুন · Enter day and year';return}
+ const ms=toMs(T,d,m,y,+$('off').value);
+ if(ms===null){$('out').innerHTML='';$('err').textContent='⚠️ তারিখটি বৈধ নয় বা সীমার বাইরে · Invalid date or out of range';return}
+ CUR=ms;show(ms)}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');T=t.dataset.t;fillMonths();sync();run()});
+$('go').onclick=run;
+$('td').onclick=()=>{CUR=TMS;sync();run()};
+$('off').onchange=()=>{sync();run()};
+$('out').onclick=e=>{const n=e.target.closest('.nv');if(n){CUR+=+n.dataset.s*864e5;sync();show(CUR);return}
+ if(e.target.id==='cp'){try{navigator.clipboard.writeText(SUM);e.target.textContent='✅ কপি হয়েছে'}catch(x){e.target.textContent='কপি করা যায়নি'}}};
+['dd','yy'].forEach(i=>$(i).addEventListener('keydown',e=>{if(e.key==='Enter')run()}));
+fillMonths();sync();run();
+</script><script>
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body></html>
