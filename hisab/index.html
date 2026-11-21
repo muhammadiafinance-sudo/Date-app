@@ -19,6 +19,7 @@
   --brand:#0f5f57;--on-brand:#ffffff;--brand-soft:#e2f0ee;
   --red:#c62828;--red-soft:#fdeceb;--green:#1b7a44;--green-soft:#e5f3ea;
   --day-a:#ffffff;--day-b:#e9ebee;--day-line:#d7dbe0;
+  --blue-soft:#e4eefb;--blue:#1f5fa6;
   --chip:#eef0f3;--shadow:0 1px 2px rgba(20,23,26,.06),0 2px 8px rgba(20,23,26,.04);
   --toast:#14171a;--on-toast:#ffffff;--scrim:rgba(10,12,14,.5);
   --font:"Hind Siliguri",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -28,12 +29,14 @@
   --brand:#45c3b1;--on-brand:#062320;--brand-soft:#15302c;
   --red:#ff6b6b;--red-soft:#3a1717;--green:#5fd38a;--green-soft:#12301e;
   --day-a:#171a1e;--day-b:#212529;--day-line:#30353c;
+  --blue-soft:#16273b;--blue:#7fb3f0;
   --chip:#252a30;--shadow:none;--toast:#eceef1;--on-toast:#0e1012;--scrim:rgba(0,0,0,.6);color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e1012;--surface:#171a1e;--ink:#eceef1;--muted:#9aa2ac;--line:#2a2f35;
   --brand:#45c3b1;--on-brand:#062320;--brand-soft:#15302c;
   --red:#ff6b6b;--red-soft:#3a1717;--green:#5fd38a;--green-soft:#12301e;
   --day-a:#171a1e;--day-b:#212529;--day-line:#30353c;
+  --blue-soft:#16273b;--blue:#7fb3f0;
   --chip:#252a30;--shadow:none;--toast:#eceef1;--on-toast:#0e1012;--scrim:rgba(0,0,0,.6);color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);padding-bottom:96px;-webkit-tap-highlight-color:transparent}
@@ -119,13 +122,17 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:9px 14px;border:0;background:transparent;width:100%;text-align:left;cursor:pointer}
 .row+.row{border-top:1px solid var(--day-line)}
 .row:hover{background:rgba(127,127,127,.07)}
+.row.recv{background:var(--blue-soft)}
+.row.recv:hover{background:var(--blue-soft);filter:brightness(.97)}
+.row .det{font-size:13px;color:var(--ink);opacity:.8;overflow-wrap:anywhere}
+.row .det b{font-weight:600}
 .row .t{font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .row .s{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
 .row .amt{font-weight:700;font-size:17px;text-align:right}
 .row .rb{font-size:13px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .row .rb small{font-weight:400;color:var(--muted);margin-right:3px}
 .chip{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--chip);color:var(--muted);margin-left:6px;vertical-align:2px}
-.chip.in{background:var(--green-soft);color:var(--green)}
+.chip.in{background:var(--surface);color:var(--blue)}
 .df{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 14px 12px;border-top:1px dashed var(--day-line);font-size:14px;font-variant-numeric:tabular-nums}
 .df span{color:var(--muted)}
 .df .red{color:var(--red);font-weight:600}
@@ -237,7 +244,7 @@ body.locked main,body.locked header,body.locked .fab{visibility:hidden}
 <dialog id="dlgEntry">
   <div class="dhd"><h3 id="eTitle">New entry</h3><button class="x" type="button" data-close aria-label="Close">×</button></div>
   <div class="dbd">
-    <div class="seg"><button data-t="send" type="button" class="on">Money sent</button><button data-t="bank" type="button">Bank payment</button></div>
+    <div class="seg"><button data-t="send" type="button" class="on">Money sent</button><button data-t="bank" type="button">Payment received</button></div>
     <div class="f2">
       <div class="f"><label for="ePartner">Profile</label><select id="ePartner"></select></div>
       <div class="f"><label for="eDate">Date</label><input type="date" id="eDate"></div>
@@ -248,11 +255,18 @@ body.locked main,body.locked header,body.locked .fab{visibility:hidden}
     </div>
     <div class="f2">
       <div class="f"><label for="eAmount">Amount (৳)</label><input type="number" inputmode="decimal" id="eAmount" min="0" step="any"></div>
-      <div class="f bank-only"><label for="eMethodB">Received via</label><select id="eMethodB"><option>Bank</option><option>Cash</option><option>Other</option></select></div>
+      <div class="f bank-only"><label for="eMethodB">Received via</label><select id="eMethodB"><option>Bank</option><option>Cash</option><option>bKash</option><option>Nagad</option><option>Other</option></select></div>
       <div class="f send-only"><label for="eCharge">Charge (optional)</label><input type="number" inputmode="decimal" id="eCharge" min="0" step="any" placeholder="0"></div>
     </div>
     <div class="pct send-only"><label><input type="checkbox" id="ePctOn" checked> Add <span id="ePctVal">2</span>%</label><span>Total <b id="eTotal">৳0</b></span></div>
-    <div class="f"><label for="eNote">Note / TrxID</label><input id="eNote" placeholder="optional" autocomplete="off"></div>
+    <div class="bankdet" hidden>
+      <div class="f"><label for="eHolder">Account holder</label><input id="eHolder" list="holderList" placeholder="Name on the account" autocomplete="off" maxlength="60"><datalist id="holderList"></datalist></div>
+      <div class="f2">
+        <div class="f"><label for="eBank">Bank</label><input id="eBank" list="bankList" placeholder="e.g. DBBL" autocomplete="off" maxlength="60"><datalist id="bankList"></datalist></div>
+        <div class="f"><label for="eAcct">Account number</label><input id="eAcct" list="acctList" inputmode="numeric" placeholder="A/C no." autocomplete="off" maxlength="30"><datalist id="acctList"></datalist></div>
+      </div>
+    </div>
+    <div class="f"><label for="eNote" id="eNoteLbl">Note / TrxID</label><input id="eNote" placeholder="optional" autocomplete="off"></div>
     <div class="btns">
       <button class="btn" id="eSave" type="button">Save</button>
       <button class="btn ghost" id="eSaveMore" type="button">Save &amp; add another</button>
@@ -478,7 +492,7 @@ function dayGroups(p){
 // ================= text for chats =================
 function entryLine(e,i,after){
   const b=after===undefined?'':`  |  Bal ${sbal(after,'-')}`;
-  if(e.type==='bank')return `Bank payment received: ${tk(e.amount)}${e.method!=='Bank'?' ('+e.method+')':''}${e.note?' · '+e.note:''}${b}`;
+  if(e.type==='bank'){const det=bankDetail(e);return `Received (${e.method}): ${tk(e.amount)}${b}`+(det.length?`\n    ${det.join(' · ')}`:'')+(e.note?`\n    Narration: ${e.note}`:'')}
   const amt=e.base?`${money(e.base)} + ${e.pct}% = ${tk(e.amount)}`:tk(e.amount);
   return `${i}) ${e.number||'—'}  ${amt}${e.method!=='bKash'?' ('+e.method+')':''}${e.charge?' + charge '+tk(e.charge):''}${e.note?' · '+e.note:''}${b}`;
 }
@@ -504,7 +518,7 @@ function copyText(txt,fallbackEl){
 function showText(title,txt){$('sTitle').textContent=title;$('sText').textContent=txt;if($('dlgMenu').open)$('dlgMenu').close();$('dlgStmt').showModal()}
 
 // ================= statement image =================
-const IMG={brand:'#0f5f57',ink:'#14171a',muted:'#5d6670',line:'#d7dbe0',alt:'#eef0f2',box:'#f3f4f6',red:'#c62828',green:'#1b7a44',white:'#ffffff'};
+const IMG={blue:'#e4eefb',brand:'#0f5f57',ink:'#14171a',muted:'#5d6670',line:'#d7dbe0',alt:'#eef0f2',box:'#f3f4f6',red:'#c62828',green:'#1b7a44',white:'#ffffff'};
 const IF='"Hind Siliguri",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
 let fontsReady=null;
 function loadFonts(){if(!fontsReady)fontsReady=Promise.all(['400','600','700'].map(w=>document.fonts?document.fonts.load(`${w} 40px "Hind Siliguri"`,'৳0123').catch(()=>{}):null));return fontsReady}
@@ -515,7 +529,11 @@ async function dayCanvas(p,d){
   const W=1080,P=60,rowH=108,headH=250;
   const sums=[];if(d.open)sums.push(['Previous',d.open,'bal']);if(d.sent)sums.push(['Sent today',d.sent,'ink']);if(d.recv)sums.push(['Received today',d.recv,'green']);
   const boxH=60+sums.length*58+130;
-  const H=headH+50+52+d.items.length*rowH+50+boxH+120;
+  // received rows get extra lines for account details and narration
+  const subs=d.items.map(e=>e.type==='send'?[[e.method,e.base?money(e.base)+' + '+e.pct+'%':'',e.charge?'charge '+tk(e.charge):'',e.note||''].filter(Boolean).join('  ·  ')]
+    :[[e.holder,e.bank].filter(Boolean).join('  ·  '),e.account?'A/C '+e.account:'',e.note?'Narration: '+e.note:''].filter(Boolean));
+  const hs=subs.map(l=>rowH+Math.max(0,l.length-1)*38);
+  const H=headH+50+52+hs.reduce((a,b)=>a+b,0)+50+boxH+120;
   const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
   x.fillStyle=IMG.white;x.fillRect(0,0,W,H);
   // header band
@@ -532,16 +550,18 @@ async function dayCanvas(p,d){
   // rows
   let n=0;
   d.items.forEach((e,i)=>{
-    if(i%2){x.fillStyle=IMG.alt;x.fillRect(P-20,y,W-2*P+40,rowH)}
     const send=e.type==='send';
+    const h=hs[i];
+    if(!send){x.fillStyle=IMG.blue;x.fillRect(P-20,y,W-2*P+40,h)}else if(i%2){x.fillStyle=IMG.alt;x.fillRect(P-20,y,W-2*P+40,h)}
+    if(i){x.fillStyle=IMG.line;x.fillRect(P-20,y,W-2*P+40,1)}
     x.fillStyle=IMG.muted;x.font=`600 30px ${IF}`;x.fillText(send?String(++n).padStart(2,' ')+'.':'',P,y+50);
-    x.fillStyle=send?IMG.ink:IMG.green;x.font=`700 40px ${IF}`;x.fillText(send?(e.number||'Money sent'):'Bank payment',P+62,y+50);
-    const sub=[e.method,e.base?money(e.base)+' + '+e.pct+'%':'',e.charge?'charge '+tk(e.charge):'',e.note||''].filter(Boolean).join('  ·  ');
-    x.fillStyle=IMG.muted;x.font=`400 28px ${IF}`;x.fillText(fit(x,sub,W-2*P-62-330),P+62,y+88);
+    x.fillStyle=send?IMG.ink:IMG.green;x.font=`700 40px ${IF}`;x.fillText(send?(e.number||'Money sent'):(e.method==='Bank'?'Bank payment':e.method==='Cash'?'Cash received':'Received · '+e.method),P+62,y+50);
+    x.fillStyle=send?IMG.muted:IMG.ink;x.font=`400 28px ${IF}`;
+    subs[i].forEach((t,k)=>x.fillText(fit(x,t,W-2*P-62-(k?0:330)),P+62,y+88+k*38));
     const ab=d.after[e.id],abc=bal(ab).cls;
     x.textAlign='right';x.fillStyle=send?IMG.ink:IMG.green;x.font=`700 44px ${IF}`;x.fillText(tk(e.amount),W-P,y+52);
     x.font=`600 28px ${IF}`;x.fillStyle=abc==='red'?IMG.red:abc==='green'?IMG.green:IMG.muted;x.fillText('Bal '+sbal(ab),W-P,y+90);x.textAlign='left';
-    y+=rowH;
+    y+=hs[i];
   });
   x.fillStyle=IMG.line;x.fillRect(P,y,W-2*P,2);y+=50;
   // summary box
@@ -609,7 +629,7 @@ function render(){
       </div>
       <div class="actions">
         <button class="btn" type="button" data-new="send">Money sent</button>
-        <button class="btn soft" type="button" data-new="bank">Bank payment</button>
+        <button class="btn soft" type="button" data-new="bank">Payment received</button>
       </div>
       <div class="paste"><textarea data-paste="${esc(p)}" rows="1" placeholder="Paste WhatsApp message here" aria-label="Paste WhatsApp message for ${esc(p)}"></textarea><button class="btn sm" type="button" data-read="${esc(p)}">Read</button></div>
       <div class="meta-line"><span>${pc?'WhatsApp amounts get +'+pc+'%':'WhatsApp amounts are added exactly'}${t.charge?' · charges '+tk(t.charge):''}</span><button class="linkish" type="button" data-full="${esc(p)}">Full statement</button></div>
@@ -625,7 +645,7 @@ let shownDays=[];
 function renderDays(){
   if(!cur){$('list').innerHTML='';$('filterSum').textContent='';return}
   const ft=$('fType').value,q=normDigits($('fSearch').value).trim().toLowerCase(),from=$('fFrom').value,to=$('fTo').value;
-  const match=e=>(!ft||e.type===ft)&&(!q||[e.number,e.note,e.method,String(e.amount),String(e.base||'')].join(' ').toLowerCase().includes(q));
+  const match=e=>(!ft||e.type===ft)&&(!q||[e.number,e.note,e.method,e.holder,e.bank,e.account,String(e.amount),String(e.base||'')].join(' ').toLowerCase().includes(q));
   shownDays=dayGroups(cur).filter(d=>(!from||d.date>=from)&&(!to||d.date<=to)).map(d=>({...d,shown:d.items.filter(match)})).filter(d=>d.shown.length).reverse();
   let n=0;shownDays.forEach(d=>n+=d.shown.length);
   const filtered=ft||q||from||to;
@@ -633,8 +653,9 @@ function renderDays(){
   if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message above, or tap <b>Money sent</b>.`}</div>`;return}
   $('list').innerHTML='<div class="days">'+shownDays.slice(0,120).map((d,i)=>{const o=bal(d.open),c=bal(d.close);return `<section class="day${i%2?' alt':''}">
     <div class="dh"><div><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div><div class="dbtns"><button class="copy" type="button" data-copyday="${i}">⧉ Copy</button><button class="copy share" type="button" data-shareday="${i}">↗ Share</button></div></div>
-    ${d.shown.map(e=>`<button class="row" type="button" data-edit="${e.id}">
-      <div><div class="t">${e.type==='send'?esc(e.number||'Money sent')+`<span class="chip">${esc(e.method)}</span>`:'Bank payment'+`<span class="chip in">${esc(e.method)}</span>`}</div>
+    ${d.shown.map(e=>`<button class="row${e.type==='bank'?' recv':''}" type="button" data-edit="${e.id}">
+      <div><div class="t">${e.type==='send'?esc(e.number||'Money sent')+`<span class="chip">${esc(e.method)}</span>`:(e.method==='Bank'?'Bank payment':e.method==='Cash'?'Cash received':'Received')+`<span class="chip in">${esc(e.method)}</span>`}</div>
+        ${e.type==='bank'&&bankDetail(e).length?`<div class="det">${bankDetail(e).map(esc).join(' · ')}</div>`:''}
         ${(e.base||e.charge||e.note)?`<div class="s">${e.base?money(e.base)+' + '+e.pct+'%':''}${e.charge?(e.base?' · ':'')+'charge '+tk(e.charge):''}${e.note?((e.base||e.charge)?' · ':'')+esc(e.note):''}</div>`:''}</div>
       <div><div class="amt${e.type==='bank'?' green':''}">${tk(e.amount)}</div><div class="rb ${bal(d.after[e.id]).cls}"><small>Bal</small>${sbal(d.after[e.id])}</div></div></button>`).join('')}
     <div class="df">
@@ -672,8 +693,22 @@ function setType(t){
   document.querySelectorAll('#dlgEntry .seg button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
   document.querySelectorAll('#dlgEntry .send-only').forEach(el=>el.hidden=t!=='send');
   document.querySelectorAll('#dlgEntry .bank-only').forEach(el=>el.hidden=t!=='bank');
-  updTotal();
+  updBankDet();updTotal();
 }
+const BANKS=['Dutch-Bangla Bank (DBBL)','Islami Bank','Sonali Bank','Janata Bank','Agrani Bank','Rupali Bank','BRAC Bank','City Bank','Pubali Bank','Uttara Bank','Prime Bank','Eastern Bank (EBL)','Mutual Trust Bank (MTB)','Southeast Bank','Al-Arafah Islami Bank','EXIM Bank','First Security Islami Bank','Social Islami Bank','Shahjalal Islami Bank','Bank Asia','Dhaka Bank','IFIC Bank','Jamuna Bank','Mercantile Bank','NCC Bank','ONE Bank','Premier Bank','Trust Bank','UCB','AB Bank','Standard Chartered','Union Bank','Global Islami Bank'];
+function updBankDet(){
+  const on=curType==='bank'&&$('eMethodB').value==='Bank';
+  document.querySelector('#dlgEntry .bankdet').hidden=!on;
+  $('eNoteLbl').textContent=curType==='bank'?'Narration':'Note / TrxID';
+}
+function fillBankLists(){
+  const p=$('ePartner').value,h=new Set(),b=new Set(BANKS),a=new Set();
+  state.entries.forEach(e=>{if(e.type!=='bank')return;if(e.bank)b.add(e.bank);if(e.partner===p){if(e.holder)h.add(e.holder);if(e.account)a.add(e.account)}});
+  const opt=set=>[...set].map(v=>`<option value="${esc(v)}">`).join('');
+  $('holderList').innerHTML=opt(h);$('bankList').innerHTML=opt(b);$('acctList').innerHTML=opt(a);
+}
+function lastBank(p){return sorted(state.entries.filter(e=>e.partner===p&&e.type==='bank'&&e.method==='Bank')).pop()}
+function bankDetail(e){return [e.holder,e.bank,e.account?'A/C '+e.account:''].filter(Boolean)}
 $('eMethod').innerHTML=SEND_METHODS.map(x=>`<option>${x}</option>`).join('');
 function updTotal(){
   const b=parseFloat($('eAmount').value)||0,pc=rate($('ePartner').value);
@@ -687,9 +722,9 @@ function openEntry(id,type){
   $('eTitle').textContent=e?'Edit entry':'New entry';
   $('eDelete').hidden=!e;$('eSaveMore').hidden=!!e;
   setType(e?e.type:(type||'send'));
-  if(e){$('ePartner').value=e.partner;$('eDate').value=e.date;if(e.type==='send')$('eMethod').value=e.method;else $('eMethodB').value=e.method;$('eAmount').value=e.base||e.amount;$('ePctOn').checked=!!e.base;$('eNumber').value=e.number||'';$('eCharge').value=e.charge||'';$('eNote').value=e.note||''}
-  else{if(cur)$('ePartner').value=cur;$('eDate').value=today();$('ePctOn').checked=rate($('ePartner').value)>0;['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='')}
-  fillNumbers();updTotal();$('dlgEntry').showModal();setTimeout(()=>(curType==='send'&&!e?$('eNumber'):$('eAmount')).focus(),50);
+  if(e){$('ePartner').value=e.partner;$('eDate').value=e.date;if(e.type==='send')$('eMethod').value=e.method;else $('eMethodB').value=e.method;$('eAmount').value=e.base||e.amount;$('ePctOn').checked=!!e.base;$('eNumber').value=e.number||'';$('eCharge').value=e.charge||'';$('eNote').value=e.note||'';$('eHolder').value=e.holder||'';$('eBank').value=e.bank||'';$('eAcct').value=e.account||''}
+  else{if(cur)$('ePartner').value=cur;$('eDate').value=today();$('ePctOn').checked=rate($('ePartner').value)>0;['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='');$('eMethodB').value='Bank';const lb=lastBank($('ePartner').value);$('eHolder').value=lb&&lb.holder||'';$('eBank').value=lb&&lb.bank||'';$('eAcct').value=lb&&lb.account||''}
+  updBankDet();fillBankLists();fillNumbers();updTotal();$('dlgEntry').showModal();setTimeout(()=>(curType==='send'&&!e?$('eNumber'):$('eAmount')).focus(),50);
 }
 function saveEntry(more){
   const amount=parseFloat(normDigits($('eAmount').value));
@@ -702,6 +737,7 @@ function saveEntry(more){
   const e={id:editId||uid(),ts:old?old.ts:Date.now(),type:curType,partner:p,date:$('eDate').value||today(),
     method:curType==='send'?$('eMethod').value:$('eMethodB').value,amount:usePct?addPct(amount,pc):amount,...(usePct?{base:amount,pct:pc}:{}),
     number:num,charge:curType==='send'?(parseFloat($('eCharge').value)||0):0,note:$('eNote').value.trim().slice(0,200)};
+  if(curType==='bank'&&e.method==='Bank'){const h=$('eHolder').value.trim().slice(0,60),bk=$('eBank').value.trim().slice(0,60),ac=normDigits($('eAcct').value).trim().slice(0,30);if(h)e.holder=h;if(bk)e.bank=bk;if(ac)e.account=ac}
   if(old)state.entries[state.entries.indexOf(old)]=e;else state.entries.push(e);
   cur=p;save();render();toast('Saved');
   if(more){['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='');fillNumbers();updTotal();$('eNumber').focus()}
@@ -780,16 +816,16 @@ async function giveFile(filename,data,type){
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
 function exportXlsx(){
-  const rowsAll=sorted(state.entries).map(e=>({Date:e.date,Partner:e.partner,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Base Amount':e.base||'','Extra %':e.base?e.pct:'',Amount:e.amount,Charge:e.charge||0,Note:e.note}));
+  const rowsAll=sorted(state.entries).map(e=>({Date:e.date,Partner:e.partner,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Account Holder':e.holder||'',Bank:e.bank||'','Account No':e.account||'','Base Amount':e.base||'','Extra %':e.base?e.pct:'',Amount:e.amount,Charge:e.charge||0,Note:e.note}));
   if(!window.XLSX){
-    const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',cols=['Date','Partner','Type','Method','Number','Base Amount','Extra %','Amount','Charge','Note'];
+    const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',cols=['Date','Partner','Type','Method','Number','Account Holder','Bank','Account No','Base Amount','Extra %','Amount','Charge','Note'];
     return giveFile(`Hisab_${today()}.csv`,'﻿'+[cols.join(',')].concat(rowsAll.map(r=>cols.map(c=>q(r[c])).join(','))).join('\n'),'text/csv');
   }
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rowsAll.length?rowsAll:[{Date:''}]),'All entries');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(state.partners.map(p=>{const t=totals(p),b=bal(t.due);return{Profile:p,'Total Sent':t.sent,Charges:t.charge,'Total Received':t.bank,Status:b.word,Balance:Math.round(-t.due*100)/100}})),'Summary');
   for(const p of state.partners){
-    let run=0;const r=sorted(state.entries.filter(e=>e.partner===p)).map(e=>{run+=effect(e);const b=bal(run);return{Date:e.date,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Base Amount':e.base||'','Extra %':e.base?e.pct:'',Sent:e.type==='send'?e.amount:'',Received:e.type==='bank'?e.amount:'',Charge:e.charge||'',Status:b.word,Balance:Math.round(-run*100)/100,Note:e.note}});
+    let run=0;const r=sorted(state.entries.filter(e=>e.partner===p)).map(e=>{run+=effect(e);const b=bal(run);return{Date:e.date,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Account Holder':e.holder||'',Bank:e.bank||'','Account No':e.account||'','Base Amount':e.base||'','Extra %':e.base?e.pct:'',Sent:e.type==='send'?e.amount:'',Received:e.type==='bank'?e.amount:'',Charge:e.charge||'',Status:b.word,Balance:Math.round(-run*100)/100,Note:e.note}});
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r.length?r:[{Date:''}]),p.replace(/[\\\/?*\[\]:]/g,' ').slice(0,31));
   }
   giveFile(`Hisab_${today()}.xlsx`,new Uint8Array(XLSX.write(wb,{type:'array',bookType:'xlsx'})),'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -815,7 +851,7 @@ async function importRows(rows){
     const tp=String(g(r,'type')).toLowerCase(),type=/rec|bank|paid|pay|in/.test(tp)?'bank':'send';
     const method=String(g(r,'method','via')).trim().slice(0,20)||(type==='send'?'bKash':'Bank');
     const base=parseFloat(String(g(r,'base amount','base')).replace(/[,৳\s]/g,''))||0,pc=parseFloat(g(r,'extra %','pct','%'))||0;
-    add.push({id:uid()+add.length,ts:ts++,type,partner,date:d,method,amount,...(base>0&&type==='send'?{base,pct:pc}:{}),number:type==='send'?normNum(g(r,'number','mobile','phone')):'',charge:parseFloat(g(r,'charge'))||0,note:String(g(r,'note','trxid','ref')).trim().slice(0,200)});
+    add.push({id:uid()+add.length,ts:ts++,type,partner,date:d,method,amount,...(base>0&&type==='send'?{base,pct:pc}:{}),number:type==='send'?normNum(g(r,'number','mobile','phone')):'',charge:parseFloat(g(r,'charge'))||0,note:String(g(r,'note','narration','trxid','ref')).trim().slice(0,200),...(type==='bank'?Object.fromEntries([['holder',String(g(r,'account holder','holder')).trim().slice(0,60)],['bank',String(g(r,'bank','bank name')).trim().slice(0,60)],['account',String(g(r,'account no','account','a/c')).trim().slice(0,30)]].filter(([,v])=>v)):{})});
   }
   if(!add.length)return toast('No rows with an Amount were found');
   if(!await ask(`Import ${add.length} entries? They are added to your existing entries.`,{ok:'Import'}))return;
@@ -877,7 +913,8 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('change',e=>{const ds=e.target.dataset;if(ds.ren!==undefined)renamePartner(+ds.ren,e.target.value);
   if(ds.pct!==undefined){const v=parseFloat(e.target.value);state.settings.pct={...(state.settings.pct||{}),[ds.pct]:v>=0?v:0};save();render();toast('Saved +'+(v>=0?v:0)+'% for '+ds.pct)}});
-$('ePartner').addEventListener('change',()=>{fillNumbers();$('ePctOn').checked=rate($('ePartner').value)>0;updTotal()});
+$('eMethodB').addEventListener('change',updBankDet);
+$('ePartner').addEventListener('change',()=>{fillNumbers();fillBankLists();$('ePctOn').checked=rate($('ePartner').value)>0;updTotal()});
 $('eSave').onclick=()=>saveEntry(false);$('eSaveMore').onclick=()=>saveEntry(true);$('eDelete').onclick=deleteEntry;
 $('eAmount').addEventListener('input',updTotal);$('ePctOn').onchange=updTotal;
 $('pText').addEventListener('input',readPaste);$('pPartner').onchange=()=>{$('pPct').value=rate($('pPartner').value);readPaste()};
