@@ -13,31 +13,20 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* Layout: sticky header · profile switch · profile summary with actions and WhatsApp paste · day-by-day statement in alternating white / carbon-gray bands */
+/* Theme: dark charcoal with an ember accent (one deliberate dark look; no light variant) */
 :root{
-  --bg:#f2f3f5;--surface:#ffffff;--ink:#14171a;--muted:#5d6670;--line:#e2e5e9;
-  --brand:#0f5f57;--on-brand:#ffffff;--brand-soft:#e2f0ee;
-  --red:#c62828;--red-soft:#fdeceb;--green:#1b7a44;--green-soft:#e5f3ea;
-  --day-a:#ffffff;--day-b:#e9ebee;--day-line:#d7dbe0;
-  --recv-soft:#cdebd7;--recv-ink:#14663a;
-  --chip:#eef0f3;--shadow:0 1px 2px rgba(20,23,26,.06),0 2px 8px rgba(20,23,26,.04);
-  --toast:#14171a;--on-toast:#ffffff;--scrim:rgba(10,12,14,.5);
+  --bg:#121214;--surface:#1c1c1f;--raised:#242428;--ink:#f1f1f3;--muted:#9b9ba4;--line:#2e2e33;
+  --brand:#ff6a2b;--brand-2:#e8401c;--on-brand:#ffffff;--brand-soft:#3a1e14;
+  --brand-grad:linear-gradient(135deg,#ff7a3d 0%,#e8401c 100%);
+  --red:#ff5d6e;--red-soft:#3a1519;--green:#46d483;--green-soft:#12301f;
+  --day-a:#1c1c1f;--day-b:#242428;--day-line:#303036;
+  --recv-soft:#15301f;--recv-ink:#6fe3a0;
+  --chip:#2a2a2f;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 8px 24px rgba(0,0,0,.25);
+  --toast:#f1f1f3;--on-toast:#121214;--scrim:rgba(0,0,0,.6);
+  --series-ember:#e8571f;--series-green:#2aa863;--series-gray:#5a5a63;
   --font:"Hind Siliguri",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0e1012;--surface:#171a1e;--ink:#eceef1;--muted:#9aa2ac;--line:#2a2f35;
-  --brand:#45c3b1;--on-brand:#062320;--brand-soft:#15302c;
-  --red:#ff6b6b;--red-soft:#3a1717;--green:#5fd38a;--green-soft:#12301e;
-  --day-a:#171a1e;--day-b:#212529;--day-line:#30353c;
-  --recv-soft:#1d3d2a;--recv-ink:#7fdca2;
-  --chip:#252a30;--shadow:none;--toast:#eceef1;--on-toast:#0e1012;--scrim:rgba(0,0,0,.6);color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0e1012;--surface:#171a1e;--ink:#eceef1;--muted:#9aa2ac;--line:#2a2f35;
-  --brand:#45c3b1;--on-brand:#062320;--brand-soft:#15302c;
-  --red:#ff6b6b;--red-soft:#3a1717;--green:#5fd38a;--green-soft:#12301e;
-  --day-a:#171a1e;--day-b:#212529;--day-line:#30353c;
-  --recv-soft:#1d3d2a;--recv-ink:#7fdca2;
-  --chip:#252a30;--shadow:none;--toast:#eceef1;--on-toast:#0e1012;--scrim:rgba(0,0,0,.6);color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);-webkit-tap-highlight-color:transparent}
 main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
@@ -54,7 +43,7 @@ button{font:inherit;color:inherit}
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:10px}
 .brand{display:flex;align-items:center;gap:10px}
-.logo{width:34px;height:34px;border-radius:10px;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-weight:700;font-size:15px;letter-spacing:.02em}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--brand-grad);color:var(--on-brand);display:grid;place-items:center;font-weight:700;font-size:15px;letter-spacing:.02em}
 .brand h1{font-size:18px;margin:0;line-height:1.1}
 .brand small{display:block;font-size:12px;color:var(--muted)}
 .icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 12px;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;gap:6px}
@@ -72,7 +61,8 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var
 .stat span{display:block;font-size:12px;color:var(--muted)}
 .stat b{font-size:18px;font-variant-numeric:tabular-nums}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer;background:var(--brand);color:var(--on-brand);font-size:15px}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer;background:var(--brand-grad);color:var(--on-brand);font-size:15px;box-shadow:0 6px 16px rgba(232,64,28,.25)}
+.btn.ghost,.btn.soft{box-shadow:none}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
 .btn.soft{background:var(--chip);color:var(--ink)}
 .btn.danger{background:var(--red);color:#fff}
@@ -110,7 +100,7 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .dh small{display:block;font-size:12px;color:var(--muted);font-weight:400}
 .copy{border:1px solid var(--day-line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;flex:none}
 .dbtns{display:flex;gap:6px;flex:none}
-.copy.share{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.copy.share{background:var(--brand-grad);color:#fff;border-color:transparent}
 .imgwrap{background:var(--bg);border-radius:12px;padding:8px;margin-bottom:12px;max-height:60vh;overflow:auto}
 .imgwrap img{display:block;width:100%;border-radius:6px}
 .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:9px 14px;border:0;background:transparent;width:100%;text-align:left;cursor:pointer}
@@ -151,7 +141,7 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .composer .wrap{display:flex;align-items:flex-end;gap:8px}
 .cbtn{flex:none;width:46px;height:46px;border-radius:50%;border:0;display:grid;place-items:center;font-size:22px;line-height:1;cursor:pointer;padding:0}
 .cbtn.plus{background:var(--chip);color:var(--ink);font-size:26px}
-.cbtn.send{background:var(--brand);color:var(--on-brand)}
+.cbtn.send{background:var(--brand-grad);color:#fff}
 .cbox{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:23px;padding:4px 14px;display:flex;align-items:center}
 .cbox:focus-within{border-color:var(--brand)}
 .cbox textarea{width:100%;border:0;background:transparent;resize:none;font:inherit;font-size:16px;color:var(--ink);padding:8px 0;height:38px;max-height:120px;line-height:1.35}
@@ -199,9 +189,10 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 .side .navlbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 10px 4px}
 .nav{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;border-radius:10px;padding:9px 10px;cursor:pointer;text-align:left;font-size:15px;font-weight:600;color:var(--ink)}
 .nav:hover{background:var(--chip)}
-.nav.on{background:var(--brand-soft);color:var(--brand)}
+.nav.on{background:var(--brand-grad);color:#fff;box-shadow:0 6px 16px rgba(232,64,28,.25)}
+.nav.on small{color:rgba(255,255,255,.85)!important}
 .nav .ni{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--chip);font-size:15px;flex:none}
-.nav.on .ni{background:var(--brand);color:var(--on-brand)}
+.nav.on .ni{background:rgba(255,255,255,.18);color:#fff}
 .nav small{display:block;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted)}
 .nav small.red{color:var(--red)}.nav small.green{color:var(--green)}
 .sidefoot{margin-top:auto;padding:10px;font-size:12px;color:var(--muted)}
@@ -330,6 +321,51 @@ header{flex:none;position:relative;top:auto}
 }
 @media (min-width:1600px){#v-partner{grid-template-columns:minmax(0,1fr) 380px}}
 
+/* dashboard (dark, ember) */
+.dhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-top:6px}
+.kpi.hot{background:var(--brand-grad);border-radius:16px;color:#fff;box-shadow:0 10px 28px rgba(232,64,28,.3)}
+.kpi.hot span,.kpi.hot small{color:rgba(255,255,255,.85)}.kpi.hot b{color:#fff;font-size:28px;white-space:nowrap}
+.kpi b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:699px){.kpi.hot b,.kpi b{font-size:20px}.kfoot .spark{width:64px}.ch-stats{gap:14px}.ch-stats b{font-size:19px}}
+.kfoot{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-top:4px}
+.kfoot .spark{width:90px;height:30px;color:var(--muted)}.kfoot .green .spark{color:var(--series-green)}
+.dgrid2{display:grid;gap:12px;margin-top:12px;align-items:start}
+@media (min-width:1100px){.dgrid2{grid-template-columns:minmax(0,1fr) 340px}}
+.side2{display:grid;gap:12px;align-content:start}
+.chartcard{padding:16px;min-width:0}
+.ch-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.ch-t{font-weight:700;font-size:16px}
+.ch-stats{display:flex;gap:24px;flex-wrap:wrap;margin:14px 0 10px}
+.ch-stats span{display:block;font-size:12px;color:var(--muted)}.ch-stats b{font-size:24px;font-variant-numeric:tabular-nums}.ch-stats small{font-size:12px;color:var(--muted);font-weight:400}
+.seg2{display:flex;background:var(--raised);border-radius:10px;padding:3px}
+.seg2 button{border:0;background:transparent;color:var(--muted);padding:5px 10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.seg2 button.on{background:var(--ink);color:var(--bg)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.chipbtn{border:1px solid var(--line);background:var(--raised);color:var(--ink);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.chipbtn.on{background:var(--brand-grad);border-color:transparent;color:#fff}
+.chartbox{width:100%;overflow:hidden}
+.chartbox svg{display:block;max-width:100%;height:auto}
+.chartbox .grid{stroke:var(--line);stroke-width:1}
+.chartbox .ax{fill:var(--muted);font:11px var(--font)}.chartbox .ax.now{fill:var(--ink);font-weight:700}
+.chartbox .avg{stroke:var(--series-ember);stroke-width:1.5;stroke-dasharray:5 5;opacity:.8}
+.chartbox .pill{fill:#fff;font:600 11px var(--font)}
+.chartbox .zero{stroke:var(--line);stroke-dasharray:3 4}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.legend i.dash{width:16px;height:0;border-radius:0;border-top:2px dashed var(--series-ember);vertical-align:3px}
+.wallet .wbig{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;margin:2px 0 8px}
+.wrow{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
+.wrow span{display:block;font-size:12px;color:var(--muted)}.wrow b{font-variant-numeric:tabular-nums}
+.btn.wide{width:100%;margin-top:12px}
+.gaugecard{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.gk{display:flex;gap:8px;font-size:14px;margin-top:6px}.gk span{color:var(--muted);min-width:64px}.gk b{font-variant-numeric:tabular-nums}
+.gnum{fill:var(--ink);font:700 26px var(--font)}
+.tip{position:fixed;z-index:60;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;pointer-events:none;box-shadow:0 10px 24px rgba(0,0,0,.4);font-variant-numeric:tabular-nums;max-width:240px}
+.tip b.green{color:var(--green)}.tip b.red{color:var(--red)}
+.card{background:var(--surface);border-color:var(--line)}
+.hero{background:var(--surface)}
+.kpi b.green{color:var(--green)}
+
 /* lock screen */
 .lock{position:fixed;inset:0;z-index:40;background:var(--bg);display:grid;place-items:center;padding:24px}
 .lock .box{width:min(340px,100%);text-align:center}
@@ -400,6 +436,7 @@ body.locked main,body.locked header,body.locked .side{visibility:hidden}
 </div>
 
 
+<div class="tip" id="tip" hidden></div>
 <div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" type="button" hidden>Undo</button></div>
 
 <div class="lock" id="lock" hidden>
@@ -863,31 +900,115 @@ function rowHtml(e,after,tag){
 }
 // ================= dashboard =================
 function monthKey(d){return d.slice(0,7)}
+let dashP='all',dashRange=14;
+const isoDay=off=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4-off*864e5).toISOString().slice(0,10);
+const shortDay=d=>{const[y,m,dd]=d.split('-');return new Date(y,m-1,dd).toLocaleDateString('en-GB',{weekday:'short',day:'numeric'})};
+const kfmt=v=>{const a=Math.abs(v);return a>=1e5?(v/1e5).toFixed(a>=1e6?0:1)+'L':a>=1e3?(v/1e3).toFixed(a>=1e4?0:1)+'k':String(Math.round(v))};
+function niceMax(v){if(v<=0)return 1000;const p=Math.pow(10,Math.floor(Math.log10(v))),n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
+// per-day series for the chosen partner(s)
+function daySeries(n,who){
+  const days=[...Array(n)].map((_,i)=>isoDay(n-1-i)),idx=Object.fromEntries(days.map((d,i)=>[d,i]));
+  const sent=Array(n).fill(0),recv=Array(n).fill(0),cnt=Array(n).fill(0);
+  for(const e of state.entries){if(who!=='all'&&e.partner!==who)continue;const i=idx[e.date];if(i===undefined)continue;cnt[i]++;e.type==='send'?sent[i]+=effect(e):recv[i]+=+e.amount}
+  // balance at the end of each day (internal: + = they owe), shown as − due / + advance
+  const parts=who==='all'?state.partners:[who],bal0=Array(n).fill(0);
+  for(const p of parts){let run=0,k=0;const list=sorted(state.entries.filter(x=>x.partner===p));
+    for(let i=0;i<n;i++){while(k<list.length&&list[k].date<=days[i]){run+=effect(list[k]);k++}bal0[i]+=run}}
+  return{days,sent,recv,cnt,bal:bal0};
+}
+function spark(vals,w=120,h=34){const mx=Math.max(...vals,1),st=w/(vals.length-1||1);
+  const pts=vals.map((v,i)=>`${(i*st).toFixed(1)},${(h-3-(v/mx)*(h-8)).toFixed(1)}`);const l=pts[pts.length-1].split(',');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.join(' ')}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/><circle cx="${l[0]}" cy="${l[1]}" r="2.6" fill="currentColor"/></svg>`}
+function lollipop(S,W){
+  const H=250,ml=46,mr=12,mt=16,mb=30,iw=W-ml-mr,ih=H-mt-mb,n=S.days.length;
+  const sentDays=S.sent.filter(v=>v>0),avg=sentDays.length?sentDays.reduce((a,b)=>a+b,0)/sentDays.length:0;
+  const mx=niceMax(Math.max(...S.sent,avg)),y=v=>mt+ih-(v/mx)*ih,step=iw/n,cx=i=>ml+step*(i+.5);
+  let g='';for(let k=0;k<=4;k++){const v=mx*k/4,yy=y(v);g+=`<line x1="${ml}" x2="${W-mr}" y1="${yy}" y2="${yy}" class="grid"/><text x="${ml-8}" y="${yy+4}" class="ax" text-anchor="end">${k?'৳'+kfmt(v):'0'}</text>`}
+  let m='';const every=Math.max(1,Math.ceil(n*52/iw));
+  S.days.forEach((d,i)=>{const v=S.sent[i],x0=cx(i),hi=v>0&&v>=avg,col=v>0?(hi?'var(--series-ember)':'var(--series-gray)'):'var(--line)';
+    if(v>0)m+=`<line x1="${x0}" x2="${x0}" y1="${y(0)}" y2="${y(v)+6}" stroke="${col}" stroke-width="${n>20?2:3}" stroke-linecap="round"/><circle cx="${x0}" cy="${y(v)}" r="${n>20?5:6.5}" fill="${col}" stroke="var(--surface)" stroke-width="2"/>`;
+    else m+=`<circle cx="${x0}" cy="${y(0)}" r="3" fill="var(--line)"/>`;
+    if((i%every===0&&n-1-i>=every*.7)||i===n-1)m+=`<text x="${x0}" y="${H-8}" class="ax${d===today()?' now':''}" text-anchor="middle">${shortDay(d)}</text>`;
+    m+=`<rect x="${x0-step/2}" y="${mt}" width="${step}" height="${ih}" fill="transparent" data-tip="${i}"/>`});
+  const ay=y(avg),avgL=avg?`<line x1="${ml}" x2="${W-mr}" y1="${ay}" y2="${ay}" class="avg"/><g transform="translate(${ml-44},${ay-11})"><rect width="40" height="22" rx="6" fill="var(--series-ember)"/><text x="20" y="15" text-anchor="middle" class="pill">avg</text></g>`:'';
+  return{svg:`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Money sent per day">${g}${avgL}${m}</svg>`,avg};
+}
+function areaChart(S,W){
+  const H=150,ml=8,mr=8,mt=12,mb=8,iw=W-ml-mr,ih=H-mt-mb,n=S.days.length,vals=S.bal.map(v=>-v);// + advance, − due
+  let lo=Math.min(0,...vals),hi=Math.max(0,...vals);if(lo===hi){hi+=1}const pad=(hi-lo)*.12;lo-=pad;hi+=pad;
+  const x=i=>ml+iw*i/(n-1||1),y=v=>mt+ih-(v-lo)/(hi-lo)*ih;
+  const pts=vals.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Balance over time"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8571f" stop-opacity=".45"/><stop offset="1" stop-color="#e8571f" stop-opacity="0"/></linearGradient></defs>
+    <line x1="${ml}" x2="${W-mr}" y1="${y(0)}" y2="${y(0)}" class="zero"/>
+    <polygon points="${x(0)},${y(lo)} ${pts} ${x(n-1)},${y(lo)}" fill="url(#ag)"/>
+    <polyline points="${pts}" fill="none" stroke="var(--series-ember)" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="${x(n-1)}" cy="${y(vals[n-1])}" r="4.5" fill="var(--series-ember)" stroke="var(--surface)" stroke-width="2"/>
+    ${S.days.map((d,i)=>`<rect x="${x(i)-iw/(2*(n-1||1))}" y="0" width="${iw/(n-1||1)}" height="${H}" fill="transparent" data-btip="${i}"/>`).join('')}</svg>`;
+}
+function gauge(pct){const r=52,c=2*Math.PI*r,v=Math.max(0,Math.min(100,pct));
+  return `<svg viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="${Math.round(pct)} percent recovered"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a3d"/><stop offset="1" stop-color="#e8401c"/></linearGradient></defs>
+  <circle cx="70" cy="70" r="${r}" fill="none" stroke="var(--line)" stroke-width="12" stroke-dasharray="2 4"/>
+  <circle cx="70" cy="70" r="${r}" fill="none" stroke="url(#gg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c*v/100} ${c}" transform="rotate(-90 70 70)"/>
+  <text x="70" y="76" text-anchor="middle" class="gnum">${Math.round(pct)}%</text></svg>`}
+let dashS=null,dashBS=null;
 function renderDash(){
-  const t0=today(),mk=monthKey(t0);
+  const t0=today(),mk=monthKey(t0),who=dashP;
+  if(who!=='all'&&!state.partners.includes(who))dashP='all';
   let all=0,mS=0,mR=0,dS=0,dN=0;
   const per=state.partners.map(p=>{const t=totals(p);all+=t.due;let ms=0,mr=0;
     for(const e of state.entries)if(e.partner===p){if(monthKey(e.date)===mk){e.type==='send'?ms+=effect(e):mr+=+e.amount}if(e.date===t0){dN++;if(e.type==='send')dS+=effect(e)}}
     mS+=ms;mR+=mr;return{p,t,ms,mr}});
-  const ab=bal(all);
-  // last 7 days
-  const days=[...Array(7)].map((_,i)=>{const d=new Date(Date.now()-new Date().getTimezoneOffset()*6e4-i*864e5).toISOString().slice(0,10);return d});
-  const agg={};for(const e of state.entries){if(!days.includes(e.date))continue;const k=e.date+'|'+e.partner,r=agg[k]=agg[k]||{s:0,r:0};e.type==='send'?r.s+=effect(e):r.r+=+e.amount}
-  // monthly: end-of-month balance per partner
+  const ab=bal(all),S14=daySeries(14,'all');
+  const sel=who==='all'?{ms:mS,mr:mR}:per.find(x=>x.p===who);
+  const rec=sel&&sel.ms?sel.mr/sel.ms*100:0;
+  dashS=daySeries(dashRange,who);dashBS=daySeries(30,who);
+  const rS=dashS.sent.reduce((a,b)=>a+b,0),best=Math.max(...dashS.sent),bestI=dashS.sent.indexOf(best),activeDays=dashS.sent.filter(v=>v>0).length;
+  const selBal=who==='all'?all:totals(who).due,sb=bal(selBal);
+  // tables data
+  const days7=[...Array(7)].map((_,i)=>isoDay(i));
+  const agg={};for(const e of state.entries){if(!days7.includes(e.date))continue;const k=e.date+'|'+e.partner,r=agg[k]=agg[k]||{s:0,r:0};e.type==='send'?r.s+=effect(e):r.r+=+e.amount}
   const months=[...new Set(state.entries.map(e=>monthKey(e.date)))].sort().reverse().slice(0,6);
   const mrow=[];for(const p of state.partners){let run=0;const byM={};for(const e of sorted(state.entries.filter(x=>x.partner===p))){run+=effect(e);const k=monthKey(e.date),r=byM[k]=byM[k]||{s:0,r:0,end:0};e.type==='send'?r.s+=effect(e):r.r+=+e.amount;r.end=run}
     months.forEach(m=>{if(byM[m])mrow.push({m,p,...byM[m]})})}
   mrow.sort((a,b)=>a.m<b.m?1:a.m>b.m?-1:state.partners.indexOf(a.p)-state.partners.indexOf(b.p));
-  // recent entries with balance after each
   const afterAll={};for(const p of state.partners){let run=0;for(const e of sorted(state.entries.filter(x=>x.partner===p))){run+=effect(e);afterAll[e.id]=run}}
   const recent=[...state.entries].sort((a,b)=>a.date===b.date?a.ts-b.ts:a.date<b.date?-1:1).slice(-10).reverse();
   const mName=m=>{const[y,mo]=m.split('-');return new Date(y,mo-1).toLocaleString('en',{month:'short',year:'numeric'})};
-  $('v-dash').innerHTML=`<h2 class="pg">Dashboard</h2><div class="hint">All partners · ${dayName(t0)}</div>
+  const chips=['all',...state.partners].map(p=>`<button class="chipbtn${p===who?' on':''}" type="button" data-dp="${esc(p)}">${p==='all'?'All':esc(p)}</button>`).join('');
+  $('v-dash').innerHTML=`
+  <div class="dhead"><div><h2 class="pg">Overview</h2><div class="hint">${dayName(t0)} · ${state.entries.length} entries in total</div></div>
+    <div class="btns"><button class="btn ghost sm" type="button" data-go2="excel">⇩ Excel</button><button class="btn sm" type="button" data-go2="add">＋ New entry</button></div></div>
   <div class="kpis">
-    <div class="card kpi"><span>Total balance</span><b class="${ab.cls}">${sbal(all)}</b><small>${ab.word==='Due'?'All partners owe you':ab.word==='Advance'?'Extra received in total':'All settled'}</small></div>
-    <div class="card kpi"><span>Sent this month</span><b>${tk(mS)}</b><small>${new Date().toLocaleString('en',{month:'long'})}</small></div>
-    <div class="card kpi"><span>Received this month</span><b class="green">${tk(mR)}</b><small>Bank, cash and others</small></div>
-    <div class="card kpi"><span>Today</span><b>${tk(dS)}</b><small>${dN} entr${dN===1?'y':'ies'} today</small></div>
+    <div class="kpi hot"><span>Total balance · all partners</span><b>${sbal(all)}</b>
+      <small>${ab.word==='Due'?'Partners owe you':ab.word==='Advance'?'Extra received in total':'All settled'}</small></div>
+    <div class="card kpi"><span>Sent this month</span><b>${tk(mS)}</b><div class="kfoot"><small>${new Date().toLocaleString('en',{month:'long'})}</small>${spark(S14.sent)}</div></div>
+    <div class="card kpi"><span>Received this month</span><b class="green">${tk(mR)}</b><div class="kfoot"><small>Bank &amp; cash</small><span class="green">${spark(S14.recv)}</span></div></div>
+    <div class="card kpi"><span>Today</span><b>${tk(dS)}</b><div class="kfoot"><small>${dN} entr${dN===1?'y':'ies'}</small>${spark(S14.cnt)}</div></div>
+  </div>
+  <div class="dgrid2">
+    <div class="card chartcard">
+      <div class="ch-head"><div><div class="ch-t">Money sent per day</div><div class="hint">Ember days beat the average · grey days were below it</div></div>
+        <div class="seg2">${[14,30].map(r=>`<button type="button" class="${r===dashRange?'on':''}" data-dr="${r}">${r} days</button>`).join('')}</div></div>
+      <div class="ch-stats"><div><span>Sent</span><b>${tk(rS)}</b></div><div><span>Active days</span><b>${activeDays}<small> of ${dashRange}</small></b></div><div><span>Best day</span><b>${best?tk(best):'–'}</b><small>${best?' · '+shortDay(dashS.days[bestI]):''}</small></div></div>
+      <div class="chips">${chips}</div>
+      <div class="chartbox" id="lolli"></div>
+      <div class="legend"><span><i style="background:var(--series-ember)"></i>Above average</span><span><i style="background:var(--series-gray)"></i>Below average</span><span><i class="dash"></i>Average per active day</span></div>
+    </div>
+    <div class="side2">
+      <div class="card chartcard wallet">
+        <div class="ch-t">${who==='all'?'Balance · all partners':'Balance · '+esc(who)}</div>
+        <div class="hint">${sb.word==='Due'?'Owed to you':sb.word==='Advance'?'Advance received':'Settled'}</div>
+        <div class="wbig ${sb.cls}">${sbal(selBal)}</div>
+        <div class="chartbox" id="area"></div>
+        <div class="wrow">${per.map(({p,t})=>{const b=bal(t.due);return `<div><span>${esc(p)}</span><b class="${b.cls}">${sbal(t.due)}</b></div>`}).join('')}</div>
+        ${who!=='all'?`<button class="btn wide" type="button" data-prof="${esc(who)}">Open ${esc(who)}</button>`:`<div class="hint" style="margin-top:8px">Last 30 days · tap the chart for a day</div>`}
+      </div>
+      <div class="card chartcard gaugecard">
+        <div><div class="ch-t">Recovered this month</div><div class="hint">${who==='all'?'All partners':esc(who)}: received ÷ sent</div>
+          <div class="gk"><span>Sent</span><b>${tk(sel?sel.ms:0)}</b></div><div class="gk"><span>Received</span><b class="green">${tk(sel?sel.mr:0)}</b></div></div>
+        ${gauge(rec)}
+      </div>
+    </div>
   </div>
   <div class="sec">Partners</div>
   <div class="pcards">${per.map(({p,t,ms,mr})=>{const b=bal(t.due);return `<button class="card pc" type="button" data-prof="${esc(p)}">
@@ -901,7 +1022,7 @@ function renderDash(){
     <div class="kv"><span>Last entry</span><b>${t.last?fmtDate(t.last):'–'}</b></div></button>`}).join('')}</div>
   <div class="dgrid"><div><div class="sec">Last 7 days</div>
   <div class="card tbl"><table><tr><th>Day</th>${state.partners.map(p=>`<th>${esc(p)} sent</th><th>${esc(p)} received</th>`).join('')}</tr>
-    ${days.map(d=>`<tr><td>${new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</td>${state.partners.map(p=>{const r=agg[d+'|'+p];return `<td>${r&&r.s?tk(r.s):'–'}</td><td class="green">${r&&r.r?tk(r.r):'–'}</td>`}).join('')}</tr>`).join('')}</table></div>
+    ${days7.map(d=>`<tr><td>${shortDay(d)}</td>${state.partners.map(p=>{const r=agg[d+'|'+p];return `<td>${r&&r.s?tk(r.s):'–'}</td><td class="green">${r&&r.r?tk(r.r):'–'}</td>`}).join('')}</tr>`).join('')}</table></div>
   </div><div><div class="sec">Monthly summary</div>
   <div class="card tbl">${mrow.length?`<table><tr><th>Month</th><th>Partner</th><th>Sent</th><th>Received</th><th>Month-end balance</th></tr>
     ${mrow.map(r=>`<tr><td>${mName(r.m)}</td><td>${esc(r.p)}</td><td>${tk(r.s)}</td><td class="green">${r.r?tk(r.r):'–'}</td><td class="${bal(r.end).cls}"><b>${sbal(r.end)}</b></td></tr>`).join('')}</table>`:'<p class="hint" style="padding:16px;margin:0">No entries yet.</p>'}</div>
@@ -909,7 +1030,28 @@ function renderDash(){
   <div class="sec">Latest entries</div>
   <div class="recent">${recent.length?'<div class="colh"><span>Number</span><span>Partner</span><span>Amount</span><span>Balance</span></div>'+recent.map(e=>rowHtml(e,afterAll[e.id],e.partner)).join(''):'<p class="hint" style="padding:16px;margin:0">No entries yet. Open a partner from the sidebar to add one.</p>'}</div>
   <div style="height:24px"></div>`;
+  drawDashCharts();
 }
+function drawDashCharts(){
+  const lb=$('lolli'),ar=$('area');if(!lb||!dashS)return;
+  lb.innerHTML=lollipop(dashS,Math.max(280,lb.clientWidth)).svg;
+  ar.innerHTML=areaChart(dashBS,Math.max(220,ar.clientWidth));
+}
+// chart tooltips
+function showTip(ev,html){const t=$('tip');t.innerHTML=html;t.hidden=false;const r=t.getBoundingClientRect();
+  let x=ev.clientX+14,y=ev.clientY-r.height-12;if(x+r.width>innerWidth-8)x=ev.clientX-r.width-14;if(y<8)y=ev.clientY+16;t.style.left=x+'px';t.style.top=y+'px'}
+function hideTip(){$('tip').hidden=true}
+document.addEventListener('pointermove',ev=>{
+  const a=ev.target.closest&&ev.target.closest('[data-tip],[data-btip]');if(!a){hideTip();return}
+  if(a.dataset.tip!==undefined){const i=+a.dataset.tip,S=dashS;showTip(ev,`<b>${dayName(S.days[i])}</b><div>Sent <b>${tk(S.sent[i])}</b></div>${S.recv[i]?`<div>Received <b class="green">${tk(S.recv[i])}</b></div>`:''}<div class="hint">${S.cnt[i]} entr${S.cnt[i]===1?'y':'ies'}</div>`)}
+  else{const i=+a.dataset.btip,S=dashBS,v=S.bal[i],b=bal(v);showTip(ev,`<b>${dayName(S.days[i])}</b><div>Balance <b class="${b.cls}">${sbal(v)}</b></div>`)}
+});
+document.addEventListener('pointerdown',ev=>{if(!(ev.target.closest&&ev.target.closest('[data-tip],[data-btip]')))hideTip()});
+let rsz;addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(()=>{if(view==='dash')drawDashCharts()},120)});
+document.addEventListener('click',e=>{const t=e.target.closest('[data-dp],[data-dr],[data-go2]');if(!t)return;
+  if(t.dataset.dp!==undefined){dashP=t.dataset.dp;renderDash()}else if(t.dataset.dr!==undefined){dashRange=+t.dataset.dr;renderDash()}
+  else if(t.dataset.go2==='add')openEntry(null,'send');else if(t.dataset.go2==='excel')exportXlsx()});
+
 function setSel(on){selMode=on;sel.clear();$('selBar').hidden=!on;$('cMain').hidden=on;$('cfor').hidden=on;$('selBtn').textContent=on?'Done':'Select';drawSel();renderDays()}
 function drawSel(){$('selCount').textContent=sel.size+' selected';$('selDel').disabled=!sel.size}
 function toLatest(){if(view!=='partner')return;requestAnimationFrame(()=>{const b=$('v-days');b.scrollTop=b.scrollHeight})}
