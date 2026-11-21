@@ -20,6 +20,7 @@
   --send:#b4470e;--send-soft:#fbe6d8;--bank:#17803d;--bank-soft:#d9f3e1;
   --danger:#b3261e;--on-danger:#ffffff;--shadow:0 1px 2px rgba(19,33,31,.08);
   --head:#0e6b62;--on-head:#ffffff;--toast:#13211f;--on-toast:#ffffff;
+  --day-a:#ffffff;--day-b:#e4e6e8;--day-line:#d3d6da;--day-head:#2b2f33;
   --font:"Hind Siliguri",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -27,13 +28,15 @@
   --brand:#3cc7b4;--on-brand:#06201c;--brand-soft:#123a35;
   --send:#f59a5f;--send-soft:#3a1f0e;--bank:#5fd38a;--bank-soft:#12321e;
   --danger:#f2867e;--on-danger:#2b0705;--shadow:none;
-  --head:#0f2e2a;--on-head:#e3eeec;--toast:#e3eeec;--on-toast:#0c1413;color-scheme:dark}}
+  --head:#0f2e2a;--on-head:#e3eeec;--toast:#e3eeec;--on-toast:#0c1413;
+  --day-a:#1a1c1f;--day-b:#25282c;--day-line:#33373c;--day-head:#e6e8ea;color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0c1413;--card:#141f1d;--text:#e3eeec;--muted:#8fa3a0;--line:#26322f;
   --brand:#3cc7b4;--on-brand:#06201c;--brand-soft:#123a35;
   --send:#f59a5f;--send-soft:#3a1f0e;--bank:#5fd38a;--bank-soft:#12321e;
   --danger:#f2867e;--on-danger:#2b0705;--shadow:none;
-  --head:#0f2e2a;--on-head:#e3eeec;--toast:#e3eeec;--on-toast:#0c1413;color-scheme:dark}
+  --head:#0f2e2a;--on-head:#e3eeec;--toast:#e3eeec;--on-toast:#0c1413;
+  --day-a:#1a1c1f;--day-b:#25282c;--day-line:#33373c;--day-head:#e6e8ea;color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font:16px/1.45 var(--font);padding-bottom:96px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--head)}
@@ -54,7 +57,6 @@ main{max-width:980px;margin:0 auto;padding-block:16px;padding-left:max(16px,env(
 .due b{font-size:26px;font-variant-numeric:tabular-nums}
 .due small{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .pos{color:var(--send)}.neg{color:var(--bank)}
-.total-card{background:var(--brand-soft);border-color:transparent;box-shadow:none}
 .tabs{display:flex;gap:6px;margin:18px 0 10px;overflow-x:auto}
 .tab{border:1px solid var(--line);background:var(--card);color:var(--text);padding:7px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;font:inherit;font-size:14px}
 .tab.on{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
@@ -77,11 +79,29 @@ textarea{min-height:130px;font-family:ui-monospace,Menlo,monospace;font-size:15p
 .typesw button.on.bank{border-color:var(--bank);background:var(--bank-soft);color:var(--bank)}
 .filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px}
 @media(max-width:560px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters .search{grid-column:1/-1}}
-.list{display:flex;flex-direction:column;gap:6px}
-.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.profiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+.prof{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--text);font:inherit;cursor:pointer;text-align:left}
+.prof .pn{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
+.prof .av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);font-size:14px;font-weight:700}
+.prof .pd{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.prof.on{border-color:var(--brand);background:var(--brand);color:var(--on-brand)}
+.prof.on .pd{color:var(--on-brand);opacity:.85}
+.prof.on .av{background:var(--on-brand);color:var(--brand)}
+.days{border:1px solid var(--day-line);border-radius:14px;overflow:hidden}
+.day{background:var(--day-a);color:var(--day-head)}
+.day.alt{background:var(--day-b)}
+.day+.day{border-top:1px solid var(--day-line)}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:10px 12px 6px;flex-wrap:wrap}
+.dayhead b{font-size:15px}
+.dayhead span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.dayfoot{display:flex;justify-content:space-between;align-items:baseline;gap:6px 12px;flex-wrap:wrap;padding:8px 12px 10px;border-top:1px dashed var(--day-line);font-size:13px;font-variant-numeric:tabular-nums}
+.dayfoot .cl{font-size:15px;font-weight:700}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 12px;border:0;border-top:1px solid var(--day-line);background:transparent;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.item:hover{background:rgba(127,127,127,.08)}
 .item .amt{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 .item .meta{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
 .item .bal{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.item .who{font-variant-numeric:tabular-nums;font-weight:600}
 .badge{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;margin-right:4px;vertical-align:1px}
 .b-send{background:var(--send-soft);color:var(--send)}
 .b-bank{background:var(--bank-soft);color:var(--bank)}
@@ -129,17 +149,18 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:10
 </div></header>
 
 <main>
-  <section class="grid" id="cards"><div class="card empty">Loading your hisab…</div></section>
+  <nav class="profiles" id="profiles" aria-label="Profiles"></nav>
+  <section id="cards"><div class="card empty">Loading your hisab…</div></section>
   <div class="status" id="status"></div>
 
   <div class="tabs" role="tablist">
-    <button class="tab on" data-v="ledger" type="button">Ledger</button>
+    <button class="tab on" data-v="ledger" type="button">Statement by date</button>
     <button class="tab" data-v="monthly" type="button">Monthly</button>
   </div>
 
   <section id="v-ledger">
-    <div class="filters">
-      <select id="fPartner" aria-label="Partner filter"></select>
+    <details id="filtBox" style="margin-bottom:8px"><summary class="hint" style="cursor:pointer;padding:4px 0">Search &amp; filter</summary>
+    <div class="filters" style="margin-top:8px">
       <select id="fType" aria-label="Type filter">
         <option value="">All types</option>
         <option value="send">Sent (bKash/Nagad)</option>
@@ -150,8 +171,9 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:10
       <input type="date" id="fTo" aria-label="To date">
       <button class="btn ghost" id="clearF" type="button">Clear filters</button>
     </div>
+    </details>
     <div class="hint num" id="filterSum" style="margin-bottom:8px"></div>
-    <div class="list" id="list"></div>
+    <div id="list"></div>
   </section>
 
   <section id="v-monthly" hidden>
@@ -267,7 +289,9 @@ const SEND_METHODS=['bKash','Nagad','Rocket','Upay'];
 const BANK_METHODS=['Bank','Cash','Other'];
 const LKEY='partnerHisab.v1';
 let state={partners:['Modina','Shapan'],entries:[],settings:{chargeToPartner:true}};
-let editId=null,curType='send';
+let editId=null,curType='send',cur=null;
+try{cur=localStorage.getItem('partnerHisab.profile')}catch(e){}
+function setProfile(p){cur=p;try{localStorage.setItem('partnerHisab.profile',p)}catch(e){}render();scrollTo({top:0})}
 let db=null,dl=null,written={},cfgWritten='',loaded=false;
 
 const $=id=>document.getElementById(id);
@@ -343,53 +367,62 @@ function totals(p){
 }
 function render(){
   if(!loaded)return;
-  let html='',all={sent:0,bank:0,due:0};
-  for(const p of state.partners){
-    const t=totals(p);all.sent+=t.sent;all.bank+=t.bank;all.due+=t.due;
-    html+=`<div class="card pcard"><h2>${esc(p)} <button class="btn ghost sm" type="button" data-stmt="${esc(p)}">Statement</button></h2>
+  if(!state.partners.includes(cur))cur=state.partners[0]||null;
+  $('profiles').innerHTML=state.partners.map(p=>{const t=totals(p);return `<button class="prof${p===cur?' on':''}" type="button" data-prof="${esc(p)}" aria-pressed="${p===cur}">
+    <span class="pn"><span class="av">${esc(p.charAt(0).toUpperCase())}</span>${esc(p)}</span>
+    <span class="pd">${t.due>=0?'Due':'Advance'} ${tk(Math.abs(t.due))}</span></button>`}).join('');
+  if(cur){const p=cur,t=totals(p);
+    $('cards').innerHTML=`<div class="card pcard"><h2>${esc(p)} <button class="btn ghost sm" type="button" data-stmt="${esc(p)}">Copy statement</button></h2>
       <div class="row"><span>Sent by bKash/Nagad · ${t.cnt}</span><b class="pos num">${tk(t.sent)}</b></div>
       ${t.charge?`<div class="row"><span>Charges${state.settings.chargeToPartner?'':' (not added)'}</span><span class="num">${tk(t.charge)}</span></div>`:''}
       <div class="row"><span>Received by bank</span><b class="neg num">${tk(t.bank)}</b></div>
-      <div class="due"><small>${t.due>=0?'Due · they owe you':'Advance · you owe them'}</small><b class="${t.due>0?'pos':'neg'}">${tk(Math.abs(t.due))}</b></div>
-      <div class="hint">${t.last?'Last entry '+fmtDate(t.last):'No entries yet'}</div>
-      <div class="pastebox"><textarea data-paste="${esc(p)}" rows="1" placeholder="Paste WhatsApp message${rate(p)?' (+'+rate(p)+'%)':' (exact amount)'}" aria-label="Paste WhatsApp message for ${esc(p)}"></textarea><button class="btn ghost" type="button" data-read="${esc(p)}">Read</button></div></div>`;
-  }
-  if(state.partners.length>1)html+=`<div class="card pcard total-card"><h2>All partners</h2>
-    <div class="row"><span>Total sent</span><b class="num">${tk(all.sent)}</b></div>
-    <div class="row"><span>Total received</span><b class="num">${tk(all.bank)}</b></div>
-    <div class="due"><small>Total due to you</small><b>${tk(all.due)}</b></div></div>`;
-  $('cards').innerHTML=html;
+      <div class="due"><small>${t.due>=0?'Due · '+esc(p)+' owes you':'Advance · you owe '+esc(p)}</small><b class="${t.due>0?'pos':'neg'}">${tk(Math.abs(t.due))}</b></div>
+      <div class="hint">${rate(p)?'WhatsApp amounts get +'+rate(p)+'%':'WhatsApp amounts are added exactly'} · ${t.last?'Last entry '+fmtDate(t.last):'No entries yet'}</div>
+      <div class="pastebox"><textarea data-paste="${esc(p)}" rows="1" placeholder="Paste WhatsApp message for ${esc(p)}" aria-label="Paste WhatsApp message for ${esc(p)}"></textarea><button class="btn ghost" type="button" data-read="${esc(p)}">Read</button></div></div>`;
+  }else $('cards').innerHTML='<div class="card empty">Add a profile from Menu → Partners.</div>';
   const opts=state.partners.map(p=>`<option>${esc(p)}</option>`).join('');
-  const fp=$('fPartner').value;$('fPartner').innerHTML='<option value="">All partners</option>'+opts;$('fPartner').value=state.partners.includes(fp)?fp:'';
-  for(const id of['ePartner']){const v=$(id).value;$(id).innerHTML=opts;if(state.partners.includes(v))$(id).value=v}
+  $('ePartner').innerHTML=opts;
   $('stmtBtns').innerHTML=state.partners.map(p=>`<button class="btn ghost" type="button" data-stmt="${esc(p)}">${esc(p)}</button>`).join('');
   $('partnerEdit').innerHTML=state.partners.map((p,i)=>`<div class="btns" style="margin-bottom:6px"><input value="${esc(p)}" style="flex:1;min-width:120px" data-ren="${i}" aria-label="Partner name"><label style="display:flex;align-items:center;gap:4px;margin:0"><input type="number" step="any" min="0" value="${rate(p)}" data-pct="${esc(p)}" style="width:70px" aria-label="Extra percent for ${esc(p)}">%</label><button class="btn ghost sm" type="button" data-rm="${i}">Remove</button></div>`).join('');
   $('setCharge').checked=!!state.settings.chargeToPartner;
   renderList();renderMonthly();
 }
+const dayName=d=>{const[y,m,dd]=d.split('-');return new Date(y,m-1,dd).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})};
+function dayGroups(p){
+  // running due over the full history of this profile, grouped by date (oldest first)
+  const days=[];let bal=0,last=null;
+  for(const e of sorted(state.entries.filter(x=>x.partner===p))){
+    if(!last||last.date!==e.date){last={date:e.date,open:bal,items:[],sent:0,recv:0};days.push(last)}
+    bal+=effect(e);last.items.push({e,bal});e.type==='send'?last.sent+=effect(e):last.recv+=+e.amount;last.close=bal;
+  }
+  return days;
+}
 function renderList(){
-  const fp=$('fPartner').value,ft=$('fType').value,q=$('fSearch').value.trim().toLowerCase(),from=$('fFrom').value,to=$('fTo').value;
-  const bal={},runBal={};
-  for(const e of sorted(state.entries)){bal[e.partner]=(bal[e.partner]||0)+effect(e);runBal[e.id]=bal[e.partner]}
-  const rows=sorted(state.entries).filter(e=>(!fp||e.partner===fp)&&(!ft||e.type===ft)&&(!from||e.date>=from)&&(!to||e.date<=to)&&
-    (!q||[e.number,e.note,e.method,e.partner,String(e.amount)].join(' ').toLowerCase().includes(q))).reverse();
-  let s=0,b=0;rows.forEach(e=>e.type==='send'?s+=+e.amount:b+=+e.amount);
-  $('filterSum').textContent=rows.length?`${rows.length} entries · Sent ${tk(s)} · Received ${tk(b)}`:'';
-  if(!rows.length){$('list').innerHTML=`<div class="empty">${state.entries.length?'No entries match these filters.':'No entries yet.<br>Tap <b>+</b> to add a bKash/Nagad send or a bank payment,<br>paste a WhatsApp message in a partner&#39;s box,<br>or use <b>Menu → Import Excel</b> to bring in your old sheet.'}</div>`;return}
-  $('list').innerHTML=rows.slice(0,500).map(e=>`<button class="item" type="button" data-edit="${e.id}">
-    <div><span class="badge ${e.type==='send'?'b-send':'b-bank'}">${e.type==='send'?'↑':'↓'} ${esc(e.method)}</span><b>${esc(e.partner)}</b>
-      <div class="meta">${fmtDate(e.date)}${e.number?' · '+esc(e.number):''}${e.base?' · '+tk(e.base)+' + '+e.pct+'%':''}${e.charge?' · charge '+tk(e.charge):''}${e.note?' · '+esc(e.note):''}</div></div>
-    <div><div class="amt ${e.type==='send'?'pos':'neg'}">${e.type==='send'?'+':'−'}${tk(e.amount)}</div><div class="bal">Due ${tk(runBal[e.id])}</div></div></button>`).join('')
-    +(rows.length>500?'<div class="hint">Showing the latest 500. Use the filters to narrow down.</div>':'');
+  const ft=$('fType').value,q=$('fSearch').value.trim().toLowerCase(),from=$('fFrom').value,to=$('fTo').value;
+  if(!cur){$('list').innerHTML='';$('filterSum').textContent='';return}
+  const match=e=>(!ft||e.type===ft)&&(!q||[e.number,e.note,e.method,String(e.amount),String(e.base||'')].join(' ').toLowerCase().includes(q));
+  const days=dayGroups(cur).filter(d=>(!from||d.date>=from)&&(!to||d.date<=to)).map(d=>({...d,shown:d.items.filter(x=>match(x.e))})).filter(d=>d.shown.length).reverse();
+  let n=0,s=0,b=0;days.forEach(d=>d.shown.forEach(({e})=>{n++;e.type==='send'?s+=+e.amount:b+=+e.amount}));
+  $('filterSum').textContent=n?`${days.length} days · ${n} entries · Sent ${tk(s)} · Received ${tk(b)}`:'';
+  if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'No entries match these filters.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message in the box above,<br>or tap <b>+</b> to add a send or a bank payment.`}</div>`;return}
+  $('list').innerHTML='<div class="days">'+days.slice(0,120).map((d,i)=>`<section class="day${i%2?' alt':''}">
+    <div class="dayhead"><b>${dayName(d.date)}</b><span>Opening due ${tk(d.open)}</span></div>
+    ${d.shown.map(({e,bal})=>`<button class="item" type="button" data-edit="${e.id}">
+      <div><span class="badge ${e.type==='send'?'b-send':'b-bank'}">${e.type==='send'?'↑':'↓'} ${esc(e.method)}</span><span class="who">${e.type==='send'?esc(e.number||'Sent'):'Bank payment'}</span>
+        <div class="meta">${e.base?tk(e.base)+' + '+e.pct+'%':''}${e.charge?(e.base?' · ':'')+'charge '+tk(e.charge):''}${e.note?((e.base||e.charge)?' · ':'')+esc(e.note):''}</div></div>
+      <div><div class="amt ${e.type==='send'?'pos':'neg'}">${e.type==='send'?'+':'−'}${tk(e.amount)}</div><div class="bal">Due ${tk(bal)}</div></div></button>`).join('')}
+    <div class="dayfoot"><span>${d.sent?'Sent <b class="pos">+'+tk(d.sent)+'</b>':''}${d.sent&&d.recv?' · ':''}${d.recv?'Received <b class="neg">−'+tk(d.recv)+'</b>':''}</span><span class="cl">Due ${tk(d.close)}</span></div>
+  </section>`).join('')+'</div>'+(days.length>120?'<div class="hint" style="margin-top:8px">Showing the latest 120 days. Use the date filter to see older days.</div>':'');
 }
 function renderMonthly(){
+  if(!cur){$('monthly').innerHTML='';return}
   const m={};
-  for(const e of state.entries){const k=e.date.slice(0,7);m[k]=m[k]||{};const r=m[k][e.partner]=m[k][e.partner]||{s:0,b:0};e.type==='send'?r.s+=effect(e):r.b+=+e.amount}
+  for(const e of state.entries){if(e.partner!==cur)continue;const k=e.date.slice(0,7);const r=m[k]=m[k]||{s:0,b:0};e.type==='send'?r.s+=effect(e):r.b+=+e.amount}
   const keys=Object.keys(m).sort().reverse();
-  if(!keys.length){$('monthly').innerHTML='<div class="empty">Monthly totals appear here once you add entries.</div>';return}
-  let h='<table><tr><th>Month</th>'+state.partners.map(p=>`<th>${esc(p)} sent</th><th>${esc(p)} paid</th>`).join('')+'</tr>';
-  for(const k of keys){const[y,mo]=k.split('-');
-    h+=`<tr><td>${new Date(y,mo-1).toLocaleString('en',{month:'short',year:'numeric'})}</td>`+state.partners.map(p=>{const r=m[k][p]||{s:0,b:0};return `<td class="pos">${r.s?tk(r.s):'–'}</td><td class="neg">${r.b?tk(r.b):'–'}</td>`}).join('')+'</tr>'}
+  if(!keys.length){$('monthly').innerHTML=`<div class="empty">Monthly totals for ${esc(cur)} appear here once you add entries.</div>`;return}
+  let h=`<table><tr><th>Month</th><th>Sent</th><th>Received</th><th>Net</th></tr>`;
+  for(const k of keys){const[y,mo]=k.split('-'),r=m[k];
+    h+=`<tr><td>${new Date(y,mo-1).toLocaleString('en',{month:'short',year:'numeric'})}</td><td class="pos">${r.s?tk(r.s):'–'}</td><td class="neg">${r.b?tk(r.b):'–'}</td><td>${tk(r.s-r.b)}</td></tr>`}
   $('monthly').innerHTML=h+'</table>';
 }
 
@@ -433,7 +466,7 @@ function openEntry(id){
   $('eDelete').hidden=!e;$('eSaveMore').hidden=!!e;
   setType(e?e.type:curType);
   if(e){$('ePartner').value=e.partner;$('eDate').value=e.date;$('eMethod').value=e.method;$('eAmount').value=e.base||e.amount;$('ePctOn').checked=!!e.base;$('eNumber').value=e.number||'';$('eCharge').value=e.charge||'';$('eNote').value=e.note||''}
-  else{if($('fPartner').value)$('ePartner').value=$('fPartner').value;$('eDate').value=$('eDate').value||today();$('ePctOn').checked=rate($('ePartner').value)>0;['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='')}
+  else{if(cur)$('ePartner').value=cur;$('eDate').value=$('eDate').value||today();$('ePctOn').checked=rate($('ePartner').value)>0;['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='')}
   fillNumbers();updTotal();$('dlgEntry').showModal();setTimeout(()=>$('eAmount').focus(),50);
 }
 function saveEntry(more){
@@ -520,18 +553,20 @@ function addPaste(){
   let ts=Date.now();
   on.forEach(r=>state.entries.push({id:uid(),ts:ts++,type:'send',partner:p,date:d,method:r.method||def,amount:addPct(r.base,pc),...(pc?{base:r.base,pct:pc}:{}),number:r.number,charge:0,note:r.note||''}));
   if(pc!==rate(p)){state.settings.pct={...(state.settings.pct||{}),[p]:pc}}
-  save();render();$('dlgPaste').close();toast(`Added ${on.length} entries to ${p}`);
+  cur=p;save();render();$('dlgPaste').close();toast(`Added ${on.length} entries to ${p}`);
 }
 function parseAmt(v){v=normDigits(String(v)).trim().replace(/,/g,'');const k=/k$/i.test(v);const n=parseFloat(v);return n>0?(k?n*1000:n):0}
 
 // ---------- statement ----------
 function statement(p){
-  const t=totals(p);let bal=0;
-  const lines=sorted(state.entries.filter(e=>e.partner===p)).map(e=>{bal+=effect(e);
-    return `${fmtDate(e.date)}  ${e.type==='send'?'Sent '+e.method+(e.number?' '+e.number:''):'Received '+e.method}  ${e.type==='send'?'+':'-'}${tk(e.amount)}${e.base?' ('+tk(e.base)+'+'+e.pct+'%)':''}${e.charge&&state.settings.chargeToPartner?' (+charge '+tk(e.charge)+')':''}  = ${tk(bal)}`});
-  $('sText').textContent=`Hisab — ${p}\nDate: ${fmtDate(today())}\n\nTotal sent (bKash/Nagad): ${tk(t.sent)}`+
+  const t=totals(p);
+  const blocks=dayGroups(p).map(d=>`━━ ${dayName(d.date)} ━━\n`+d.items.map(({e})=>e.type==='send'
+      ?`${e.number||e.method}  ${e.base?tk(e.base)+'+'+e.pct+'% = ':''}${tk(e.amount)}${e.method!=='bKash'?' ('+e.method+')':''}${e.note?'  '+e.note:''}`
+      :`Bank payment  -${tk(e.amount)}${e.note?'  '+e.note:''}`).join('\n')
+    +`\nDay: ${d.sent?'sent '+tk(d.sent):''}${d.sent&&d.recv?', ':''}${d.recv?'received '+tk(d.recv):''}\nDue: ${tk(d.close)}`);
+  $('sText').textContent=`Hisab — ${p}\nDate: ${fmtDate(today())}\n\nTotal sent: ${tk(t.sent)}`+
     (t.charge&&state.settings.chargeToPartner?`\nCharges: ${tk(t.charge)}`:'')+
-    `\nTotal received (Bank): ${tk(t.bank)}\n${t.due>=0?'DUE':'ADVANCE'}: ${tk(Math.abs(t.due))}\n\n--- Details ---\n`+(lines.join('\n')||'No entries');
+    `\nTotal received (Bank): ${tk(t.bank)}\n${t.due>=0?'DUE':'ADVANCE'}: ${tk(Math.abs(t.due))}\n\n`+(blocks.join('\n\n')||'No entries');
   $('sTitle').textContent='Statement · '+p;
   if($('dlgMenu').open)$('dlgMenu').close();
   $('dlgStmt').showModal();
@@ -627,6 +662,7 @@ function restore(inp){
 function addPartner(){const n=$('newPartner').value.trim();if(!n)return;if(state.partners.includes(n))return toast(n+' already exists');state.partners.push(n);$('newPartner').value='';save();render()}
 function renamePartner(i,n){n=n.trim();const old=state.partners[i];if(!n||n===old)return;if(state.partners.includes(n)){render();return toast(n+' already exists')}
   if(state.settings.pct&&old in state.settings.pct){state.settings.pct[n]=state.settings.pct[old];delete state.settings.pct[old]}
+  if(cur===old)cur=n;
   state.partners[i]=n;state.entries.forEach(e=>{if(e.partner===old)e.partner=n});save();render();toast('Renamed to '+n)}
 function removePartner(i){const p=state.partners[i];if(state.entries.some(e=>e.partner===p))return toast(p+' has entries. Rename instead, or delete the entries first.');state.partners.splice(i,1);save();render()}
 
@@ -634,13 +670,14 @@ function removePartner(i){const p=state.partners[i];if(state.entries.some(e=>e.p
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2600)}
 $('fab').onclick=()=>openEntry();
 $('menuBtn').onclick=()=>$('dlgMenu').showModal();
-$('clearF').onclick=()=>{['fPartner','fType','fSearch','fFrom','fTo'].forEach(i=>$(i).value='');renderList()};
-['fPartner','fType','fFrom','fTo'].forEach(i=>$(i).addEventListener('change',renderList));$('fSearch').addEventListener('input',renderList);
+$('clearF').onclick=()=>{['fType','fSearch','fFrom','fTo'].forEach(i=>$(i).value='');renderList()};
+['fType','fFrom','fTo'].forEach(i=>$(i).addEventListener('change',renderList));$('fSearch').addEventListener('input',renderList);
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));['ledger','monthly'].forEach(v=>$('v-'+v).hidden=v!==t.dataset.v)});
 document.querySelectorAll('.typesw button').forEach(b=>b.onclick=()=>setType(b.dataset.t));
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d&&d.id!=='dlgAsk')d.close()}));
 document.addEventListener('click',e=>{
+  const pf=e.target.closest('[data-prof]');if(pf)return setProfile(pf.dataset.prof);
   const s=e.target.closest('[data-stmt]');if(s)return statement(s.dataset.stmt);
   const ed=e.target.closest('[data-edit]');if(ed)return openEntry(ed.dataset.edit);
   const rm=e.target.closest('[data-rm]');if(rm)return removePartner(+rm.dataset.rm);
