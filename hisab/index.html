@@ -7,7 +7,7 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 </head>
 <body>
-<title>Partner Hisab</title>
+<title>SM</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap">
@@ -54,7 +54,7 @@ button{font:inherit;color:inherit}
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:10px}
 .brand{display:flex;align-items:center;gap:10px}
-.logo{width:34px;height:34px;border-radius:10px;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-weight:700;font-size:18px}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-weight:700;font-size:15px;letter-spacing:.02em}
 .brand h1{font-size:18px;margin:0;line-height:1.1}
 .brand small{display:block;font-size:12px;color:var(--muted)}
 .icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 12px;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;gap:6px}
@@ -276,7 +276,7 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 /* lock screen */
 .lock{position:fixed;inset:0;z-index:40;background:var(--bg);display:grid;place-items:center;padding:24px}
 .lock .box{width:min(340px,100%);text-align:center}
-.lock .logo{margin:0 auto 12px;width:52px;height:52px;font-size:26px;border-radius:14px}
+.lock .logo{margin:0 auto 12px;width:52px;height:52px;font-size:21px;border-radius:14px}
 .lock input{text-align:center;font-size:26px;letter-spacing:.4em;margin:14px 0 10px}
 body.locked main,body.locked header,body.locked .composer,body.locked .side{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
@@ -289,7 +289,7 @@ body.locked main,body.locked header,body.locked .composer,body.locked .side{visi
 </style>
 
 <header><div class="wrap bar">
-  <div class="brand"><button class="icon-btn navbtn" id="navBtn" type="button" aria-label="Open sidebar">☰</button><div class="logo" aria-hidden="true">হ</div><div><h1>Partner Hisab</h1><small id="crumb">Dashboard</small></div></div>
+  <div class="brand"><button class="icon-btn navbtn" id="navBtn" type="button" aria-label="Open sidebar">☰</button><div class="logo" aria-hidden="true">SM</div><div><h1>SM</h1><small id="crumb">Dashboard</small></div></div>
   <div class="btns"><button class="icon-btn" id="lockBtn" type="button" hidden>🔒 Lock</button><button class="icon-btn" id="menuBtn" type="button">⚙ Settings</button></div>
 </div></header>
 
@@ -351,8 +351,8 @@ body.locked main,body.locked header,body.locked .composer,body.locked .side{visi
 
 <div class="lock" id="lock" hidden>
   <form class="box" id="lockForm">
-    <div class="logo" aria-hidden="true">হ</div>
-    <h2 style="margin:0">Partner Hisab is locked</h2>
+    <div class="logo" aria-hidden="true">SM</div>
+    <h2 style="margin:0">SM is locked</h2>
     <div class="hint">Enter your PIN to open</div>
     <input id="lockPin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" aria-label="PIN">
     <button class="btn" type="submit" style="width:100%">Unlock</button>
@@ -627,7 +627,7 @@ function dayText(p,d,withName=true){
 }
 function fullText(p){
   const t=totals(p),b=bal(t.due);
-  return `Hisab — ${p}\nAs of ${fmtDate(today())}\n\nTotal sent: ${tk(t.sent)}`+(t.charge&&state.settings.chargeToPartner?`\nCharges: ${tk(t.charge)}`:'')+
+  return `SM — ${p}\nAs of ${fmtDate(today())}\n\nTotal sent: ${tk(t.sent)}`+(t.charge&&state.settings.chargeToPartner?`\nCharges: ${tk(t.charge)}`:'')+
     `\nTotal received: ${tk(t.bank)}\nBALANCE: ${sbal(t.due,'-')}${b.word==='Settled'?' (settled)':' ('+b.word.toLowerCase()+')'}\n\n`+
     (dayGroups(p).map(d=>dayText(p,d,false)).join('\n\n')||'No entries');
 }
@@ -658,7 +658,7 @@ async function dayCanvas(p,d){
   x.fillStyle=IMG.white;x.fillRect(0,0,W,H);
   // header band
   x.fillStyle=IMG.brand;x.fillRect(0,0,W,headH);
-  x.fillStyle='rgba(255,255,255,.75)';x.font=`600 28px ${IF}`;x.fillText('PARTNER HISAB · DAILY STATEMENT',P,78);
+  x.fillStyle='rgba(255,255,255,.75)';x.font=`600 28px ${IF}`;x.fillText('SM · DAILY STATEMENT',P,78);
   x.fillStyle=IMG.white;x.font=`700 72px ${IF}`;x.fillText(fit(x,p,W-2*P-140),P,162);
   x.font=`400 36px ${IF}`;x.fillStyle='rgba(255,255,255,.9)';x.fillText(dayName(d.date),P,214);
   x.beginPath();x.arc(W-P-55,130,55,0,Math.PI*2);x.fillStyle='rgba(255,255,255,.16)';x.fill();
@@ -1022,7 +1022,7 @@ function exportXlsx(){
   const rowsAll=sorted(state.entries).map(e=>({Date:e.date,Partner:e.partner,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Account Holder':e.holder||'',Bank:e.bank||'','Account No':e.account||'','Base Amount':e.base||'','Extra %':e.base?e.pct:'',Amount:e.amount,Charge:e.charge||0,Note:e.note}));
   if(!window.XLSX){
     const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',cols=['Date','Partner','Type','Method','Number','Account Holder','Bank','Account No','Base Amount','Extra %','Amount','Charge','Note'];
-    return giveFile(`Hisab_${today()}.csv`,'﻿'+[cols.join(',')].concat(rowsAll.map(r=>cols.map(c=>q(r[c])).join(','))).join('\n'),'text/csv');
+    return giveFile(`SM_${today()}.csv`,'﻿'+[cols.join(',')].concat(rowsAll.map(r=>cols.map(c=>q(r[c])).join(','))).join('\n'),'text/csv');
   }
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rowsAll.length?rowsAll:[{Date:''}]),'All entries');
@@ -1031,7 +1031,7 @@ function exportXlsx(){
     let run=0;const r=sorted(state.entries.filter(e=>e.partner===p)).map(e=>{run+=effect(e);const b=bal(run);return{Date:e.date,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Account Holder':e.holder||'',Bank:e.bank||'','Account No':e.account||'','Base Amount':e.base||'','Extra %':e.base?e.pct:'',Sent:e.type==='send'?e.amount:'',Received:e.type==='bank'?e.amount:'',Charge:e.charge||'',Status:b.word,Balance:Math.round(-run*100)/100,Note:e.note}});
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r.length?r:[{Date:''}]),p.replace(/[\\\/?*\[\]:]/g,' ').slice(0,31));
   }
-  giveFile(`Hisab_${today()}.xlsx`,new Uint8Array(XLSX.write(wb,{type:'array',bookType:'xlsx'})),'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  giveFile(`SM_${today()}.xlsx`,new Uint8Array(XLSX.write(wb,{type:'array',bookType:'xlsx'})),'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 }
 function parseCsv(text){
   const rows=[];let row=[],f='',q=false;
@@ -1076,7 +1076,7 @@ function restore(inp){
   const f=inp.files[0];inp.value='';if(!f)return;$('dlgMenu').close();
   f.text().then(async t=>{
     let s;try{s=JSON.parse(t)}catch(e){}
-    if(!s||!Array.isArray(s.entries)||!s.entries.every(e=>e&&e.id&&e.date&&validAmount(+e.amount)))return toast('This is not a Partner Hisab backup file');
+    if(!s||!Array.isArray(s.entries)||!s.entries.every(e=>e&&e.id&&e.date&&validAmount(+e.amount)))return toast('This is not an SM backup file');
     if(!await ask(`Replace all current data with this backup (${s.entries.length} entries)?`,{ok:'Replace',danger:true}))return;
     state={partners:Array.isArray(s.partners)?s.partners:['Modina','Shapan'],entries:s.entries,settings:s.settings||{chargeToPartner:true}};save();render();toast('Backup restored');
   });
@@ -1152,7 +1152,7 @@ document.addEventListener('input',e=>{const t=e.target;if(t.dataset.paste===unde
 $('copyBtn').onclick=()=>copyText($('sText').textContent,$('sText'));
 $('expBtn').onclick=exportXlsx;
 $('impBtn').onclick=()=>$('impFile').click();$('impFile').onchange=e=>importFile(e.target);
-$('bkBtn').onclick=()=>giveFile(`hisab-backup-${today()}.json`,JSON.stringify(state,null,1),'application/json');
+$('bkBtn').onclick=()=>giveFile(`SM-backup-${today()}.json`,JSON.stringify(state,null,1),'application/json');
 $('rsBtn').onclick=()=>$('resFile').click();$('resFile').onchange=e=>restore(e.target);
 $('addP').onclick=addPartner;
 $('setCharge').onchange=e=>{state.settings.chargeToPartner=e.target.checked;save();render()};
