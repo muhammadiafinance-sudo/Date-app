@@ -102,7 +102,7 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .day{background:var(--day-a)}
 .day.alt{background:var(--day-b)}
 .day+.day{border-top:1px solid var(--day-line)}
-.dh{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 14px 6px}
+.dh{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 14px 6px}
 .dt{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:2px 12px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
 .dt span{white-space:nowrap}.dt b{color:var(--ink);font-weight:700}.dt b.red{color:var(--red)}.dt b.green{color:var(--green)}
 @media (max-width:599px){.dh .bl{display:none}.dh .copy{width:34px;height:34px;padding:0;justify-content:center;font-size:15px}.dt{flex-direction:column;align-items:flex-end;gap:0}}
@@ -213,7 +213,7 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 }
 @media (min-width:900px){
   .shell{display:grid;grid-template-columns:260px minmax(0,1fr)}
-  .side{position:sticky;top:61px;height:calc(100vh - 61px);overflow:auto}
+  .side{position:static;overflow:auto;width:260px;flex:none}
   .composer{left:260px}
   main.wrap{max-width:none;margin:0;min-width:0;padding-left:24px;padding-right:24px}
   .composer #selBar{max-width:none;padding-left:24px;padding-right:24px}
@@ -259,11 +259,6 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 .dgrid{display:grid;gap:0 16px}
 @media (min-width:1100px){
   main.wrap{padding-left:28px;padding-right:28px}
-  #v-partner{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:0 24px;align-items:start}
-  #v-partner>#hero{grid-column:2;grid-row:1 / span 5;position:sticky;top:80px;margin-top:20px}
-  #v-partner>.pastebar,#v-partner>.tabs,#v-partner>#v-days,#v-partner>#v-monthly{grid-column:1}
-  #v-partner>.pastebar{margin-top:20px}
-  #v-partner>.tabs{margin-top:14px}
   .hero .big{font-size:36px}
   .composer #selBar{padding-left:28px;padding-right:calc(28px + 364px)}
   .dgrid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
@@ -274,6 +269,65 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
   .day .dh{padding:14px 16px 6px}
   .df{padding:12px 16px 14px}
 }
+
+/* app layout: header and summary stay put, statement scrolls in its own block, paste bar at the bottom */
+html,body{height:100%}
+body{display:flex;flex-direction:column;height:100dvh;overflow:hidden;padding-bottom:0}
+header{flex:none;position:relative;top:auto}
+.shell{flex:1;min-height:0;display:flex}
+.shell>main{flex:1;min-width:0;overflow:auto;padding-bottom:24px}
+.shell>main.pmode{overflow:hidden;padding-bottom:0;display:flex;flex-direction:column}
+#v-partner{flex:1;min-height:0;display:flex;flex-direction:column}
+#v-partner #hero{flex:none;margin-top:10px}
+.pleft{flex:1;min-height:0;display:flex;flex-direction:column}
+.pleft .tabs{flex:none;margin:10px 0 6px}
+.toolrow{flex:none;display:flex;align-items:center;gap:10px;padding:2px 2px 6px;font-size:14px}
+.toolrow .sumtxt{flex:1;text-align:center;margin:0}
+.filters{flex:none;margin:0 0 8px}
+.scrollbox{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--day-line);border-radius:16px;box-shadow:inset 0 2px 6px rgba(0,0,0,.04)}
+.scrollbox .days{border:0;border-radius:0;box-shadow:none}
+.scrollbox .empty{border:0;background:transparent}
+.scrollbox .dh{position:sticky;top:0;z-index:2;background:inherit;border-bottom:1px solid var(--day-line)}
+.day{background:var(--day-a)}.day.alt{background:var(--day-b)}
+.chatbar{flex:none;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px))}
+.wa{display:flex;align-items:flex-end;gap:8px}
+.wa .cbox{background:var(--surface)}
+.wa textarea{caret-color:transparent;cursor:pointer}
+.chatbar .cfor{margin:4px 0 0 56px}
+.selbar{display:flex;align-items:center;gap:8px;min-height:46px}
+.selbar .grow{flex:1;font-weight:600}
+.df{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 14px 12px;border-top:1px dashed var(--day-line);font-size:14px;font-variant-numeric:tabular-nums}
+.df span{color:var(--muted)}.df b{color:var(--ink)}.df b.green{color:var(--green)}.df b.red{color:var(--red)}
+.df .end{grid-column:2;grid-row:1/span 2;align-self:center;text-align:right}
+.df .end small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.df .end b{font-size:19px}
+.hero .hrow{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+@media (max-width:699px){
+  .hero{padding:10px 12px}.hero .lbl{font-size:11px}.hero .big{font-size:26px;margin:0}
+  .hero .stats{display:flex;flex-direction:column;gap:2px;margin:0;text-align:right}
+  .hero .stat{background:none;padding:0}.hero .stat span{display:inline;font-size:12px;margin-right:4px}.hero .stat b{font-size:14px}
+  .hero .actions{grid-template-columns:1fr 1fr auto;margin-top:8px}.hero .actions .btn{padding:7px 8px;font-size:13px;white-space:nowrap}
+  .hero .stat em{display:none}.hero .stat em+b{}
+  .hero .meta-line{display:none}
+  .pleft .tabs{margin:8px 0 4px}.pleft .tab{padding:6px}
+}
+.stat em{font-style:normal}
+@media (min-width:700px){.hero .actions .stmtbtn{display:none}}
+/* short screens (phone held sideways): keep the summary to one line */
+@media (max-height:560px) and (max-width:1099px){
+  .hero{padding:8px 12px}.hero .big{font-size:24px;margin:0}.hero .lbl{font-size:11px}
+  .hero .actions,.hero .meta-line{display:none}
+  .hero .stats{display:flex;gap:12px;margin:0}.hero .stat{background:none;padding:0}.hero .stat b{font-size:15px}
+  .pleft .tabs{margin:6px 0 2px}.pleft .tab{padding:5px}.toolrow{padding-bottom:4px}
+  .chatbar{padding-top:6px;padding-bottom:6px}.chatbar .cfor{display:none}
+}
+@media (min-width:1100px){
+  #v-partner{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:minmax(0,1fr);gap:0 24px}
+  #v-partner>#hero{grid-column:2;grid-row:1;align-self:start;margin-top:16px}
+  #v-partner>.pleft{grid-column:1;grid-row:1}
+  .pleft .tabs{margin-top:16px}
+  .hero .hrow{display:block}
+}
 @media (min-width:1600px){#v-partner{grid-template-columns:minmax(0,1fr) 380px}}
 
 /* lock screen */
@@ -281,7 +335,7 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 .lock .box{width:min(340px,100%);text-align:center}
 .lock .logo{margin:0 auto 12px;width:52px;height:52px;font-size:21px;border-radius:14px}
 .lock input{text-align:center;font-size:26px;letter-spacing:.4em;margin:14px 0 10px}
-body.locked main,body.locked header,body.locked .composer,body.locked .side{visibility:hidden}
+body.locked main,body.locked header,body.locked .side{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
 @media (max-width:699px){
   .hero{padding:12px 14px}.hero .big{font-size:32px;margin-bottom:8px}
@@ -312,44 +366,40 @@ body.locked main,body.locked header,body.locked .composer,body.locked .side{visi
   <section id="v-dash" hidden><div class="empty" style="margin-top:16px">Loading your hisab…</div></section>
   <section id="v-partner">
   <section id="hero"><div class="empty">Loading your hisab…</div></section>
-
-  <div class="card pastebar" id="cMain">
-    <div class="cfor" id="cfor"></div>
-    <div class="prow2">
-      <button class="cbtn plus" id="fab" type="button" aria-label="Add entry by hand">+</button>
-      <div class="cbox"><textarea id="cText" rows="1" placeholder="Paste WhatsApp message" aria-label="Paste WhatsApp message"></textarea></div>
-      <button class="cbtn send" id="cSend" type="button" aria-label="Read message">➤</button>
+  <div class="pleft">
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-v="days" type="button">Daily statement</button>
+      <button class="tab" data-v="monthly" type="button">Monthly</button>
+    </div>
+    <div class="toolrow"><button class="linkish" id="filtBtn" type="button">Search &amp; filter</button><span class="sumtxt" id="filterSum"></span><button class="linkish" id="selBtn" type="button">Select</button></div>
+    <div class="filters" id="filters" hidden>
+      <input class="full" id="fSearch" placeholder="Search number, note, amount">
+      <select id="fType" aria-label="Type">
+        <option value="">Sent and received</option>
+        <option value="send">Sent only</option>
+        <option value="bank">Received only</option>
+      </select>
+      <button class="btn ghost" id="clearF" type="button">Clear</button>
+      <div><label for="fFrom">From</label><input type="date" id="fFrom"></div>
+      <div><label for="fTo">To</label><input type="date" id="fTo"></div>
+    </div>
+    <section id="v-days" class="scrollbox"><div id="list"></div></section>
+    <section id="v-monthly" class="scrollbox" hidden><div class="tbl" id="monthly"></div></section>
+    <div class="chatbar" id="chatbar">
+      <div class="wa" id="cMain">
+        <button class="cbtn plus" id="fab" type="button" aria-label="Add entry by hand">+</button>
+        <div class="cbox"><textarea id="cText" rows="1" inputmode="none" placeholder="Paste WhatsApp message" aria-label="Paste WhatsApp message"></textarea></div>
+        <button class="cbtn send" id="cSend" type="button" aria-label="Paste from clipboard" title="Paste">📋</button>
+      </div>
+      <div class="selbar" id="selBar" hidden><button class="btn ghost sm" id="selCancel" type="button">Cancel</button><span class="grow" id="selCount">0 selected</span><button class="btn danger sm" id="selDel" type="button" disabled>Delete</button></div>
+      <div class="cfor" id="cfor"></div>
     </div>
   </div>
-  <div class="tabs" role="tablist">
-    <button class="tab on" data-v="days" type="button">Daily statement</button>
-    <button class="tab" data-v="monthly" type="button">Monthly</button>
-  </div>
-
-  <section id="v-days">
-    <details class="filt" id="filtBox"><summary>Search &amp; filter</summary>
-      <div class="filters">
-        <input class="full" id="fSearch" placeholder="Search number, note, amount">
-        <select id="fType" aria-label="Type">
-          <option value="">Sent and received</option>
-          <option value="send">Sent only</option>
-          <option value="bank">Bank payments only</option>
-        </select>
-        <button class="btn ghost" id="clearF" type="button">Clear</button>
-        <div><label for="fFrom">From</label><input type="date" id="fFrom"></div>
-        <div><label for="fTo">To</label><input type="date" id="fTo"></div>
-      </div>
-    </details>
-    <div class="sumbar"><div class="sumtxt" id="filterSum" style="margin:0"></div><button class="linkish" id="selBtn" type="button">Select</button></div>
-    <div id="list"></div>
-  </section>
-
-  <section id="v-monthly" hidden><div class="card tbl" id="monthly"></div></section>
   </section>
 </main>
 </div>
 
-<div class="composer" id="composer" hidden><div class="wrap selbar" id="selBar"><button class="btn ghost sm" id="selCancel" type="button">Cancel</button><span class="grow" id="selCount">0 selected</span><button class="btn danger sm" id="selDel" type="button" disabled>Delete</button></div></div>
+
 <div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" type="button" hidden>Undo</button></div>
 
 <div class="lock" id="lock" hidden>
@@ -741,22 +791,23 @@ function render(){
   $('navPartners').innerHTML=state.partners.map(p=>{const t=totals(p),b=bal(t.due);return `<button class="nav${view==='partner'&&p===cur?' on':''}" type="button" data-prof="${esc(p)}">
     <span class="ni">${esc(p.charAt(0).toUpperCase())}</span><span style="min-width:0">${esc(p)}<small class="${b.cls}">${b.word==='Settled'?'Settled ৳0':b.word+' '+sbal(t.due)}</small></span></button>`}).join('');
   document.querySelector('.nav[data-go="dash"]').classList.toggle('on',view==='dash');
-  $('v-dash').hidden=view!=='dash';$('v-partner').hidden=view!=='partner';$('composer').hidden=!(view==='partner'&&selMode);
+  $('v-dash').hidden=view!=='dash';$('v-partner').hidden=view!=='partner';document.querySelector('.shell>main').classList.toggle('pmode',view==='partner');
   $('crumb').textContent=view==='dash'?'Dashboard':cur;
   if(view==='dash')renderDash();
   if(cur){
     const p=cur,t=totals(p),b=bal(t.due),pc=rate(p);
-    const head=b.word==='Due'?`${esc(p)} owes you`:b.word==='Advance'?`Advance · extra received from ${esc(p)}`:'All settled';
+    const head=b.word==='Due'?`${esc(p)} owes you`:b.word==='Advance'?`Advance from ${esc(p)}`:'All settled';
     $('hero').innerHTML=`<div class="card hero">
-      <div class="lbl">${head}</div>
-      <div class="big ${b.cls}">${sbal(t.due)}</div>
+      <div class="hrow"><div><div class="lbl">${head}</div>
+      <div class="big ${b.cls}">${sbal(t.due)}</div></div>
       <div class="stats">
-        <div class="stat"><span>Total sent · ${t.cnt}</span><b>${tk(t.sent)}</b></div>
-        <div class="stat"><span>Received by bank</span><b class="green">${tk(t.bank)}</b></div>
-      </div>
+        <div class="stat"><span>Sent<em> · ${t.cnt}</em></span><b>${tk(t.sent)}</b></div>
+        <div class="stat"><span>Received</span><b class="green">${tk(t.bank)}</b></div>
+      </div></div>
       <div class="actions">
         <button class="btn" type="button" data-new="send">Money sent</button>
         <button class="btn soft" type="button" data-new="bank">Payment received</button>
+        <button class="btn ghost stmtbtn" type="button" data-full="${esc(p)}" aria-label="Full statement" title="Full statement">📄</button>
       </div>
       <div class="meta-line"><span>${pc?'WhatsApp amounts get +'+pc+'%':'WhatsApp amounts are added exactly'}${t.charge?' · charges '+tk(t.charge):''}</span><button class="linkish" type="button" data-full="${esc(p)}">Full statement</button></div>
     </div>`;
@@ -832,9 +883,9 @@ function renderDash(){
   <div class="recent">${recent.length?'<div class="colh"><span>Number</span><span>Partner</span><span>Amount</span><span>Balance</span></div>'+recent.map(e=>rowHtml(e,afterAll[e.id],e.partner)).join(''):'<p class="hint" style="padding:16px;margin:0">No entries yet. Open a partner from the sidebar to add one.</p>'}</div>
   <div style="height:24px"></div>`;
 }
-function setSel(on){selMode=on;sel.clear();$('composer').hidden=!on;document.body.classList.toggle('selmode',on);$('cMain').hidden=on;$('selBtn').textContent=on?'Done':'Select';drawSel();renderDays()}
+function setSel(on){selMode=on;sel.clear();$('selBar').hidden=!on;$('cMain').hidden=on;$('cfor').hidden=on;$('selBtn').textContent=on?'Done':'Select';drawSel();renderDays()}
 function drawSel(){$('selCount').textContent=sel.size+' selected';$('selDel').disabled=!sel.size}
-function toLatest(){if(view!=='partner')return;requestAnimationFrame(()=>scrollTo({top:0,behavior:'auto'}))}
+function toLatest(){if(view!=='partner')return;requestAnimationFrame(()=>{const b=$('v-days');b.scrollTop=b.scrollHeight})}
 function renderDays(){
   if(!cur){$('list').innerHTML='';$('filterSum').textContent='';return}
   const ft=$('fType').value,q=normDigits($('fSearch').value).trim().toLowerCase(),from=$('fFrom').value,to=$('fTo').value;
@@ -843,15 +894,16 @@ function renderDays(){
   let n=0;shownDays.forEach(d=>n+=d.shown.length);
   const filtered=ft||q||from||to;
   $('filterSum').textContent=n?`${shownDays.length} day${shownDays.length>1?'s':''} · ${n} entr${n>1?'ies':'y'}${filtered?' (filtered)':''}`:'';
-  if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message in the box above, or tap <b>+</b>.`}</div>`;return}
-  shownDays.reverse();// latest day first
-  $('list').innerHTML='<div class="days">'+shownDays.slice(0,120).map((d,i)=>{const o=bal(d.open),c=bal(d.close);return `<section class="day${i%2?' alt':''}">
+  if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message in the box below, or tap <b>+</b>.`}</div>`;return}
+  const start=Math.max(0,shownDays.length-120),last=shownDays.length-1;
+  $('list').innerHTML=(start?'<p class="hint" style="padding:8px 14px;margin:0">Showing the latest 120 days. Use the date filter for older days.</p>':'')+'<div class="days">'+shownDays.slice(start).map((d,k)=>{const i=start+k,o=bal(d.open),c=bal(d.close);return `<section class="day${(last-i)%2?' alt':''}">
     <div class="dh"><div class="dd"><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div>
-      <div class="dt">${d.sent?`<span>Sent <b>${tk(d.sent)}</b></span>`:''}${d.recv?`<span>Received <b class="green">${tk(d.recv)}</b></span>`:''}<span>Bal <b class="${c.cls}">${sbal(d.close)}</b></span></div>
       <div class="dbtns"><button class="copy" type="button" data-copyday="${i}" aria-label="Copy this day" title="Copy">⧉<span class="bl"> Copy</span></button><button class="copy share" type="button" data-shareday="${i}" aria-label="Share this day as image" title="Share">↗<span class="bl"> Share</span></button></div></div>
     <div class="colh"><span>Number</span><span>Note</span><span>Amount</span><span>Balance</span></div>
-    ${d.shown.slice().reverse().map(e=>rowHtml(e,d.after[e.id])).join('')}
-    </section>`}).join('')+'</div>'+(shownDays.length>120?'<p class="hint">Showing the latest 120 days. Use the date filter for older days.</p>':'');
+    ${d.shown.map(e=>rowHtml(e,d.after[e.id])).join('')}
+    <div class="df"><span>Sent today <b>${tk(d.sent)}</b></span><span>${d.recv?'Received today <b class="green">'+tk(d.recv)+'</b>':'&nbsp;'}</span>
+      <div class="end"><small>Day total · ${c.word}</small><b class="${c.cls}">${sbal(d.close)}</b></div></div>
+    </section>`}).join('')+'</div>';
 }
 function renderMonthly(){
   if(!cur){$('monthly').innerHTML='';return}
@@ -1110,7 +1162,11 @@ document.addEventListener('paste',e=>{
   const tg=e.target;if(tg&&(tg.tagName==='INPUT'||tg.tagName==='TEXTAREA'))return;
   const txt=(e.clipboardData||window.clipboardData)?.getData('text');if(!txt||!/\d{5}|[০-৯]{5}/.test(txt))return;
   e.preventDefault();openPaste(cur,txt)});
-$('cSend').onclick=()=>{const t=$('cText');if(!cur)return;if(!t.value.trim()){t.focus();return toast('Paste the WhatsApp message in the box first')}const v=t.value;t.value='';growC();openPaste(cur,v)};
+$('filtBtn').onclick=()=>{$('filters').hidden=!$('filters').hidden};
+$('cSend').onclick=async()=>{const t=$('cText');if(!cur)return;
+  if(t.value.trim()){const v=t.value;t.value='';growC();return openPaste(cur,v)}
+  try{const v=await navigator.clipboard.readText();if(v&&v.trim())return openPaste(cur,v)}catch(e){}
+  t.focus();toast('Press and hold the box, then tap Paste')};
 $('menuBtn').onclick=()=>$('dlgMenu').showModal();
 $('navBtn').onclick=openNav;$('scrim').onclick=closeNav;
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go;
