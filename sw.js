@@ -1,4 +1,4 @@
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CORE = `tri-cal-core-${VERSION}`;
 const RUNTIME = `tri-cal-runtime-${VERSION}`;
 const ASSETS = ['./', 'index.html', 'manifest.webmanifest', 'icons/favicon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
@@ -19,6 +19,8 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  // Other apps in sub-folders (e.g. hisab/) handle their own requests
+  if (url.origin === location.origin && url.pathname.includes('/hisab/')) return;
 
   // Page navigations: network first, fall back to cached app shell (offline support)
   if (req.mode === 'navigate') {
