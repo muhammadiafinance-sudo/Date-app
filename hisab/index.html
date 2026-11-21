@@ -102,7 +102,10 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .day{background:var(--day-a)}
 .day.alt{background:var(--day-b)}
 .day+.day{border-top:1px solid var(--day-line)}
-.dh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px 4px}
+.dh{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 14px 6px}
+.dt{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:2px 12px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.dt span{white-space:nowrap}.dt b{color:var(--ink);font-weight:700}.dt b.red{color:var(--red)}.dt b.green{color:var(--green)}
+@media (max-width:599px){.dh .bl{display:none}.dh .copy{width:34px;height:34px;padding:0;justify-content:center;font-size:15px}.dt{flex-direction:column;align-items:flex-end;gap:0}}
 .dh b{font-size:16px}
 .dh small{display:block;font-size:12px;color:var(--muted);font-weight:400}
 .copy{border:1px solid var(--day-line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;flex:none}
@@ -843,15 +846,12 @@ function renderDays(){
   if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message in the box above, or tap <b>+</b>.`}</div>`;return}
   shownDays.reverse();// latest day first
   $('list').innerHTML='<div class="days">'+shownDays.slice(0,120).map((d,i)=>{const o=bal(d.open),c=bal(d.close);return `<section class="day${i%2?' alt':''}">
-    <div class="dh"><div><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div><div class="dbtns"><button class="copy" type="button" data-copyday="${i}">⧉ Copy</button><button class="copy share" type="button" data-shareday="${i}">↗ Share</button></div></div>
+    <div class="dh"><div class="dd"><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div>
+      <div class="dt">${d.sent?`<span>Sent <b>${tk(d.sent)}</b></span>`:''}${d.recv?`<span>Received <b class="green">${tk(d.recv)}</b></span>`:''}<span>Bal <b class="${c.cls}">${sbal(d.close)}</b></span></div>
+      <div class="dbtns"><button class="copy" type="button" data-copyday="${i}" aria-label="Copy this day" title="Copy">⧉<span class="bl"> Copy</span></button><button class="copy share" type="button" data-shareday="${i}" aria-label="Share this day as image" title="Share">↗<span class="bl"> Share</span></button></div></div>
     <div class="colh"><span>Number</span><span>Note</span><span>Amount</span><span>Balance</span></div>
     ${d.shown.slice().reverse().map(e=>rowHtml(e,d.after[e.id])).join('')}
-    <div class="df">
-      <span>Previous: <span class="${o.cls}">${sbal(d.open)}</span></span>
-      <span>${d.sent?'Sent today '+tk(d.sent):''}</span>
-      <span>${d.recv?'Received today <b class="green">'+tk(d.recv)+'</b>':''}</span>
-      <div class="end"><small>Balance · ${c.word}</small><b class="${c.cls}">${sbal(d.close)}</b></div>
-    </div></section>`}).join('')+'</div>'+(shownDays.length>120?'<p class="hint">Showing the latest 120 days. Use the date filter for older days.</p>':'');
+    </section>`}).join('')+'</div>'+(shownDays.length>120?'<p class="hint">Showing the latest 120 days. Use the date filter for older days.</p>':'');
 }
 function renderMonthly(){
   if(!cur){$('monthly').innerHTML='';return}
