@@ -13,210 +13,268 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* Layout: sticky ledger header, partner balance cards on top, tabbed ledger below, floating add button */
+/* Layout: sticky header · profile switch · profile summary with actions and WhatsApp paste · day-by-day statement in alternating white / carbon-gray bands */
 :root{
-  --bg:#eef3f2;--card:#ffffff;--text:#13211f;--muted:#5b6b69;--line:#d6e0de;
-  --brand:#0e6b62;--on-brand:#ffffff;--brand-soft:#d3efe9;
-  --send:#b4470e;--send-soft:#fbe6d8;--bank:#17803d;--bank-soft:#d9f3e1;
-  --danger:#b3261e;--on-danger:#ffffff;--shadow:0 1px 2px rgba(19,33,31,.08);
-  --head:#0e6b62;--on-head:#ffffff;--toast:#13211f;--on-toast:#ffffff;
-  --day-a:#ffffff;--day-b:#e4e6e8;--day-line:#d3d6da;--day-head:#2b2f33;
+  --bg:#f2f3f5;--surface:#ffffff;--ink:#14171a;--muted:#5d6670;--line:#e2e5e9;
+  --brand:#0f5f57;--on-brand:#ffffff;--brand-soft:#e2f0ee;
+  --red:#c62828;--red-soft:#fdeceb;--green:#1b7a44;--green-soft:#e5f3ea;
+  --day-a:#ffffff;--day-b:#e9ebee;--day-line:#d7dbe0;
+  --chip:#eef0f3;--shadow:0 1px 2px rgba(20,23,26,.06),0 2px 8px rgba(20,23,26,.04);
+  --toast:#14171a;--on-toast:#ffffff;--scrim:rgba(10,12,14,.5);
   --font:"Hind Siliguri",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0c1413;--card:#141f1d;--text:#e3eeec;--muted:#8fa3a0;--line:#26322f;
-  --brand:#3cc7b4;--on-brand:#06201c;--brand-soft:#123a35;
-  --send:#f59a5f;--send-soft:#3a1f0e;--bank:#5fd38a;--bank-soft:#12321e;
-  --danger:#f2867e;--on-danger:#2b0705;--shadow:none;
-  --head:#0f2e2a;--on-head:#e3eeec;--toast:#e3eeec;--on-toast:#0c1413;
-  --day-a:#1a1c1f;--day-b:#25282c;--day-line:#33373c;--day-head:#e6e8ea;color-scheme:dark}}
+  --bg:#0e1012;--surface:#171a1e;--ink:#eceef1;--muted:#9aa2ac;--line:#2a2f35;
+  --brand:#45c3b1;--on-brand:#062320;--brand-soft:#15302c;
+  --red:#ff6b6b;--red-soft:#3a1717;--green:#5fd38a;--green-soft:#12301e;
+  --day-a:#171a1e;--day-b:#212529;--day-line:#30353c;
+  --chip:#252a30;--shadow:none;--toast:#eceef1;--on-toast:#0e1012;--scrim:rgba(0,0,0,.6);color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0c1413;--card:#141f1d;--text:#e3eeec;--muted:#8fa3a0;--line:#26322f;
-  --brand:#3cc7b4;--on-brand:#06201c;--brand-soft:#123a35;
-  --send:#f59a5f;--send-soft:#3a1f0e;--bank:#5fd38a;--bank-soft:#12321e;
-  --danger:#f2867e;--on-danger:#2b0705;--shadow:none;
-  --head:#0f2e2a;--on-head:#e3eeec;--toast:#e3eeec;--on-toast:#0c1413;
-  --day-a:#1a1c1f;--day-b:#25282c;--day-line:#33373c;--day-head:#e6e8ea;color-scheme:dark}
+  --bg:#0e1012;--surface:#171a1e;--ink:#eceef1;--muted:#9aa2ac;--line:#2a2f35;
+  --brand:#45c3b1;--on-brand:#062320;--brand-soft:#15302c;
+  --red:#ff6b6b;--red-soft:#3a1717;--green:#5fd38a;--green-soft:#12301e;
+  --day-a:#171a1e;--day-b:#212529;--day-line:#30353c;
+  --chip:#252a30;--shadow:none;--toast:#eceef1;--on-toast:#0e1012;--scrim:rgba(0,0,0,.6);color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font:16px/1.45 var(--font);padding-bottom:96px}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--head)}
-header{background:var(--head);color:var(--on-head);position:sticky;top:env(safe-area-inset-top,0px);z-index:5;
-  padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.hin{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
-header h1{font-size:19px;margin:0;font-weight:700}
-header .sub{font-size:12px;opacity:.8}
-.menu-btn{background:transparent;color:var(--on-head);border:1px solid currentColor;border-radius:10px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer;opacity:.9}
-main{max-width:980px;margin:0 auto;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.num{font-variant-numeric:tabular-nums}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);min-width:0}
-.pcard h2{margin:0 0 6px;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.row{display:flex;justify-content:space-between;gap:8px;padding:2px 0;font-size:14px}
-.row span:first-child{color:var(--muted)}
-.due{margin-top:6px;padding-top:8px;border-top:1px dashed var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.due b{font-size:26px;font-variant-numeric:tabular-nums}
-.due small{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.pos{color:var(--send)}.neg{color:var(--bank)}
-.tabs{display:flex;gap:6px;margin:18px 0 10px;overflow-x:auto}
-.tab{border:1px solid var(--line);background:var(--card);color:var(--text);padding:7px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;font:inherit;font-size:14px}
-.tab.on{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
-label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
-input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;font-size:16px;min-width:0}
-textarea{min-height:130px;font-family:ui-monospace,Menlo,monospace;font-size:15px}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);padding-bottom:96px;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.num,.amt{font-variant-numeric:tabular-nums}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.f{margin-bottom:10px;min-width:0}
-.btn{border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer;background:var(--brand);color:var(--on-brand)}
-.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
-.btn.sm{padding:4px 10px;font-size:13px;font-weight:500}
-.btn.danger{background:var(--danger);color:var(--on-danger)}
+[hidden]{display:none!important}
+
+/* header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-weight:700;font-size:18px}
+.brand h1{font-size:18px;margin:0;line-height:1.1}
+.brand small{display:block;font-size:12px;color:var(--muted)}
+.icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 12px;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+
+/* profile switch */
+.profiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:14px 0 12px}
+.prof{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;text-align:left;min-width:0}
+.prof .av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--chip);font-weight:700}
+.prof .pn{font-weight:700;font-size:17px;line-height:1.2;display:block}
+.prof .pd{font-size:13px;color:var(--muted);display:block;font-variant-numeric:tabular-nums;line-height:1.3}
+.prof .pd.red{color:var(--red);font-weight:600}
+.prof.on{border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}
+.prof.on .av{background:var(--brand);color:var(--on-brand)}
+
+/* summary */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.hero{padding:16px}
+.hero .lbl{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.hero .big{font-size:40px;font-weight:700;line-height:1.1;margin:2px 0 12px;font-variant-numeric:tabular-nums}
+.red{color:var(--red)}.green{color:var(--green)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat{background:var(--bg);border-radius:12px;padding:8px 12px}
+.stat span{display:block;font-size:12px;color:var(--muted)}
+.stat b{font-size:18px;font-variant-numeric:tabular-nums}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer;background:var(--brand);color:var(--on-brand);font-size:15px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.soft{background:var(--chip);color:var(--ink)}
+.btn.danger{background:var(--red);color:#fff}
+.btn.sm{padding:6px 12px;font-size:14px;border-radius:10px}
 .btn:disabled{opacity:.5;cursor:default}
 .btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.typesw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.typesw button{padding:10px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-weight:600;cursor:pointer;line-height:1.25}
-.typesw small{font-weight:400}
-.typesw button.on.send{border-color:var(--send);background:var(--send-soft);color:var(--send)}
-.typesw button.on.bank{border-color:var(--bank);background:var(--bank-soft);color:var(--bank)}
-.filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px}
-@media(max-width:560px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters .search{grid-column:1/-1}}
-.profiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
-.prof{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--text);font:inherit;cursor:pointer;text-align:left}
-.prof .pn{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
-.prof .av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);font-size:14px;font-weight:700}
-.prof .pd{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.prof.on{border-color:var(--brand);background:var(--brand);color:var(--on-brand)}
-.prof.on .pd{color:var(--on-brand);opacity:.85}
-.prof.on .av{background:var(--on-brand);color:var(--brand)}
-.days{border:1px solid var(--day-line);border-radius:14px;overflow:hidden}
-.day{background:var(--day-a);color:var(--day-head)}
+.paste{margin-top:12px;border:1.5px dashed var(--line);border-radius:14px;padding:10px;display:flex;gap:8px;align-items:center;background:var(--bg)}
+.paste textarea{flex:1;min-width:0;border:0;background:transparent;resize:none;height:44px;font:inherit;font-size:15px;color:var(--ink);padding:2px 4px}
+.paste textarea:focus{outline:none}
+.paste:focus-within{border-color:var(--brand)}
+.meta-line{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)}
+.linkish{background:none;border:0;padding:0;color:var(--brand);font-weight:600;cursor:pointer;font-size:14px}
+.sync{font-size:12px;color:var(--muted);margin:8px 2px 0;display:flex;align-items:center;gap:6px}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block}
+.sync.warn{color:var(--red)}.sync.warn i{background:var(--red)}
+
+/* tabs & filters */
+.tabs{display:flex;gap:4px;margin:18px 0 10px;background:var(--chip);border-radius:12px;padding:4px}
+.tab{flex:1;border:0;background:transparent;padding:8px;border-radius:9px;cursor:pointer;font-weight:600;font-size:14px;color:var(--muted)}
+.tab.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+details.filt{margin-bottom:10px}
+details.filt summary{cursor:pointer;font-size:14px;color:var(--muted);padding:2px 0}
+.filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.filters .full{grid-column:1/-1}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;font-size:16px;min-width:0}
+.sumtxt{font-size:13px;color:var(--muted);margin-bottom:8px}
+
+/* day-by-day statement */
+.days{border:1px solid var(--day-line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.day{background:var(--day-a)}
 .day.alt{background:var(--day-b)}
 .day+.day{border-top:1px solid var(--day-line)}
-.dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:10px 12px 6px;flex-wrap:wrap}
-.dayhead b{font-size:15px}
-.dayhead span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-.dayfoot{display:flex;justify-content:space-between;align-items:baseline;gap:6px 12px;flex-wrap:wrap;padding:8px 12px 10px;border-top:1px dashed var(--day-line);font-size:13px;font-variant-numeric:tabular-nums}
-.dayfoot .cl{font-size:15px;font-weight:700}
-.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:8px 12px;border:0;border-top:1px solid var(--day-line);background:transparent;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
-.item:hover{background:rgba(127,127,127,.08)}
-.item .amt{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
-.item .meta{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
-.item .bal{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
-.item .who{font-variant-numeric:tabular-nums;font-weight:600}
-.badge{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;margin-right:4px;vertical-align:1px}
-.b-send{background:var(--send-soft);color:var(--send)}
-.b-bank{background:var(--bank-soft);color:var(--bank)}
-.empty{text-align:center;color:var(--muted);padding:30px 10px}
-.hint{font-size:13px;color:var(--muted)}
-.fab{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;font-size:30px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:6;padding:0}
-dialog{border:0;border-radius:16px;padding:0;width:min(520px,calc(100vw - 24px));background:var(--card);color:var(--text)}
-dialog::backdrop{background:rgba(0,0,0,.45)}
-.dh{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-.dh h3{margin:0;font-size:17px}
-.db{padding:16px;max-height:72vh;overflow:auto}
-.db h4{margin:18px 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-.db h4:first-child{margin-top:0}
-.x{background:none;border:0;font-size:26px;color:var(--muted);cursor:pointer;line-height:1}
-.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--toast);color:var(--on-toast);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:50;max-width:calc(100vw - 32px)}
-.toast.show{opacity:1}
-.preview{font-size:14px;margin-top:4px}
-.bad{color:var(--danger)}
-pre.stmt{white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:10px;font-size:13px;max-height:45vh;overflow:auto;font-variant-numeric:tabular-nums;user-select:all}
-.tbl{overflow-x:auto}
-.tbl table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
-.tbl th{text-align:left;color:var(--muted);font-weight:500;padding:6px 8px;white-space:nowrap}
-.tbl td{padding:6px 8px;border-top:1px solid var(--line);white-space:nowrap}
-.status{font-size:12px;color:var(--muted);margin-top:6px}
-.pastebox{margin-top:10px;display:flex;gap:6px;align-items:stretch}
-.pastebox textarea{min-height:0;height:46px;resize:none;font-family:var(--font);font-size:14px;padding:8px 10px;border-style:dashed;flex:1}
-.pastebox .btn{padding:6px 12px;font-size:14px}
-.prow{display:grid;grid-template-columns:auto minmax(0,1.4fr) minmax(0,1fr) auto;gap:6px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
-.prow input,.prow select{padding:7px 8px;font-size:15px}
+.dh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px 4px}
+.dh b{font-size:16px}
+.dh small{display:block;font-size:12px;color:var(--muted);font-weight:400}
+.copy{border:1px solid var(--day-line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;flex:none}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:9px 14px;border:0;background:transparent;width:100%;text-align:left;cursor:pointer}
+.row+.row{border-top:1px solid var(--day-line)}
+.row:hover{background:rgba(127,127,127,.07)}
+.row .t{font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.row .s{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.row .amt{font-weight:700;font-size:17px;text-align:right}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--chip);color:var(--muted);margin-left:6px;vertical-align:2px}
+.chip.in{background:var(--green-soft);color:var(--green)}
+.df{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 14px 12px;border-top:1px dashed var(--day-line);font-size:14px;font-variant-numeric:tabular-nums}
+.df span{color:var(--muted)}
+.df .red{color:var(--red);font-weight:600}
+.df .end{grid-column:2;grid-row:1/span 3;align-self:center;text-align:right}
+.df .end small{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.df .end b{font-size:20px}
+.empty{text-align:center;color:var(--muted);padding:32px 12px;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.tbl{overflow-x:auto;padding:4px 0}
+.tbl table{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+.tbl th{text-align:left;color:var(--muted);font-weight:500;padding:8px 14px;white-space:nowrap;font-size:13px}
+.tbl td{padding:8px 14px;border-top:1px solid var(--line);white-space:nowrap}
+
+/* fab, dialogs, toast */
+.fab{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:18px;font-size:28px;line-height:1;box-shadow:0 6px 18px rgba(0,0,0,.22);z-index:6;padding:0}
+dialog{border:0;border-radius:18px;padding:0;width:min(520px,calc(100vw - 24px));background:var(--surface);color:var(--ink)}
+dialog::backdrop{background:var(--scrim)}
+.dhd{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dhd h3{margin:0;font-size:18px}
+.dbd{padding:16px;max-height:74vh;overflow:auto}
+.dbd h4{margin:20px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.dbd h4:first-child{margin-top:0}
+.x{background:none;border:0;font-size:26px;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f{margin-bottom:12px;min-width:0}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;background:var(--chip);padding:4px;border-radius:12px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:9px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.pct{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin:-4px 0 12px;font-size:14px;color:var(--muted)}
+.pct label{display:flex;gap:6px;align-items:center;margin:0;font-size:14px;color:var(--ink)}
+.pct input{width:auto}
+.pct b{color:var(--ink);font-size:16px}
+.prow{display:grid;grid-template-columns:auto minmax(0,1.4fr) minmax(0,1fr) auto;gap:6px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.prow input{padding:8px;font-size:15px}
 .prow input[type=checkbox]{width:20px;height:20px}
-.prow .tot{font-weight:700;text-align:right;font-variant-numeric:tabular-nums;min-width:74px}
-.prow .warn{grid-column:2/-1;font-size:12px;color:var(--danger)}
+.prow .tot{font-weight:700;text-align:right;font-variant-numeric:tabular-nums;min-width:78px}
+.prow .warn{grid-column:2/-1;font-size:12px;color:var(--red)}
+.prow .note{grid-column:2/-1;font-size:12px;color:var(--muted)}
 .prow.off{opacity:.55}
-.sumline{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 0;border-top:2px solid var(--line);font-variant-numeric:tabular-nums}
-.pctline{font-size:14px;color:var(--muted);margin:-4px 0 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.pctline input[type=checkbox]{width:auto}
-.pctline b{color:var(--text)}
-.status.warn{color:var(--danger)}
+.phead{display:grid;grid-template-columns:auto minmax(0,1.4fr) minmax(0,1fr) auto;gap:6px;font-size:12px;color:var(--muted)}
+.psum{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 0;border-top:2px solid var(--line);font-variant-numeric:tabular-nums}
+pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12px;font:14px/1.5 var(--font);max-height:46vh;overflow:auto;font-variant-numeric:tabular-nums;user-select:all;margin:0 0 12px}
+.hint{font-size:13px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--toast);color:var(--on-toast);padding:10px 12px 10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;max-width:calc(100vw - 32px);display:flex;gap:12px;align-items:center}
+.toast.show{opacity:1;pointer-events:auto}
+.toast button{background:none;border:0;color:inherit;font-weight:700;text-decoration:underline;cursor:pointer;padding:2px 4px}
+
+/* lock screen */
+.lock{position:fixed;inset:0;z-index:40;background:var(--bg);display:grid;place-items:center;padding:24px}
+.lock .box{width:min(340px,100%);text-align:center}
+.lock .logo{margin:0 auto 12px;width:52px;height:52px;font-size:26px;border-radius:14px}
+.lock input{text-align:center;font-size:26px;letter-spacing:.4em;margin:14px 0 10px}
+body.locked main,body.locked header,body.locked .fab{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
+@media (max-width:380px){.hero .big{font-size:34px}.actions{grid-template-columns:1fr}}
 </style>
 
-<header><div class="hin">
-  <div><h1>Partner Hisab</h1><div class="sub">bKash / Nagad send → Bank receive</div></div>
-  <button class="menu-btn" id="menuBtn" type="button">☰ Menu</button>
+<header><div class="wrap bar">
+  <div class="brand"><div class="logo" aria-hidden="true">হ</div><div><h1>Partner Hisab</h1><small>bKash / Nagad → Bank</small></div></div>
+  <div class="btns"><button class="icon-btn" id="lockBtn" type="button" hidden>🔒 Lock</button><button class="icon-btn" id="menuBtn" type="button">☰ Menu</button></div>
 </div></header>
 
-<main>
+<main class="wrap">
   <nav class="profiles" id="profiles" aria-label="Profiles"></nav>
-  <section id="cards"><div class="card empty">Loading your hisab…</div></section>
-  <div class="status" id="status"></div>
+  <section id="hero"><div class="empty">Loading your hisab…</div></section>
+  <div class="sync" id="status"></div>
 
   <div class="tabs" role="tablist">
-    <button class="tab on" data-v="ledger" type="button">Statement by date</button>
+    <button class="tab on" data-v="days" type="button">Daily statement</button>
     <button class="tab" data-v="monthly" type="button">Monthly</button>
   </div>
 
-  <section id="v-ledger">
-    <details id="filtBox" style="margin-bottom:8px"><summary class="hint" style="cursor:pointer;padding:4px 0">Search &amp; filter</summary>
-    <div class="filters" style="margin-top:8px">
-      <select id="fType" aria-label="Type filter">
-        <option value="">All types</option>
-        <option value="send">Sent (bKash/Nagad)</option>
-        <option value="bank">Received (Bank)</option>
-      </select>
-      <input class="search" id="fSearch" placeholder="Search number / note / TrxID">
-      <input type="date" id="fFrom" aria-label="From date">
-      <input type="date" id="fTo" aria-label="To date">
-      <button class="btn ghost" id="clearF" type="button">Clear filters</button>
-    </div>
+  <section id="v-days">
+    <details class="filt" id="filtBox"><summary>Search &amp; filter</summary>
+      <div class="filters">
+        <input class="full" id="fSearch" placeholder="Search number, note, amount">
+        <select id="fType" aria-label="Type">
+          <option value="">Sent and received</option>
+          <option value="send">Sent only</option>
+          <option value="bank">Bank payments only</option>
+        </select>
+        <button class="btn ghost" id="clearF" type="button">Clear</button>
+        <div><label for="fFrom">From</label><input type="date" id="fFrom"></div>
+        <div><label for="fTo">To</label><input type="date" id="fTo"></div>
+      </div>
     </details>
-    <div class="hint num" id="filterSum" style="margin-bottom:8px"></div>
+    <div class="sumtxt" id="filterSum"></div>
     <div id="list"></div>
   </section>
 
-  <section id="v-monthly" hidden>
-    <div class="card tbl" id="monthly"></div>
-  </section>
+  <section id="v-monthly" hidden><div class="card tbl" id="monthly"></div></section>
 </main>
 
 <button class="btn fab" id="fab" type="button" aria-label="Add entry">+</button>
-<div class="toast" id="toast" role="status"></div>
+<div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" type="button" hidden>Undo</button></div>
+
+<div class="lock" id="lock" hidden>
+  <form class="box" id="lockForm">
+    <div class="logo" aria-hidden="true">হ</div>
+    <h2 style="margin:0">Partner Hisab is locked</h2>
+    <div class="hint">Enter your PIN to open</div>
+    <input id="lockPin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" aria-label="PIN">
+    <button class="btn" type="submit" style="width:100%">Unlock</button>
+    <div class="hint" id="lockMsg" style="margin-top:10px;min-height:20px"></div>
+  </form>
+</div>
 
 <dialog id="dlgEntry">
-  <div class="dh"><h3 id="eTitle">New entry</h3><button class="x" type="button" data-close>×</button></div>
-  <div class="db">
-    <div class="typesw">
-      <button class="send on" data-t="send" type="button">↑ Sent<br><small>bKash / Nagad</small></button>
-      <button class="bank" data-t="bank" type="button">↓ Received<br><small>via Bank</small></button>
-    </div>
+  <div class="dhd"><h3 id="eTitle">New entry</h3><button class="x" type="button" data-close aria-label="Close">×</button></div>
+  <div class="dbd">
+    <div class="seg"><button data-t="send" type="button" class="on">Money sent</button><button data-t="bank" type="button">Bank payment</button></div>
     <div class="f2">
-      <div class="f"><label for="ePartner">Partner</label><select id="ePartner"></select></div>
+      <div class="f"><label for="ePartner">Profile</label><select id="ePartner"></select></div>
       <div class="f"><label for="eDate">Date</label><input type="date" id="eDate"></div>
     </div>
-    <div class="f2">
-      <div class="f"><label for="eMethod" id="eMethodLbl">Sent via</label><select id="eMethod"></select></div>
-      <div class="f"><label for="eAmount">Amount (৳)</label><input type="number" inputmode="decimal" id="eAmount" min="0" step="any"></div>
-    </div>
-    <div class="pctline send-only"><label style="display:flex;gap:6px;align-items:center;margin:0;font-size:14px"><input type="checkbox" id="ePctOn" checked> Add <span id="ePctVal">2</span>%</label><span>Total: <b id="eTotal">৳0</b></span></div>
     <div class="f2 send-only">
-      <div class="f"><label for="eNumber">Number sent to</label><input id="eNumber" inputmode="tel" list="numList" placeholder="01XXXXXXXXX"><datalist id="numList"></datalist></div>
-      <div class="f"><label for="eCharge">Charge (৳, optional)</label><input type="number" inputmode="decimal" id="eCharge" min="0" step="any" placeholder="0"></div>
+      <div class="f"><label for="eNumber">Number</label><input id="eNumber" inputmode="tel" list="numList" placeholder="01XXXXXXXXX" autocomplete="off"><datalist id="numList"></datalist></div>
+      <div class="f"><label for="eMethod" id="eMethodLbl">Sent via</label><select id="eMethod"></select></div>
     </div>
-    <div class="f"><label for="eNote">TrxID / Ref / Note</label><input id="eNote" placeholder="optional"></div>
+    <div class="f2">
+      <div class="f"><label for="eAmount">Amount (৳)</label><input type="number" inputmode="decimal" id="eAmount" min="0" step="any"></div>
+      <div class="f bank-only"><label for="eMethodB">Received via</label><select id="eMethodB"><option>Bank</option><option>Cash</option><option>Other</option></select></div>
+      <div class="f send-only"><label for="eCharge">Charge (optional)</label><input type="number" inputmode="decimal" id="eCharge" min="0" step="any" placeholder="0"></div>
+    </div>
+    <div class="pct send-only"><label><input type="checkbox" id="ePctOn" checked> Add <span id="ePctVal">2</span>%</label><span>Total <b id="eTotal">৳0</b></span></div>
+    <div class="f"><label for="eNote">Note / TrxID</label><input id="eNote" placeholder="optional" autocomplete="off"></div>
     <div class="btns">
       <button class="btn" id="eSave" type="button">Save</button>
       <button class="btn ghost" id="eSaveMore" type="button">Save &amp; add another</button>
-      <button class="btn danger" id="eDelete" type="button" hidden>Delete</button>
+      <button class="btn ghost" id="eDelete" type="button" style="color:var(--red);margin-left:auto" hidden>Delete</button>
     </div>
   </div>
 </dialog>
 
+<dialog id="dlgPaste">
+  <div class="dhd"><h3 id="pTitle">From WhatsApp</h3><button class="x" type="button" data-close aria-label="Close">×</button></div>
+  <div class="dbd">
+    <div class="f2">
+      <div class="f"><label for="pPartner">Profile</label><select id="pPartner"></select></div>
+      <div class="f"><label for="pDate">Date</label><input type="date" id="pDate"></div>
+    </div>
+    <div class="f2">
+      <div class="f"><label for="pPct">Extra %</label><input type="number" inputmode="decimal" id="pPct" min="0" step="any"></div>
+      <div class="f"><label for="pMethod">Method</label><select id="pMethod"><option>bKash</option><option>Nagad</option><option>Rocket</option><option>Upay</option></select></div>
+    </div>
+    <div id="pRows"></div>
+    <div class="psum" id="pSum"></div>
+    <div class="btns"><button class="btn" id="pAdd" type="button">Add</button><button class="btn ghost" id="pMore" type="button">Add a row</button></div>
+    <details style="margin-top:12px"><summary class="hint">Pasted message (edit to read again)</summary><textarea id="pText" style="margin-top:6px;min-height:120px"></textarea></details>
+  </div>
+</dialog>
+
 <dialog id="dlgMenu">
-  <div class="dh"><h3>Menu</h3><button class="x" type="button" data-close>×</button></div>
-  <div class="db">
-    <h4>Statement</h4>
+  <div class="dhd"><h3>Menu</h3><button class="x" type="button" data-close aria-label="Close">×</button></div>
+  <div class="dbd">
+    <h4>Full statement</h4>
     <div class="btns" id="stmtBtns"></div>
     <h4>Excel</h4>
     <div class="btns">
@@ -224,57 +282,46 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:10
       <button class="btn ghost" id="impBtn" type="button">Import Excel / CSV</button>
       <input type="file" id="impFile" accept=".xlsx,.xls,.csv" hidden>
     </div>
-    <p class="hint">Import reads these column names: <b>Date, Partner, Type</b> (Sent / Received), <b>Method, Number, Amount, Charge, Note</b>. Only Amount is required.</p>
+    <p class="hint">Import reads the columns <b>Date, Partner, Type</b> (Sent / Received), <b>Method, Number, Amount, Charge, Note</b>. Only Amount is required.</p>
     <h4>Backup</h4>
     <div class="btns">
       <button class="btn ghost" id="bkBtn" type="button">Save backup file</button>
       <button class="btn ghost" id="rsBtn" type="button">Restore backup</button>
       <input type="file" id="resFile" accept=".json" hidden>
     </div>
-    <h4>Partners</h4>
+    <h4>Security</h4>
+    <p class="hint" id="pinState" style="margin-top:0"></p>
+    <div class="btns" id="pinSet">
+      <input id="pinNew" type="password" inputmode="numeric" maxlength="8" placeholder="New PIN (4–8 digits)" style="flex:1;min-width:150px" autocomplete="off">
+      <button class="btn ghost" id="pinSave" type="button">Set PIN</button>
+    </div>
+    <div class="btns" id="pinOff" hidden><button class="btn ghost" id="pinRemove" type="button">Remove PIN</button></div>
+    <p class="hint" id="writeNote"></p>
+    <h4>Profiles</h4>
     <div id="partnerEdit"></div>
     <div class="btns" style="margin-top:8px">
-      <input id="newPartner" placeholder="Add partner name" style="flex:1">
+      <input id="newPartner" placeholder="New profile name" style="flex:1" autocomplete="off">
       <button class="btn ghost" id="addP" type="button">Add</button>
     </div>
     <h4>Settings</h4>
-    <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--text)">
-      <input type="checkbox" id="setCharge" style="width:auto">
-      Add send charge to partner's due
+    <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink)">
+      <input type="checkbox" id="setCharge" style="width:auto"> Add send charge to the due
     </label>
     <h4>Danger zone</h4>
-    <button class="btn danger" id="wipeBtn" type="button">Delete all entries</button>
+    <button class="btn ghost" id="wipeBtn" type="button" style="color:var(--red)">Delete all entries</button>
   </div>
 </dialog>
 
 <dialog id="dlgStmt">
-  <div class="dh"><h3 id="sTitle">Statement</h3><button class="x" type="button" data-close>×</button></div>
-  <div class="db">
+  <div class="dhd"><h3 id="sTitle">Statement</h3><button class="x" type="button" data-close aria-label="Close">×</button></div>
+  <div class="dbd">
     <pre class="stmt" id="sText"></pre>
-    <div class="btns"><button class="btn" id="copyBtn" type="button">Copy text</button><span class="hint">Paste into WhatsApp / Messenger</span></div>
-  </div>
-</dialog>
-
-<dialog id="dlgPaste">
-  <div class="dh"><h3 id="pTitle">From WhatsApp</h3><button class="x" type="button" data-close>×</button></div>
-  <div class="db">
-    <div class="f2">
-      <div class="f"><label for="pPartner">Partner</label><select id="pPartner"></select></div>
-      <div class="f"><label for="pDate">Date</label><input type="date" id="pDate"></div>
-    </div>
-    <div class="f2">
-      <div class="f"><label for="pPct">Extra %</label><input type="number" inputmode="decimal" id="pPct" min="0" step="any"></div>
-      <div class="f"><label for="pMethod">Default method</label><select id="pMethod"><option>bKash</option><option>Nagad</option><option>Rocket</option><option>Upay</option></select></div>
-    </div>
-    <div id="pRows"></div>
-    <div class="sumline" id="pSum"></div>
-    <div class="btns"><button class="btn" id="pAdd" type="button">Add</button><button class="btn ghost" id="pMore" type="button">+ Row</button></div>
-    <details style="margin-top:12px"><summary class="hint">Pasted message (edit to re-read)</summary><textarea id="pText" style="margin-top:6px"></textarea></details>
+    <div class="btns"><button class="btn" id="copyBtn" type="button">Copy text</button><span class="hint">Then paste it in any chat</span></div>
   </div>
 </dialog>
 
 <dialog id="dlgAsk">
-  <div class="db">
+  <div class="dbd">
     <p id="askMsg" style="margin-top:0"></p>
     <input id="askInput" hidden autocomplete="off">
     <div class="btns" style="margin-top:12px;justify-content:flex-end">
@@ -285,38 +332,45 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:10
 </dialog>
 
 <script>
+'use strict';
+// ================= constants & helpers =================
 const SEND_METHODS=['bKash','Nagad','Rocket','Upay'];
-const BANK_METHODS=['Bank','Cash','Other'];
-const LKEY='partnerHisab.v1';
+const LKEY='partnerHisab.v1',PROF_KEY='partnerHisab.profile',PIN_KEY='partnerHisab.pin';
+const DEFAULT_PCT={Shapan:0};
+const MAX_AMOUNT=10000000;
 let state={partners:['Modina','Shapan'],entries:[],settings:{chargeToPartner:true}};
-let editId=null,curType='send',cur=null;
-try{cur=localStorage.getItem('partnerHisab.profile')}catch(e){}
-function setProfile(p){cur=p;try{localStorage.setItem('partnerHisab.profile',p)}catch(e){}render();scrollTo({top:0})}
-let db=null,dl=null,written={},cfgWritten='',loaded=false;
+let editId=null,curType='send',cur=null,db=null,dl=null,written={},cfgWritten='',loaded=false,canWrite=true;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+cur=store.get(PROF_KEY);
 
 const $=id=>document.getElementById(id);
+const BN='০১২৩৪৫৬৭৮৯';
+const normDigits=t=>String(t).replace(/[০-৯]/g,d=>BN.indexOf(d));
 const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
-const tk=n=>'৳'+(Math.round(n*100)/100).toLocaleString('en-IN');
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const money=n=>(Math.round(Math.abs(n)*100)/100).toLocaleString('en-IN',{maximumFractionDigits:2});
+const tk=n=>'৳'+money(n);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtDate=d=>{if(!d)return'';const[y,m,dd]=d.split('-');return `${dd}/${m}/${y}`};
+const dayName=d=>{const[y,m,dd]=d.split('-');return new Date(y,m-1,dd).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})};
 const effect=e=>e.type==='send'?(+e.amount+(state.settings.chargeToPartner?(+e.charge||0):0)):-e.amount;
-const DEFAULT_PCT={Shapan:0};
 const rate=p=>{const v=state.settings.pct&&state.settings.pct[p];return v===undefined||v===null||v===''?(p in DEFAULT_PCT?DEFAULT_PCT[p]:2):+v};
-const normNum=v=>{let d=normDigits(String(v)).replace(/\D/g,'');if(d.startsWith('00'))d=d.slice(2);if(d.startsWith('880'))d=d.slice(2);else if(d.startsWith('88')&&d.length===12)d=d.slice(2);if(/^1[3-9]\d{8}$/.test(d))d='0'+d;return d};
 const addPct=(b,pc)=>Math.round(b*(100+pc))/100;
+const normNum=v=>{let d=normDigits(v).replace(/\D/g,'');if(d.startsWith('00'))d=d.slice(2);if(d.startsWith('880'))d=d.slice(2);else if(d.startsWith('88')&&d.length===12)d=d.slice(2);if(/^1[3-9]\d{8}$/.test(d))d='0'+d;return d};
 const sorted=list=>[...list].sort((a,b)=>a.date===b.date?a.ts-b.ts:a.date<b.date?-1:1);
-function status(msg,warn){$('status').textContent=msg||'';$('status').classList.toggle('warn',!!warn)}
+// Balance wording: owes you = Due (red), paid more than due = Advance (red), zero = Settled
+const EPS=0.005;
+function bal(v){return v>EPS?{word:'Due',cls:'red'}:v<-EPS?{word:'Advance',cls:'red'}:{word:'Settled',cls:''}}
+function status(msg,warn){$('status').innerHTML=msg?`<i></i>${esc(msg)}`:'';$('status').classList.toggle('warn',!!warn)}
+function validAmount(n){return n>0&&n<MAX_AMOUNT}
 
-// ---------- storage: claude db (shared, all devices) with browser fallback ----------
-function monthDocs(){
-  const m={};
-  for(const e of state.entries){const k=e.date.slice(0,7);(m[k]=m[k]||{})[e.id]=e}
-  return m;
-}
+// ================= storage =================
+// Online (claude.ai): one document per month in "months", settings in "config/main". Elsewhere: this browser only.
+function monthDocs(){const m={};for(const e of state.entries){const k=e.date.slice(0,7);(m[k]=m[k]||{})[e.id]=e}return m}
 let saving=Promise.resolve();
 function save(){
-  if(!db){try{localStorage.setItem(LKEY,JSON.stringify(state))}catch(e){status('This browser is not saving data. Open the link while signed in to claude.ai.',true)}return}
+  if(!db){store.set(LKEY,JSON.stringify(state));return}
+  if(!canWrite){toast('You can view this hisab but not change it');return}
   saving=saving.then(async()=>{
     const m=monthDocs(),jobs=[];
     for(const k of new Set([...Object.keys(m),...Object.keys(written)])){
@@ -327,19 +381,19 @@ function save(){
     }
     const cfg=JSON.stringify({partners:state.partners,settings:state.settings});
     if(cfg!==cfgWritten){cfgWritten=cfg;jobs.push(db.doc('config/main').set(JSON.parse(cfg)))}
-    try{await Promise.all(jobs);status('Saved online ✓')}
-    catch(err){status('Could not save online ('+(err.code||err.message)+'). Check your connection and try again.',true)}
+    try{await Promise.all(jobs);status('Saved online')}
+    catch(err){status('Not saved ('+(err.code||err.message)+'). Check the internet and try again.',true)}
   });
 }
 function startDb(){
   let gotM=false,gotC=false;
-  const timer=setTimeout(()=>{if(!loaded){status('Still connecting… your data will appear when the connection is back.',true)}},10000);
-  const ready=()=>{if(gotM&&gotC&&!loaded){loaded=true;clearTimeout(timer);status('Saved online · same data on every device you open this link on')}render()};
+  const timer=setTimeout(()=>{if(!loaded)status('Still connecting… your hisab will appear when the connection is back.',true)},10000);
+  const ready=()=>{if(gotM&&gotC&&!loaded){loaded=true;clearTimeout(timer);status(canWrite?'Saved online · same on every device':'View only · you cannot change this hisab')}render()};
   db.collection('months').onSnapshot(snap=>{
     const ents=[];written={};
     snap.docs.forEach(d=>{const v=d.data()||{};written[d.id]=JSON.stringify(v.entries||{});Object.values(v.entries||{}).forEach(e=>ents.push(e))});
     state.entries=ents;gotM=true;ready();
-  },err=>status('Could not load data ('+err.code+').',true));
+  },err=>status('Could not load the hisab ('+err.code+').',true));
   db.doc('config/main').onSnapshot(snap=>{
     const v=snap.exists?snap.data():null;
     if(v&&Array.isArray(v.partners)){state.partners=v.partners;state.settings=v.settings||{chargeToPartner:true};cfgWritten=JSON.stringify({partners:state.partners,settings:state.settings})}
@@ -347,16 +401,44 @@ function startDb(){
   },err=>status('Could not load settings ('+err.code+').',true));
 }
 async function init(){
+  await lockIfNeeded();
   if(window.claude&&claude.use){
     claude.use('downloads').then(x=>dl=x).catch(()=>{});
     try{db=await claude.use('db')}catch(e){db=null}
+    if(db){try{const u=await claude.use('user');if(u){const w=await u.can('data.write');if(w===false)canWrite=false}}catch(e){}}
   }
+  $('writeNote').textContent=db?'Online data: only you (and people you give Editor access) can change it. Viewers can only read.':'This copy keeps data in this browser only. Save a backup file regularly.';
   if(db){startDb();return}
-  try{const s=JSON.parse(localStorage.getItem(LKEY));if(s&&Array.isArray(s.entries)){state=s;state.settings=state.settings||{chargeToPartner:true}}}catch(e){}
-  loaded=true;status(window.claude?'Not signed in: data is kept in this browser only.':'Offline copy: data is kept in this browser only.');render();
+  try{const s=JSON.parse(store.get(LKEY));if(s&&Array.isArray(s.entries)){state=s;state.settings=state.settings||{chargeToPartner:true}}}catch(e){}
+  loaded=true;status('Saved in this browser only · take a backup from Menu');render();
 }
 
-// ---------- calculations & rendering ----------
+// ================= PIN lock (this device) =================
+async function hashPin(pin,salt){
+  const data=new TextEncoder().encode(salt+':'+pin);
+  if(crypto.subtle){const h=await crypto.subtle.digest('SHA-256',data);return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+  let h=2166136261;for(const b of data){h^=b;h=Math.imul(h,16777619)}return 'f'+(h>>>0).toString(16);
+}
+function pinRec(){try{return JSON.parse(store.get(PIN_KEY))}catch(e){return null}}
+let fails=0,waitUntil=0,unlockResolve=null,hiddenAt=0;
+function lockNow(){if(!pinRec())return;document.body.classList.add('locked');document.querySelectorAll('dialog[open]').forEach(d=>d.close());$('lock').hidden=false;$('lockPin').value='';$('lockMsg').textContent='';setTimeout(()=>$('lockPin').focus(),50)}
+function lockIfNeeded(){if(!pinRec())return Promise.resolve();lockNow();return new Promise(r=>unlockResolve=r)}
+$('lockForm').addEventListener('submit',async ev=>{
+  ev.preventDefault();
+  if(Date.now()<waitUntil){$('lockMsg').textContent=`Too many tries. Wait ${Math.ceil((waitUntil-Date.now())/1000)} seconds.`;return}
+  const r=pinRec();if(!r)return;
+  if(await hashPin($('lockPin').value,r.salt)===r.hash){fails=0;$('lock').hidden=true;document.body.classList.remove('locked');if(unlockResolve){unlockResolve();unlockResolve=null}}
+  else{fails++;$('lockPin').value='';if(fails>=5){waitUntil=Date.now()+30000;fails=0;$('lockMsg').textContent='Wrong PIN 5 times. Wait 30 seconds.'}else $('lockMsg').textContent='Wrong PIN. Try again.'}
+});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>5*60e3)lockNow()});
+function drawPin(){const on=!!pinRec();$('pinState').textContent=on?'PIN is on. The app locks when opened, and after 5 minutes in the background.':'Set a PIN so nobody can open your hisab on this phone.';$('pinSet').hidden=on;$('pinOff').hidden=!on;$('lockBtn').hidden=!on}
+$('pinSave').onclick=async()=>{const p=normDigits($('pinNew').value).trim();if(!/^\d{4,8}$/.test(p))return toast('PIN must be 4 to 8 digits');
+  const salt=uid();store.set(PIN_KEY,JSON.stringify({salt,hash:await hashPin(p,salt)}));$('pinNew').value='';drawPin();toast('PIN set for this device')};
+$('pinRemove').onclick=async()=>{$('dlgMenu').close();const ok=await ask('Enter your current PIN to remove it.',{ok:'Remove PIN',danger:true,secret:true});if(!ok)return;
+  const r=pinRec();if(await hashPin(ok,r.salt)!==r.hash)return toast('Wrong PIN');store.del(PIN_KEY);drawPin();toast('PIN removed')};
+$('lockBtn').onclick=lockNow;
+
+// ================= calculations =================
 function totals(p){
   let sent=0,charge=0,bank=0,cnt=0,last=null;
   for(const e of state.entries) if(e.partner===p){
@@ -365,132 +447,166 @@ function totals(p){
   }
   return{sent,charge,bank,cnt,last,due:sent+(state.settings.chargeToPartner?charge:0)-bank};
 }
-function render(){
-  if(!loaded)return;
-  if(!state.partners.includes(cur))cur=state.partners[0]||null;
-  $('profiles').innerHTML=state.partners.map(p=>{const t=totals(p);return `<button class="prof${p===cur?' on':''}" type="button" data-prof="${esc(p)}" aria-pressed="${p===cur}">
-    <span class="pn"><span class="av">${esc(p.charAt(0).toUpperCase())}</span>${esc(p)}</span>
-    <span class="pd">${t.due>=0?'Due':'Advance'} ${tk(Math.abs(t.due))}</span></button>`}).join('');
-  if(cur){const p=cur,t=totals(p);
-    $('cards').innerHTML=`<div class="card pcard"><h2>${esc(p)} <button class="btn ghost sm" type="button" data-stmt="${esc(p)}">Copy statement</button></h2>
-      <div class="row"><span>Sent by bKash/Nagad · ${t.cnt}</span><b class="pos num">${tk(t.sent)}</b></div>
-      ${t.charge?`<div class="row"><span>Charges${state.settings.chargeToPartner?'':' (not added)'}</span><span class="num">${tk(t.charge)}</span></div>`:''}
-      <div class="row"><span>Received by bank</span><b class="neg num">${tk(t.bank)}</b></div>
-      <div class="due"><small>${t.due>=0?'Due · '+esc(p)+' owes you':'Advance · you owe '+esc(p)}</small><b class="${t.due>0?'pos':'neg'}">${tk(Math.abs(t.due))}</b></div>
-      <div class="hint">${rate(p)?'WhatsApp amounts get +'+rate(p)+'%':'WhatsApp amounts are added exactly'} · ${t.last?'Last entry '+fmtDate(t.last):'No entries yet'}</div>
-      <div class="pastebox"><textarea data-paste="${esc(p)}" rows="1" placeholder="Paste WhatsApp message for ${esc(p)}" aria-label="Paste WhatsApp message for ${esc(p)}"></textarea><button class="btn ghost" type="button" data-read="${esc(p)}">Read</button></div></div>`;
-  }else $('cards').innerHTML='<div class="card empty">Add a profile from Menu → Partners.</div>';
-  const opts=state.partners.map(p=>`<option>${esc(p)}</option>`).join('');
-  $('ePartner').innerHTML=opts;
-  $('stmtBtns').innerHTML=state.partners.map(p=>`<button class="btn ghost" type="button" data-stmt="${esc(p)}">${esc(p)}</button>`).join('');
-  $('partnerEdit').innerHTML=state.partners.map((p,i)=>`<div class="btns" style="margin-bottom:6px"><input value="${esc(p)}" style="flex:1;min-width:120px" data-ren="${i}" aria-label="Partner name"><label style="display:flex;align-items:center;gap:4px;margin:0"><input type="number" step="any" min="0" value="${rate(p)}" data-pct="${esc(p)}" style="width:70px" aria-label="Extra percent for ${esc(p)}">%</label><button class="btn ghost sm" type="button" data-rm="${i}">Remove</button></div>`).join('');
-  $('setCharge').checked=!!state.settings.chargeToPartner;
-  renderList();renderMonthly();
-}
-const dayName=d=>{const[y,m,dd]=d.split('-');return new Date(y,m-1,dd).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})};
 function dayGroups(p){
-  // running due over the full history of this profile, grouped by date (oldest first)
-  const days=[];let bal=0,last=null;
+  const days=[];let run=0,d=null;
   for(const e of sorted(state.entries.filter(x=>x.partner===p))){
-    if(!last||last.date!==e.date){last={date:e.date,open:bal,items:[],sent:0,recv:0};days.push(last)}
-    bal+=effect(e);last.items.push({e,bal});e.type==='send'?last.sent+=effect(e):last.recv+=+e.amount;last.close=bal;
+    if(!d||d.date!==e.date){d={date:e.date,open:run,items:[],sent:0,recv:0,close:run};days.push(d)}
+    run+=effect(e);d.items.push(e);e.type==='send'?d.sent+=effect(e):d.recv+=+e.amount;d.close=run;
   }
   return days;
 }
-function renderList(){
-  const ft=$('fType').value,q=$('fSearch').value.trim().toLowerCase(),from=$('fFrom').value,to=$('fTo').value;
+
+// ================= text for chats =================
+function entryLine(e,i){
+  if(e.type==='bank')return `Bank payment received: ${tk(e.amount)}${e.method!=='Bank'?' ('+e.method+')':''}${e.note?' · '+e.note:''}`;
+  const amt=e.base?`${money(e.base)} + ${e.pct}% = ${tk(e.amount)}`:tk(e.amount);
+  return `${i}) ${e.number||'—'}  ${amt}${e.method!=='bKash'?' ('+e.method+')':''}${e.charge?' + charge '+tk(e.charge):''}${e.note?' · '+e.note:''}`;
+}
+function balLine(label,v){const b=bal(v);return `${label}: ${b.word==='Settled'?'Settled (৳0)':b.word+' '+tk(v)}`}
+function dayText(p,d,withName=true){
+  let i=0;
+  return `${withName?p+' — ':''}${dayName(d.date)}\n`+
+    d.items.map(e=>entryLine(e,e.type==='send'?++i:0)).join('\n')+
+    `\n——————————\n`+(d.open?balLine('Previous',d.open)+'\n':'')+
+    (d.sent?`Sent today: ${tk(d.sent)}\n`:'')+(d.recv?`Received today: ${tk(d.recv)}\n`:'')+
+    balLine('Now',d.close);
+}
+function fullText(p){
+  const t=totals(p),b=bal(t.due);
+  return `Hisab — ${p}\nAs of ${fmtDate(today())}\n\nTotal sent: ${tk(t.sent)}`+(t.charge&&state.settings.chargeToPartner?`\nCharges: ${tk(t.charge)}`:'')+
+    `\nTotal received: ${tk(t.bank)}\n${b.word==='Settled'?'Settled (৳0)':b.word.toUpperCase()+': '+tk(t.due)}\n\n`+
+    (dayGroups(p).map(d=>dayText(p,d,false)).join('\n\n')||'No entries');
+}
+function copyText(txt,fallbackEl){
+  const sel=()=>{if(!fallbackEl){showText('Copy this',txt);return}const r=document.createRange();r.selectNodeContents(fallbackEl);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Text selected. Copy it from the menu')};
+  try{navigator.clipboard.writeText(txt).then(()=>toast('Copied. Paste it in any chat'),sel)}catch(e){sel()}
+}
+function showText(title,txt){$('sTitle').textContent=title;$('sText').textContent=txt;if($('dlgMenu').open)$('dlgMenu').close();$('dlgStmt').showModal()}
+
+// ================= render =================
+function render(){
+  if(!loaded)return;
+  if(!state.partners.includes(cur))cur=state.partners[0]||null;
+  $('profiles').innerHTML=state.partners.map(p=>{const t=totals(p),b=bal(t.due);return `<button class="prof${p===cur?' on':''}" type="button" data-prof="${esc(p)}" aria-pressed="${p===cur}">
+    <span class="av">${esc(p.charAt(0).toUpperCase())}</span><span style="min-width:0"><span class="pn">${esc(p)}</span>
+    <span class="pd ${b.cls}">${b.word==='Settled'?'Settled':b.word+' '+tk(t.due)}</span></span></button>`}).join('');
+  if(cur){
+    const p=cur,t=totals(p),b=bal(t.due),pc=rate(p);
+    const head=b.word==='Due'?`${esc(p)} owes you`:b.word==='Advance'?`Advance · extra received from ${esc(p)}`:'All settled';
+    $('hero').innerHTML=`<div class="card hero">
+      <div class="lbl">${head}</div>
+      <div class="big ${b.cls}">${tk(t.due)}</div>
+      <div class="stats">
+        <div class="stat"><span>Total sent · ${t.cnt}</span><b>${tk(t.sent)}</b></div>
+        <div class="stat"><span>Received by bank</span><b class="green">${tk(t.bank)}</b></div>
+      </div>
+      <div class="actions">
+        <button class="btn" type="button" data-new="send">Money sent</button>
+        <button class="btn soft" type="button" data-new="bank">Bank payment</button>
+      </div>
+      <div class="paste"><textarea data-paste="${esc(p)}" rows="1" placeholder="Paste WhatsApp message here" aria-label="Paste WhatsApp message for ${esc(p)}"></textarea><button class="btn sm" type="button" data-read="${esc(p)}">Read</button></div>
+      <div class="meta-line"><span>${pc?'WhatsApp amounts get +'+pc+'%':'WhatsApp amounts are added exactly'}${t.charge?' · charges '+tk(t.charge):''}</span><button class="linkish" type="button" data-full="${esc(p)}">Full statement</button></div>
+    </div>`;
+  }else $('hero').innerHTML='<div class="empty">Add a profile from Menu → Profiles.</div>';
+  $('ePartner').innerHTML=state.partners.map(p=>`<option>${esc(p)}</option>`).join('');
+  $('stmtBtns').innerHTML=state.partners.map(p=>`<button class="btn ghost" type="button" data-full="${esc(p)}">${esc(p)}</button>`).join('');
+  $('partnerEdit').innerHTML=state.partners.map((p,i)=>`<div class="btns" style="margin-bottom:8px"><input value="${esc(p)}" style="flex:1;min-width:120px" data-ren="${i}" aria-label="Profile name"><label style="display:flex;align-items:center;gap:4px;margin:0;color:var(--ink)">+<input type="number" step="any" min="0" value="${rate(p)}" data-pct="${esc(p)}" style="width:70px" aria-label="Extra percent for ${esc(p)}">%</label><button class="btn ghost sm" type="button" data-rm="${i}">Remove</button></div>`).join('');
+  $('setCharge').checked=!!state.settings.chargeToPartner;
+  drawPin();renderDays();renderMonthly();
+}
+let shownDays=[];
+function renderDays(){
   if(!cur){$('list').innerHTML='';$('filterSum').textContent='';return}
+  const ft=$('fType').value,q=normDigits($('fSearch').value).trim().toLowerCase(),from=$('fFrom').value,to=$('fTo').value;
   const match=e=>(!ft||e.type===ft)&&(!q||[e.number,e.note,e.method,String(e.amount),String(e.base||'')].join(' ').toLowerCase().includes(q));
-  const days=dayGroups(cur).filter(d=>(!from||d.date>=from)&&(!to||d.date<=to)).map(d=>({...d,shown:d.items.filter(x=>match(x.e))})).filter(d=>d.shown.length).reverse();
-  let n=0,s=0,b=0;days.forEach(d=>d.shown.forEach(({e})=>{n++;e.type==='send'?s+=+e.amount:b+=+e.amount}));
-  $('filterSum').textContent=n?`${days.length} days · ${n} entries · Sent ${tk(s)} · Received ${tk(b)}`:'';
-  if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'No entries match these filters.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message in the box above,<br>or tap <b>+</b> to add a send or a bank payment.`}</div>`;return}
-  $('list').innerHTML='<div class="days">'+days.slice(0,120).map((d,i)=>`<section class="day${i%2?' alt':''}">
-    <div class="dayhead"><b>${dayName(d.date)}</b><span>Opening due ${tk(d.open)}</span></div>
-    ${d.shown.map(({e,bal})=>`<button class="item" type="button" data-edit="${e.id}">
-      <div><span class="badge ${e.type==='send'?'b-send':'b-bank'}">${e.type==='send'?'↑':'↓'} ${esc(e.method)}</span><span class="who">${e.type==='send'?esc(e.number||'Sent'):'Bank payment'}</span>
-        <div class="meta">${e.base?tk(e.base)+' + '+e.pct+'%':''}${e.charge?(e.base?' · ':'')+'charge '+tk(e.charge):''}${e.note?((e.base||e.charge)?' · ':'')+esc(e.note):''}</div></div>
-      <div><div class="amt ${e.type==='send'?'pos':'neg'}">${e.type==='send'?'+':'−'}${tk(e.amount)}</div><div class="bal">Due ${tk(bal)}</div></div></button>`).join('')}
-    <div class="dayfoot"><span>${d.sent?'Sent <b class="pos">+'+tk(d.sent)+'</b>':''}${d.sent&&d.recv?' · ':''}${d.recv?'Received <b class="neg">−'+tk(d.recv)+'</b>':''}</span><span class="cl">Due ${tk(d.close)}</span></div>
-  </section>`).join('')+'</div>'+(days.length>120?'<div class="hint" style="margin-top:8px">Showing the latest 120 days. Use the date filter to see older days.</div>':'');
+  shownDays=dayGroups(cur).filter(d=>(!from||d.date>=from)&&(!to||d.date<=to)).map(d=>({...d,shown:d.items.filter(match)})).filter(d=>d.shown.length).reverse();
+  let n=0;shownDays.forEach(d=>n+=d.shown.length);
+  const filtered=ft||q||from||to;
+  $('filterSum').textContent=n?`${shownDays.length} day${shownDays.length>1?'s':''} · ${n} entr${n>1?'ies':'y'}${filtered?' (filtered)':''}`:'';
+  if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message above, or tap <b>Money sent</b>.`}</div>`;return}
+  $('list').innerHTML='<div class="days">'+shownDays.slice(0,120).map((d,i)=>{const o=bal(d.open),c=bal(d.close);return `<section class="day${i%2?' alt':''}">
+    <div class="dh"><div><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div><button class="copy" type="button" data-copyday="${i}">⧉ Copy</button></div>
+    ${d.shown.map(e=>`<button class="row" type="button" data-edit="${e.id}">
+      <div><div class="t">${e.type==='send'?esc(e.number||'Money sent')+`<span class="chip">${esc(e.method)}</span>`:'Bank payment'+`<span class="chip in">${esc(e.method)}</span>`}</div>
+        ${(e.base||e.charge||e.note)?`<div class="s">${e.base?money(e.base)+' + '+e.pct+'%':''}${e.charge?(e.base?' · ':'')+'charge '+tk(e.charge):''}${e.note?((e.base||e.charge)?' · ':'')+esc(e.note):''}</div>`:''}</div>
+      <div class="amt${e.type==='bank'?' green':''}">${tk(e.amount)}</div></button>`).join('')}
+    <div class="df">
+      <span>Previous: <span class="${o.cls}">${o.word==='Settled'?'৳0':o.word+' '+tk(d.open)}</span></span>
+      <span>${d.sent?'Sent today '+tk(d.sent):''}</span>
+      <span>${d.recv?'Received today <b class="green">'+tk(d.recv)+'</b>':''}</span>
+      <div class="end"><small>${c.word}</small><b class="${c.cls}">${tk(d.close)}</b></div>
+    </div></section>`}).join('')+'</div>'+(shownDays.length>120?'<p class="hint">Showing the latest 120 days. Use the date filter for older days.</p>':'');
 }
 function renderMonthly(){
   if(!cur){$('monthly').innerHTML='';return}
   const m={};
   for(const e of state.entries){if(e.partner!==cur)continue;const k=e.date.slice(0,7);const r=m[k]=m[k]||{s:0,b:0};e.type==='send'?r.s+=effect(e):r.b+=+e.amount}
   const keys=Object.keys(m).sort().reverse();
-  if(!keys.length){$('monthly').innerHTML=`<div class="empty">Monthly totals for ${esc(cur)} appear here once you add entries.</div>`;return}
-  let h=`<table><tr><th>Month</th><th>Sent</th><th>Received</th><th>Net</th></tr>`;
-  for(const k of keys){const[y,mo]=k.split('-'),r=m[k];
-    h+=`<tr><td>${new Date(y,mo-1).toLocaleString('en',{month:'short',year:'numeric'})}</td><td class="pos">${r.s?tk(r.s):'–'}</td><td class="neg">${r.b?tk(r.b):'–'}</td><td>${tk(r.s-r.b)}</td></tr>`}
-  $('monthly').innerHTML=h+'</table>';
+  if(!keys.length){$('monthly').innerHTML=`<p class="hint" style="padding:16px;margin:0">Monthly totals for ${esc(cur)} appear here after the first entry.</p>`;return}
+  $('monthly').innerHTML=`<table><tr><th>Month</th><th>Sent</th><th>Received</th></tr>`+keys.map(k=>{const[y,mo]=k.split('-'),r=m[k];
+    return `<tr><td>${new Date(y,mo-1).toLocaleString('en',{month:'short',year:'numeric'})}</td><td>${r.s?tk(r.s):'–'}</td><td class="green">${r.b?tk(r.b):'–'}</td></tr>`}).join('')+'</table>';
 }
 
-// ---------- in-page confirm ----------
-function ask(msg,{ok='OK',danger=false,typed=null}={}){
+// ================= confirm dialog =================
+function ask(msg,{ok='OK',danger=false,typed=null,secret=false}={}){
   return new Promise(res=>{
     $('askMsg').textContent=msg;$('askYes').textContent=ok;$('askYes').className='btn'+(danger?' danger':'');
-    const inp=$('askInput');inp.hidden=!typed;inp.value='';inp.placeholder=typed?`Type ${typed}`:'';
-    $('askYes').disabled=!!typed;inp.oninput=()=>{$('askYes').disabled=inp.value.trim()!==typed};
+    const inp=$('askInput');inp.hidden=!typed&&!secret;inp.value='';inp.type=secret?'password':'text';inp.inputMode=secret?'numeric':'text';inp.placeholder=typed?`Type ${typed}`:secret?'PIN':'';
+    $('askYes').disabled=!!typed;inp.oninput=()=>{if(typed)$('askYes').disabled=inp.value.trim()!==typed};
     const done=v=>{$('dlgAsk').close();res(v)};
-    $('askYes').onclick=()=>done(true);$('askNo').onclick=()=>done(false);$('dlgAsk').oncancel=()=>res(false);
-    $('dlgAsk').showModal();
+    $('askYes').onclick=()=>done(secret?normDigits(inp.value):true);$('askNo').onclick=()=>done(false);$('dlgAsk').oncancel=()=>res(false);
+    $('dlgAsk').showModal();if(!inp.hidden)setTimeout(()=>inp.focus(),50);
   });
 }
 
-// ---------- entry dialog ----------
+// ================= entry dialog =================
 function setType(t){
   curType=t;
-  document.querySelectorAll('.typesw button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
-  document.querySelectorAll('.send-only').forEach(el=>el.hidden=t!=='send');
-  const cur=$('eMethod').value,list=t==='send'?SEND_METHODS:BANK_METHODS;
-  $('eMethod').innerHTML=list.map(x=>`<option>${x}</option>`).join('');
-  if(list.includes(cur))$('eMethod').value=cur;
-  $('eMethodLbl').textContent=t==='send'?'Sent via':'Received via';
+  document.querySelectorAll('#dlgEntry .seg button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  document.querySelectorAll('#dlgEntry .send-only').forEach(el=>el.hidden=t!=='send');
+  document.querySelectorAll('#dlgEntry .bank-only').forEach(el=>el.hidden=t!=='bank');
   updTotal();
 }
+$('eMethod').innerHTML=SEND_METHODS.map(x=>`<option>${x}</option>`).join('');
 function updTotal(){
   const b=parseFloat($('eAmount').value)||0,pc=rate($('ePartner').value);
   $('ePctVal').textContent=pc;$('ePctOn').closest('label').hidden=!pc;
   $('eTotal').textContent=tk($('ePctOn').checked&&pc?addPct(b,pc):b);
 }
-function fillNumbers(){
-  const p=$('ePartner').value,set=new Set();
-  state.entries.filter(e=>e.partner===p&&e.number).forEach(e=>set.add(e.number));
-  $('numList').innerHTML=[...set].map(n=>`<option value="${esc(n)}">`).join('');
-}
-function openEntry(id){
+function fillNumbers(){const p=$('ePartner').value,set=new Set();state.entries.filter(e=>e.partner===p&&e.number).forEach(e=>set.add(e.number));$('numList').innerHTML=[...set].map(n=>`<option value="${esc(n)}">`).join('')}
+function openEntry(id,type){
   editId=id||null;
   const e=id?state.entries.find(x=>x.id===id):null;
   $('eTitle').textContent=e?'Edit entry':'New entry';
   $('eDelete').hidden=!e;$('eSaveMore').hidden=!!e;
-  setType(e?e.type:curType);
-  if(e){$('ePartner').value=e.partner;$('eDate').value=e.date;$('eMethod').value=e.method;$('eAmount').value=e.base||e.amount;$('ePctOn').checked=!!e.base;$('eNumber').value=e.number||'';$('eCharge').value=e.charge||'';$('eNote').value=e.note||''}
-  else{if(cur)$('ePartner').value=cur;$('eDate').value=$('eDate').value||today();$('ePctOn').checked=rate($('ePartner').value)>0;['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='')}
-  fillNumbers();updTotal();$('dlgEntry').showModal();setTimeout(()=>$('eAmount').focus(),50);
+  setType(e?e.type:(type||'send'));
+  if(e){$('ePartner').value=e.partner;$('eDate').value=e.date;if(e.type==='send')$('eMethod').value=e.method;else $('eMethodB').value=e.method;$('eAmount').value=e.base||e.amount;$('ePctOn').checked=!!e.base;$('eNumber').value=e.number||'';$('eCharge').value=e.charge||'';$('eNote').value=e.note||''}
+  else{if(cur)$('ePartner').value=cur;$('eDate').value=today();$('ePctOn').checked=rate($('ePartner').value)>0;['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='')}
+  fillNumbers();updTotal();$('dlgEntry').showModal();setTimeout(()=>(curType==='send'&&!e?$('eNumber'):$('eAmount')).focus(),50);
 }
 function saveEntry(more){
-  const amount=parseFloat($('eAmount').value);
-  if(!(amount>0))return toast('Enter an amount greater than 0');
-  const old=editId&&state.entries.find(x=>x.id===editId);
-  const usePct=curType==='send'&&$('ePctOn').checked&&rate($('ePartner').value)>0;
-  const pc=old&&old.base&&old.partner===$('ePartner').value?old.pct:rate($('ePartner').value);
-  const e={id:editId||uid(),ts:old?old.ts:Date.now(),type:curType,partner:$('ePartner').value,date:$('eDate').value||today(),
-    method:$('eMethod').value,amount:usePct?addPct(amount,pc):amount,...(usePct?{base:amount,pct:pc}:{}),number:curType==='send'?normNum($('eNumber').value):'',charge:curType==='send'?(parseFloat($('eCharge').value)||0):0,note:$('eNote').value.trim()};
+  const amount=parseFloat(normDigits($('eAmount').value));
+  if(!validAmount(amount))return toast('Enter a correct amount');
+  const num=curType==='send'?normNum($('eNumber').value):'';
+  if(num&&num.length!==11)return toast('Number must be 11 digits');
+  const p=$('ePartner').value,old=editId&&state.entries.find(x=>x.id===editId);
+  const usePct=curType==='send'&&$('ePctOn').checked&&rate(p)>0;
+  const pc=old&&old.base&&old.partner===p?old.pct:rate(p);
+  const e={id:editId||uid(),ts:old?old.ts:Date.now(),type:curType,partner:p,date:$('eDate').value||today(),
+    method:curType==='send'?$('eMethod').value:$('eMethodB').value,amount:usePct?addPct(amount,pc):amount,...(usePct?{base:amount,pct:pc}:{}),
+    number:num,charge:curType==='send'?(parseFloat($('eCharge').value)||0):0,note:$('eNote').value.trim().slice(0,200)};
   if(old)state.entries[state.entries.indexOf(old)]=e;else state.entries.push(e);
-  save();render();toast('Saved');
-  if(more){['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='');fillNumbers();$('eNumber').focus()}
+  cur=p;save();render();toast('Saved');
+  if(more){['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='');fillNumbers();updTotal();$('eNumber').focus()}
   else $('dlgEntry').close();
 }
-async function deleteEntry(){
-  $('dlgEntry').close();
-  if(!await ask('Delete this entry?',{ok:'Delete',danger:true}))return $('dlgEntry').showModal();
-  state.entries=state.entries.filter(x=>x.id!==editId);save();render();toast('Entry deleted');
+function deleteEntry(){
+  const gone=state.entries.find(x=>x.id===editId);if(!gone)return;
+  state.entries=state.entries.filter(x=>x.id!==editId);save();render();$('dlgEntry').close();
+  toast('Entry deleted',()=>{state.entries.push(gone);save();render();toast('Entry restored')});
 }
 
-// ---------- WhatsApp paste ----------
-const BN='০১২৩৪৫৬৭৮৯';
-const normDigits=t=>t.replace(/[০-৯]/g,d=>BN.indexOf(d));
+// ================= WhatsApp paste =================
 const WA_HEAD=/^\s*\[?\d{1,2}[\/.\-]\d{1,2}(?:[\/.\-]\d{2,4})?,?\s+\d{1,2}[:.]\d{2}(?:[:.]\d{2})?\s*(?:[ap]\.?\s?m\.?)?\]?\s*(?:-\s*)?(?:(?:\+[\d\s()-]{8,22}|[^:\n\d]{1,40}):\s?)?/i;
 const blank=m=>' '.repeat(m.length);
 function lineMethod(l){return /nagad|নগদ/i.test(l)?'Nagad':/rocket|রকেট/i.test(l)?'Rocket':/upay|উপায়/i.test(l)?'Upay':/bkash|b kash|বিকাশ/i.test(l)?'bKash':null}
@@ -519,86 +635,54 @@ function parseWA(text){
   return rows;
 }
 let pRows=[];
-function dupOf(r,p){
-  const lim=new Date(Date.now()-3*864e5).toISOString().slice(0,10);
-  return state.entries.find(e=>e.partner===p&&e.type==='send'&&e.number===r.number&&(e.base||e.amount)===r.base&&e.date>=lim);
-}
+function dupOf(r,p){const lim=new Date(Date.now()-3*864e5).toISOString().slice(0,10);return state.entries.find(e=>e.partner===p&&e.type==='send'&&e.number===r.number&&(e.base||e.amount)===r.base&&e.date>=lim)}
 function openPaste(p,text){
   $('pPartner').innerHTML=state.partners.map(x=>`<option>${esc(x)}</option>`).join('');$('pPartner').value=p;
-  $('pDate').value=today();$('pPct').value=rate(p);$('pText').value=text;
-  readPaste();$('dlgPaste').showModal();
+  $('pDate').value=today();$('pPct').value=rate(p);$('pText').value=text;readPaste();$('dlgPaste').showModal();
 }
-function readPaste(){
-  const p=$('pPartner').value;
-  pRows=parseWA($('pText').value).map(r=>{const d=dupOf(r,p);return{...r,method:r.method||'',on:r.base>0&&!d,dup:d}});
-  drawPaste();
-}
+function readPaste(){const p=$('pPartner').value;pRows=parseWA($('pText').value).map(r=>{const d=dupOf(r,p);return{...r,method:r.method||'',on:r.base>0&&!d,dup:d}});drawPaste()}
 function drawPaste(){
-  const pc=parseFloat($('pPct').value)||0,def=$('pMethod').value;
+  const pc=parseFloat($('pPct').value)||0;
   $('pTitle').textContent='From WhatsApp · '+$('pPartner').value;
-  if(!pRows.length){$('pRows').innerHTML='<div class="empty">No 11-digit number found in the message.<br>Tap <b>+ Row</b> to add by hand.</div>'}
-  else $('pRows').innerHTML='<div class="hint" style="display:grid;grid-template-columns:auto minmax(0,1.4fr) minmax(0,1fr) auto;gap:6px"><span style="width:20px"></span><span>Number</span><span>Amount</span><span style="min-width:74px;text-align:right">'+(pc?'+'+pc+'%':'Total')+'</span></div>'+
+  $('pRows').innerHTML=!pRows.length?'<div class="empty">No 11-digit number found in this message.<br>Tap <b>Add a row</b> to type it in.</div>':
+    `<div class="phead"><span style="width:20px"></span><span>Number</span><span>Amount</span><span style="min-width:78px;text-align:right">${pc?'With '+pc+'%':'Total'}</span></div>`+
     pRows.map((r,i)=>`<div class="prow${r.on?'':' off'}"><input type="checkbox" data-pi="${i}" data-f="on" ${r.on?'checked':''} aria-label="Include">
       <input data-pi="${i}" data-f="number" value="${esc(r.number)}" inputmode="tel" aria-label="Number">
       <input data-pi="${i}" data-f="base" value="${r.base||''}" inputmode="decimal" placeholder="amount" aria-label="Amount">
       <span class="tot">${r.base?tk(addPct(r.base,pc)):'–'}</span>
-      ${!r.base?'<span class="warn">Amount not found. Type it in.</span>':''}${r.number.length!==11?'<span class="warn">Number should be 11 digits.</span>':''}${r.note?`<span class="hint" style="grid-column:2/-1">Note: ${esc(r.note)}</span>`:''}${r.dup?`<span class="warn">Looks already added on ${fmtDate(r.dup.date)}. Tick to add again.</span>`:''}</div>`).join('');
-  const on=pRows.filter(r=>r.on&&r.base>0),base=on.reduce((a,r)=>a+r.base,0);
-  $('pSum').innerHTML=`<span>${on.length} entries · ${tk(base)}</span><b>${pc?'Total with '+pc+'%':'Total'}: ${tk(on.reduce((a,r)=>a+addPct(r.base,pc),0))}</b>`;
+      ${!r.base?'<span class="warn">Amount not found. Type it in.</span>':''}${r.number.length!==11?'<span class="warn">Number must be 11 digits.</span>':''}${r.note?`<span class="note">Note: ${esc(r.note)}</span>`:''}${r.dup?`<span class="warn">Looks already added on ${fmtDate(r.dup.date)}. Tick to add again.</span>`:''}</div>`).join('');
+  const on=pRows.filter(r=>r.on&&validAmount(r.base)&&r.number.length===11);
+  $('pSum').innerHTML=`<span>${on.length} entries · ${tk(on.reduce((a,r)=>a+r.base,0))}</span><b>${pc?'With '+pc+'%':'Total'}: ${tk(on.reduce((a,r)=>a+addPct(r.base,pc),0))}</b>`;
   $('pAdd').textContent=on.length?`Add ${on.length} to ${$('pPartner').value}`:'Add';$('pAdd').disabled=!on.length;
 }
 function addPaste(){
   const p=$('pPartner').value,d=$('pDate').value||today(),pc=parseFloat($('pPct').value)||0,def=$('pMethod').value;
-  const on=pRows.filter(r=>r.on&&r.base>0);if(!on.length)return;
-  let ts=Date.now();
-  on.forEach(r=>state.entries.push({id:uid(),ts:ts++,type:'send',partner:p,date:d,method:r.method||def,amount:addPct(r.base,pc),...(pc?{base:r.base,pct:pc}:{}),number:r.number,charge:0,note:r.note||''}));
-  if(pc!==rate(p)){state.settings.pct={...(state.settings.pct||{}),[p]:pc}}
-  cur=p;save();render();$('dlgPaste').close();toast(`Added ${on.length} entries to ${p}`);
+  const on=pRows.filter(r=>r.on&&validAmount(r.base)&&r.number.length===11);if(!on.length)return;
+  let ts=Date.now();const ids=[];
+  on.forEach(r=>{const id=uid();ids.push(id);state.entries.push({id,ts:ts++,type:'send',partner:p,date:d,method:r.method||def,amount:addPct(r.base,pc),...(pc?{base:r.base,pct:pc}:{}),number:r.number,charge:0,note:(r.note||'').slice(0,200)})});
+  if(pc!==rate(p))state.settings.pct={...(state.settings.pct||{}),[p]:pc};
+  cur=p;save();render();$('dlgPaste').close();
+  toast(`Added ${on.length} to ${p}`,()=>{state.entries=state.entries.filter(e=>!ids.includes(e.id));save();render();toast('Removed again')});
 }
-function parseAmt(v){v=normDigits(String(v)).trim().replace(/,/g,'');const k=/k$/i.test(v);const n=parseFloat(v);return n>0?(k?n*1000:n):0}
+function parseAmt(v){v=normDigits(v).trim().replace(/,/g,'');const k=/k$/i.test(v);const n=parseFloat(v);return n>0?(k?n*1000:n):0}
 
-// ---------- statement ----------
-function statement(p){
-  const t=totals(p);
-  const blocks=dayGroups(p).map(d=>`━━ ${dayName(d.date)} ━━\n`+d.items.map(({e})=>e.type==='send'
-      ?`${e.number||e.method}  ${e.base?tk(e.base)+'+'+e.pct+'% = ':''}${tk(e.amount)}${e.method!=='bKash'?' ('+e.method+')':''}${e.note?'  '+e.note:''}`
-      :`Bank payment  -${tk(e.amount)}${e.note?'  '+e.note:''}`).join('\n')
-    +`\nDay: ${d.sent?'sent '+tk(d.sent):''}${d.sent&&d.recv?', ':''}${d.recv?'received '+tk(d.recv):''}\nDue: ${tk(d.close)}`);
-  $('sText').textContent=`Hisab — ${p}\nDate: ${fmtDate(today())}\n\nTotal sent: ${tk(t.sent)}`+
-    (t.charge&&state.settings.chargeToPartner?`\nCharges: ${tk(t.charge)}`:'')+
-    `\nTotal received (Bank): ${tk(t.bank)}\n${t.due>=0?'DUE':'ADVANCE'}: ${tk(Math.abs(t.due))}\n\n`+(blocks.join('\n\n')||'No entries');
-  $('sTitle').textContent='Statement · '+p;
-  if($('dlgMenu').open)$('dlgMenu').close();
-  $('dlgStmt').showModal();
-}
-function copyStmt(){
-  const txt=$('sText').textContent;
-  const sel=()=>{const r=document.createRange();r.selectNodeContents($('sText'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Text selected. Copy it from your keyboard/menu')};
-  try{navigator.clipboard.writeText(txt).then(()=>toast('Copied. Paste it in WhatsApp'),sel)}catch(e){sel()}
-}
-
-// ---------- files ----------
+// ================= files =================
 async function giveFile(filename,data,type){
-  if(dl){
-    try{const r=await dl.save({filename,data});toast(r.status==='saved'?'Saved '+filename:'File sent');}
-    catch(e){toast(e.code==='declined'?'Download cancelled':'Could not save file ('+e.code+')')}
-    return;
-  }
+  if(dl){try{const r=await dl.save({filename,data});toast(r.status==='saved'?'Saved '+filename:'File ready')}catch(e){toast(e.code==='declined'?'Download cancelled':'Could not save the file ('+e.code+')')}return}
   const blob=data instanceof Blob?data:new Blob([data],{type});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
 function exportXlsx(){
+  const rowsAll=sorted(state.entries).map(e=>({Date:e.date,Partner:e.partner,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Base Amount':e.base||'','Extra %':e.base?e.pct:'',Amount:e.amount,Charge:e.charge||0,Note:e.note}));
   if(!window.XLSX){
-    const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
-    const csv=[['Date','Partner','Type','Method','Number','Amount','Charge','Note'].join(',')].concat(sorted(state.entries).map(e=>[e.date,e.partner,e.type==='send'?'Sent':'Received',e.method,e.number,e.amount,e.charge||0,e.note].map(q).join(','))).join('\n');
-    return giveFile(`Hisab_${today()}.csv`,'﻿'+csv,'text/csv');
+    const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',cols=['Date','Partner','Type','Method','Number','Base Amount','Extra %','Amount','Charge','Note'];
+    return giveFile(`Hisab_${today()}.csv`,'﻿'+[cols.join(',')].concat(rowsAll.map(r=>cols.map(c=>q(r[c])).join(','))).join('\n'),'text/csv');
   }
   const wb=XLSX.utils.book_new();
-  const rows=sorted(state.entries).map(e=>({Date:e.date,Partner:e.partner,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Base Amount':e.base||'','Extra %':e.base?e.pct:'',Amount:e.amount,Charge:e.charge||0,Note:e.note}));
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{Date:'',Partner:'',Type:'',Method:'',Number:'',Amount:'',Charge:'',Note:''}]),'All entries');
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(state.partners.map(p=>{const t=totals(p);return{Partner:p,'Total Sent':t.sent,Charges:t.charge,'Total Received (Bank)':t.bank,Due:t.due}})),'Summary');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rowsAll.length?rowsAll:[{Date:''}]),'All entries');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(state.partners.map(p=>{const t=totals(p),b=bal(t.due);return{Profile:p,'Total Sent':t.sent,Charges:t.charge,'Total Received':t.bank,Status:b.word,Amount:Math.abs(t.due)}})),'Summary');
   for(const p of state.partners){
-    let bal=0;const r=sorted(state.entries.filter(e=>e.partner===p)).map(e=>{bal+=effect(e);return{Date:e.date,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Base Amount':e.base||'','Extra %':e.base?e.pct:'','Sent (+)':e.type==='send'?e.amount:'','Received (-)':e.type==='bank'?e.amount:'',Charge:e.charge||'',Due:bal,Note:e.note}});
+    let run=0;const r=sorted(state.entries.filter(e=>e.partner===p)).map(e=>{run+=effect(e);const b=bal(run);return{Date:e.date,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Base Amount':e.base||'','Extra %':e.base?e.pct:'',Sent:e.type==='send'?e.amount:'',Received:e.type==='bank'?e.amount:'',Charge:e.charge||'',Status:b.word,Balance:Math.abs(run),Note:e.note}});
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r.length?r:[{Date:''}]),p.replace(/[\\\/?*\[\]:]/g,' ').slice(0,31));
   }
   giveFile(`Hisab_${today()}.xlsx`,new Uint8Array(XLSX.write(wb,{type:'array',bookType:'xlsx'})),'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -616,95 +700,95 @@ async function importRows(rows){
   const g=(r,...ks)=>{for(const k of Object.keys(r))if(ks.includes(k.trim().toLowerCase()))return r[k];return''};
   const add=[];let ts=Date.now();
   for(const r of rows){
-    const amount=parseFloat(String(g(r,'amount','taka','tk')).replace(/[,৳\s]/g,''));if(!(amount>0))continue;
+    const amount=parseFloat(normDigits(g(r,'amount','taka','tk')).replace(/[,৳\s]/g,''));if(!validAmount(amount))continue;
     let d=g(r,'date');
     if(d instanceof Date)d=new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
     else{d=String(d).trim();const m=d.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);if(m)d=`${m[3].length===2?'20'+m[3]:m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;if(!/^\d{4}-\d{2}-\d{2}$/.test(d))d=today()}
-    const partner=String(g(r,'partner','name')).trim()||state.partners[0];
-    const tp=String(g(r,'type')).toLowerCase();const type=/rec|bank|paid|pay|in/.test(tp)?'bank':'send';
-    const method=String(g(r,'method','via')).trim()||(type==='send'?'bKash':'Bank');
+    const partner=String(g(r,'partner','profile','name')).trim().slice(0,40)||cur||state.partners[0];
+    const tp=String(g(r,'type')).toLowerCase(),type=/rec|bank|paid|pay|in/.test(tp)?'bank':'send';
+    const method=String(g(r,'method','via')).trim().slice(0,20)||(type==='send'?'bKash':'Bank');
     const base=parseFloat(String(g(r,'base amount','base')).replace(/[,৳\s]/g,''))||0,pc=parseFloat(g(r,'extra %','pct','%'))||0;
-    add.push({id:uid(),ts:ts++,type,partner,date:d,method,amount,...(base>0&&type==='send'?{base,pct:pc}:{}),number:String(g(r,'number','mobile','phone')).trim(),charge:parseFloat(g(r,'charge'))||0,note:String(g(r,'note','trxid','ref')).trim()});
+    add.push({id:uid()+add.length,ts:ts++,type,partner,date:d,method,amount,...(base>0&&type==='send'?{base,pct:pc}:{}),number:type==='send'?normNum(g(r,'number','mobile','phone')):'',charge:parseFloat(g(r,'charge'))||0,note:String(g(r,'note','trxid','ref')).trim().slice(0,200)});
   }
   if(!add.length)return toast('No rows with an Amount were found');
-  const total=add.reduce((a,b)=>a+(b.type==='send'?b.amount:0),0);
-  if(!await ask(`Import ${add.length} entries (sent total ${tk(total)})? They will be added to your existing entries.`,{ok:'Import'}))return;
+  if(!await ask(`Import ${add.length} entries? They are added to your existing entries.`,{ok:'Import'}))return;
   add.forEach(e=>{if(!state.partners.includes(e.partner))state.partners.push(e.partner)});
   state.entries.push(...add);save();render();toast(`Imported ${add.length} entries`);
 }
 function importFile(inp){
-  const f=inp.files[0];inp.value='';if(!f)return;
-  $('dlgMenu').close();
+  const f=inp.files[0];inp.value='';if(!f)return;$('dlgMenu').close();
   const rd=new FileReader();
-  rd.onload=ev=>{
-    try{
-      if(/\.csv$/i.test(f.name)&&!window.XLSX)return importRows(parseCsv(new TextDecoder().decode(ev.target.result)));
-      if(!window.XLSX)return toast('Excel reader did not load. Save your sheet as CSV and import that.');
-      const wb=XLSX.read(ev.target.result,{type:'array',cellDates:true});
-      const ws=wb.Sheets[wb.SheetNames.includes('All entries')?'All entries':wb.SheetNames[0]];
-      importRows(XLSX.utils.sheet_to_json(ws,{defval:''}));
-    }catch(err){toast('Could not read this file: '+err.message)}
-  };
+  rd.onload=ev=>{try{
+    if(/\.csv$/i.test(f.name)&&!window.XLSX)return importRows(parseCsv(new TextDecoder().decode(ev.target.result)));
+    if(!window.XLSX)return toast('Excel reader did not load. Save the sheet as CSV and import that.');
+    const wb=XLSX.read(ev.target.result,{type:'array',cellDates:true});
+    importRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames.includes('All entries')?'All entries':wb.SheetNames[0]],{defval:''}));
+  }catch(err){toast('Could not read this file')}};
   rd.readAsArrayBuffer(f);
 }
 function restore(inp){
-  const f=inp.files[0];inp.value='';if(!f)return;
-  $('dlgMenu').close();
+  const f=inp.files[0];inp.value='';if(!f)return;$('dlgMenu').close();
   f.text().then(async t=>{
     let s;try{s=JSON.parse(t)}catch(e){}
-    if(!s||!Array.isArray(s.entries))return toast('This is not a Partner Hisab backup file');
+    if(!s||!Array.isArray(s.entries)||!s.entries.every(e=>e&&e.id&&e.date&&validAmount(+e.amount)))return toast('This is not a Partner Hisab backup file');
     if(!await ask(`Replace all current data with this backup (${s.entries.length} entries)?`,{ok:'Replace',danger:true}))return;
-    state={partners:s.partners||['Modina','Shapan'],entries:s.entries,settings:s.settings||{chargeToPartner:true}};save();render();toast('Backup restored');
+    state={partners:Array.isArray(s.partners)?s.partners:['Modina','Shapan'],entries:s.entries,settings:s.settings||{chargeToPartner:true}};save();render();toast('Backup restored');
   });
 }
 
-// ---------- partners ----------
-function addPartner(){const n=$('newPartner').value.trim();if(!n)return;if(state.partners.includes(n))return toast(n+' already exists');state.partners.push(n);$('newPartner').value='';save();render()}
-function renamePartner(i,n){n=n.trim();const old=state.partners[i];if(!n||n===old)return;if(state.partners.includes(n)){render();return toast(n+' already exists')}
+// ================= profiles =================
+function setProfile(p){cur=p;store.set(PROF_KEY,p);render();scrollTo({top:0})}
+function addPartner(){const n=$('newPartner').value.trim().slice(0,40);if(!n)return;if(state.partners.includes(n))return toast(n+' already exists');state.partners.push(n);$('newPartner').value='';save();render()}
+function renamePartner(i,n){n=n.trim().slice(0,40);const old=state.partners[i];if(!n||n===old)return;if(state.partners.includes(n)){render();return toast(n+' already exists')}
   if(state.settings.pct&&old in state.settings.pct){state.settings.pct[n]=state.settings.pct[old];delete state.settings.pct[old]}
-  if(cur===old)cur=n;
-  state.partners[i]=n;state.entries.forEach(e=>{if(e.partner===old)e.partner=n});save();render();toast('Renamed to '+n)}
+  if(cur===old)cur=n;state.partners[i]=n;state.entries.forEach(e=>{if(e.partner===old)e.partner=n});save();render();toast('Renamed to '+n)}
 function removePartner(i){const p=state.partners[i];if(state.entries.some(e=>e.partner===p))return toast(p+' has entries. Rename instead, or delete the entries first.');state.partners.splice(i,1);save();render()}
 
-// ---------- ui wiring ----------
-let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2600)}
-$('fab').onclick=()=>openEntry();
+// ================= ui wiring =================
+let tt,toastFn=null;
+function toast(m,undo){$('toastMsg').textContent=m;toastFn=undo||null;$('toastAct').hidden=!undo;$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>{$('toast').classList.remove('show');toastFn=null},undo?6000:2600)}
+$('toastAct').onclick=()=>{const f=toastFn;toastFn=null;$('toast').classList.remove('show');if(f)f()};
+$('fab').onclick=()=>openEntry(null,'send');
 $('menuBtn').onclick=()=>$('dlgMenu').showModal();
-$('clearF').onclick=()=>{['fType','fSearch','fFrom','fTo'].forEach(i=>$(i).value='');renderList()};
-['fType','fFrom','fTo'].forEach(i=>$(i).addEventListener('change',renderList));$('fSearch').addEventListener('input',renderList);
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));['ledger','monthly'].forEach(v=>$('v-'+v).hidden=v!==t.dataset.v)});
-document.querySelectorAll('.typesw button').forEach(b=>b.onclick=()=>setType(b.dataset.t));
+$('clearF').onclick=()=>{['fType','fSearch','fFrom','fTo'].forEach(i=>$(i).value='');renderDays()};
+['fType','fFrom','fTo'].forEach(i=>$(i).addEventListener('change',renderDays));$('fSearch').addEventListener('input',renderDays);
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));['days','monthly'].forEach(v=>$('v-'+v).hidden=v!==t.dataset.v)});
+document.querySelectorAll('#dlgEntry .seg button').forEach(b=>b.onclick=()=>setType(b.dataset.t));
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d&&d.id!=='dlgAsk')d.close()}));
 document.addEventListener('click',e=>{
-  const pf=e.target.closest('[data-prof]');if(pf)return setProfile(pf.dataset.prof);
-  const s=e.target.closest('[data-stmt]');if(s)return statement(s.dataset.stmt);
-  const ed=e.target.closest('[data-edit]');if(ed)return openEntry(ed.dataset.edit);
-  const rm=e.target.closest('[data-rm]');if(rm)return removePartner(+rm.dataset.rm);
-  const rd=e.target.closest('[data-read]');if(rd){const t=document.querySelector(`[data-paste="${CSS.escape(rd.dataset.read)}"]`);if(!t.value.trim())return toast('Paste the WhatsApp message in the box first');const v=t.value;t.value='';return openPaste(rd.dataset.read,v)}
+  const t=e.target.closest('[data-prof],[data-full],[data-edit],[data-rm],[data-read],[data-new],[data-copyday]');if(!t)return;
+  const ds=t.dataset;
+  if(ds.prof!==undefined)return setProfile(ds.prof);
+  if(ds.full!==undefined){const txt=fullText(ds.full);return showText('Statement · '+ds.full,txt)}
+  if(ds.edit!==undefined)return openEntry(ds.edit);
+  if(ds.new!==undefined)return openEntry(null,ds.new);
+  if(ds.rm!==undefined)return removePartner(+ds.rm);
+  if(ds.copyday!==undefined){const d=shownDays[+ds.copyday];if(d)copyText(dayText(cur,d));return}
+  if(ds.read!==undefined){const ta=document.querySelector(`[data-paste="${CSS.escape(ds.read)}"]`);if(!ta.value.trim())return toast('Paste the WhatsApp message in the box first');const v=ta.value;ta.value='';return openPaste(ds.read,v)}
 });
-document.addEventListener('change',e=>{if(e.target.dataset.ren!==undefined)renamePartner(+e.target.dataset.ren,e.target.value);
-  if(e.target.dataset.pct!==undefined){const v=parseFloat(e.target.value);state.settings.pct={...(state.settings.pct||{}),[e.target.dataset.pct]:v>=0?v:0};save();render();toast('Saved '+(v>=0?v:0)+'% for '+e.target.dataset.pct)}});
-$('ePartner').addEventListener('change',()=>{fillNumbers();updTotal()});
+document.addEventListener('change',e=>{const ds=e.target.dataset;if(ds.ren!==undefined)renamePartner(+ds.ren,e.target.value);
+  if(ds.pct!==undefined){const v=parseFloat(e.target.value);state.settings.pct={...(state.settings.pct||{}),[ds.pct]:v>=0?v:0};save();render();toast('Saved +'+(v>=0?v:0)+'% for '+ds.pct)}});
+$('ePartner').addEventListener('change',()=>{fillNumbers();$('ePctOn').checked=rate($('ePartner').value)>0;updTotal()});
 $('eSave').onclick=()=>saveEntry(false);$('eSaveMore').onclick=()=>saveEntry(true);$('eDelete').onclick=deleteEntry;
 $('eAmount').addEventListener('input',updTotal);$('ePctOn').onchange=updTotal;
 $('pText').addEventListener('input',readPaste);$('pPartner').onchange=()=>{$('pPct').value=rate($('pPartner').value);readPaste()};
 $('pPct').addEventListener('input',drawPaste);$('pMethod').onchange=drawPaste;$('pAdd').onclick=addPaste;
-$('pMore').onclick=()=>{pRows.push({number:'',base:0,method:'',on:true});drawPaste()};
+$('pMore').onclick=()=>{pRows.push({number:'',base:0,method:'',on:true,note:''});drawPaste()};
 $('pRows').addEventListener('change',e=>{const i=e.target.dataset.pi;if(i===undefined)return;const r=pRows[+i],f=e.target.dataset.f;
   if(f==='on')r.on=e.target.checked;else if(f==='base'){r.base=parseAmt(e.target.value);if(r.base>0&&!r.dup)r.on=true}else r.number=normNum(e.target.value);drawPaste()});
 const pasteLen=new WeakMap();
 document.addEventListener('input',e=>{const t=e.target;if(t.dataset.paste===undefined)return;
   const prev=pasteLen.get(t)||0;pasteLen.set(t,t.value.length);
-  if(t.value.length-prev>=11&&/0\s*1|০\s*১/.test(t.value)){const v=t.value;t.value='';pasteLen.set(t,0);openPaste(t.dataset.paste,v)}});
-$('copyBtn').onclick=copyStmt;
+  if(t.value.length-prev>=11&&/[01০১]/.test(t.value)&&/\d{3}|[০-৯]{3}/.test(t.value)){const v=t.value;t.value='';pasteLen.set(t,0);openPaste(t.dataset.paste,v)}});
+$('copyBtn').onclick=()=>copyText($('sText').textContent,$('sText'));
 $('expBtn').onclick=exportXlsx;
 $('impBtn').onclick=()=>$('impFile').click();$('impFile').onchange=e=>importFile(e.target);
 $('bkBtn').onclick=()=>giveFile(`hisab-backup-${today()}.json`,JSON.stringify(state,null,1),'application/json');
 $('rsBtn').onclick=()=>$('resFile').click();$('resFile').onchange=e=>restore(e.target);
 $('addP').onclick=addPartner;
 $('setCharge').onchange=e=>{state.settings.chargeToPartner=e.target.checked;save();render()};
-$('wipeBtn').onclick=async()=>{$('dlgMenu').close();if(await ask('This deletes every entry for all partners. Take a backup first. Type DELETE to confirm.',{ok:'Delete all',danger:true,typed:'DELETE'})){state.entries=[];save();render();toast('All entries deleted')}};
+$('wipeBtn').onclick=async()=>{$('dlgMenu').close();if(await ask('This deletes every entry for all profiles. Save a backup first. Type DELETE to confirm.',{ok:'Delete all',danger:true,typed:'DELETE'})){state.entries=[];save();render();toast('All entries deleted')}};
 init();
 </script>
 
