@@ -156,8 +156,7 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .cfor{font-size:12px;color:var(--muted);margin:0 0 6px 2px}
 .pastebar{margin-top:12px;padding:10px 12px 12px}
 .prow2{display:flex;align-items:flex-end;gap:8px}
-.dsnote{margin-top:12px;background:var(--red-soft);color:var(--ink);border-radius:12px;padding:10px 40px 10px 14px;font-size:15px;position:relative}
-.dsnote .x{position:absolute;right:8px;top:6px}
+
 dialog{border:0;border-radius:18px;padding:0;width:min(520px,calc(100vw - 24px));background:var(--surface);color:var(--ink)}
 dialog::backdrop{background:var(--scrim)}
 .dhd{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -213,6 +212,8 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
   .shell{display:grid;grid-template-columns:260px minmax(0,1fr)}
   .side{position:sticky;top:61px;height:calc(100vh - 61px);overflow:auto}
   .composer{left:260px}
+  main.wrap{max-width:none;margin:0;min-width:0;padding-left:24px;padding-right:24px}
+  .composer #selBar{max-width:none;padding-left:24px;padding-right:24px}
   .scrim{display:none}
 }
 /* one-line rows: number | note | amount | balance */
@@ -254,14 +255,14 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 #hero{margin-top:14px}
 .dgrid{display:grid;gap:0 16px}
 @media (min-width:1100px){
-  main.wrap{max-width:1240px;padding-left:28px;padding-right:28px}
+  main.wrap{padding-left:28px;padding-right:28px}
   #v-partner{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:0 24px;align-items:start}
   #v-partner>#hero{grid-column:2;grid-row:1 / span 5;position:sticky;top:80px;margin-top:20px}
   #v-partner>.pastebar,#v-partner>.tabs,#v-partner>#v-days,#v-partner>#v-monthly{grid-column:1}
   #v-partner>.pastebar{margin-top:20px}
   #v-partner>.tabs{margin-top:14px}
   .hero .big{font-size:36px}
-  .composer #selBar{max-width:1240px;padding-left:28px;padding-right:calc(28px + 364px)}
+  .composer #selBar{padding-left:28px;padding-right:calc(28px + 364px)}
   .dgrid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
   .pcards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
   .kpi b{font-size:26px}
@@ -270,7 +271,7 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
   .day .dh{padding:14px 16px 6px}
   .df{padding:12px 16px 14px}
 }
-@media (min-width:1500px){main.wrap{max-width:1400px}}
+@media (min-width:1600px){#v-partner{grid-template-columns:minmax(0,1fr) 380px}}
 
 /* lock screen */
 .lock{position:fixed;inset:0;z-index:40;background:var(--bg);display:grid;place-items:center;padding:24px}
@@ -305,7 +306,6 @@ body.locked main,body.locked header,body.locked .composer,body.locked .side{visi
 </aside>
 <div class="scrim" id="scrim" hidden></div>
 <main class="wrap">
-  <div class="dsnote" id="dsNote" hidden><b>Desktop site is on</b>, so everything looks small on this phone. Open the Chrome menu (⋮) and untick <b>Desktop site</b>.<button class="x" type="button" id="dsClose" aria-label="Close">×</button></div>
   <section id="v-dash" hidden><div class="empty" style="margin-top:16px">Loading your hisab…</div></section>
   <section id="v-partner">
   <section id="hero"><div class="empty">Loading your hisab…</div></section>
@@ -1158,8 +1158,6 @@ $('addP').onclick=addPartner;
 $('setCharge').onchange=e=>{state.settings.chargeToPartner=e.target.checked;save();render()};
 $('wipeBtn').onclick=async()=>{$('dlgMenu').close();if(await ask('This deletes every entry for all profiles. Save a backup first. Type DELETE to confirm.',{ok:'Delete all',danger:true,typed:'DELETE'})){state.entries=[];save();render();toast('All entries deleted')}};
 loadFonts();
-try{if(matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<700&&innerWidth>=900&&!store.get('partnerHisab.dsok'))$('dsNote').hidden=false}catch(e){}
-$('dsClose').onclick=()=>{$('dsNote').hidden=true;store.set('partnerHisab.dsok','1')};
 init();
 </script>
 
