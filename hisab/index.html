@@ -40,7 +40,8 @@
   --chip:#252a30;--shadow:none;--toast:#eceef1;--on-toast:#0e1012;--scrim:rgba(0,0,0,.6);color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);-webkit-tap-highlight-color:transparent}
-main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+main{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
+body.selmode main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 header .wrap{max-width:none}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
 .num,.amt{font-variant-numeric:tabular-nums}
@@ -152,7 +153,11 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .cbox:focus-within{border-color:var(--brand)}
 .cbox textarea{width:100%;border:0;background:transparent;resize:none;font:inherit;font-size:16px;color:var(--ink);padding:8px 0;height:38px;max-height:120px;line-height:1.35}
 .cbox textarea:focus{outline:none}
-.cfor{font-size:12px;color:var(--muted);margin:0 0 4px 60px}
+.cfor{font-size:12px;color:var(--muted);margin:0 0 6px 2px}
+.pastebar{margin-top:12px;padding:10px 12px 12px}
+.prow2{display:flex;align-items:flex-end;gap:8px}
+.dsnote{margin-top:12px;background:var(--red-soft);color:var(--ink);border-radius:12px;padding:10px 40px 10px 14px;font-size:15px;position:relative}
+.dsnote .x{position:absolute;right:8px;top:6px}
 dialog{border:0;border-radius:18px;padding:0;width:min(520px,calc(100vw - 24px));background:var(--surface);color:var(--ink)}
 dialog::backdrop{background:var(--scrim)}
 .dhd{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -251,12 +256,12 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 @media (min-width:1100px){
   main.wrap{max-width:1240px;padding-left:28px;padding-right:28px}
   #v-partner{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:0 24px;align-items:start}
-  #v-partner>#hero{grid-column:2;grid-row:1 / span 4;position:sticky;top:80px;margin-top:20px}
-  #v-partner>.tabs,#v-partner>#v-days,#v-partner>#v-monthly{grid-column:1}
-  #v-partner>.tabs{margin-top:20px}
+  #v-partner>#hero{grid-column:2;grid-row:1 / span 5;position:sticky;top:80px;margin-top:20px}
+  #v-partner>.pastebar,#v-partner>.tabs,#v-partner>#v-days,#v-partner>#v-monthly{grid-column:1}
+  #v-partner>.pastebar{margin-top:20px}
+  #v-partner>.tabs{margin-top:14px}
   .hero .big{font-size:36px}
-  .composer #cMain,.composer #selBar{max-width:1240px;padding-left:28px;padding-right:calc(28px + 364px)}
-  .composer #cMain .cfor{margin-left:54px}
+  .composer #selBar{max-width:1240px;padding-left:28px;padding-right:calc(28px + 364px)}
   .dgrid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
   .pcards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
   .kpi b{font-size:26px}
@@ -274,7 +279,12 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 .lock input{text-align:center;font-size:26px;letter-spacing:.4em;margin:14px 0 10px}
 body.locked main,body.locked header,body.locked .composer,body.locked .side{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
-@media (max-width:380px){.hero .big{font-size:34px}.actions{grid-template-columns:1fr}}
+@media (max-width:699px){
+  .hero{padding:12px 14px}.hero .big{font-size:32px;margin-bottom:8px}
+  .stats{margin-bottom:10px}.stat{padding:6px 10px}.stat b{font-size:16px}
+  .actions .btn{padding:9px 10px;font-size:14px}.meta-line{margin-top:8px}
+  .pastebar{margin-top:10px;padding:8px 10px 10px}.tabs{margin-top:12px}
+}
 </style>
 
 <header><div class="wrap bar">
@@ -295,10 +305,19 @@ body.locked main,body.locked header,body.locked .composer,body.locked .side{visi
 </aside>
 <div class="scrim" id="scrim" hidden></div>
 <main class="wrap">
+  <div class="dsnote" id="dsNote" hidden><b>Desktop site is on</b>, so everything looks small on this phone. Open the Chrome menu (⋮) and untick <b>Desktop site</b>.<button class="x" type="button" id="dsClose" aria-label="Close">×</button></div>
   <section id="v-dash" hidden><div class="empty" style="margin-top:16px">Loading your hisab…</div></section>
   <section id="v-partner">
   <section id="hero"><div class="empty">Loading your hisab…</div></section>
 
+  <div class="card pastebar" id="cMain">
+    <div class="cfor" id="cfor"></div>
+    <div class="prow2">
+      <button class="cbtn plus" id="fab" type="button" aria-label="Add entry by hand">+</button>
+      <div class="cbox"><textarea id="cText" rows="1" placeholder="Paste WhatsApp message" aria-label="Paste WhatsApp message"></textarea></div>
+      <button class="cbtn send" id="cSend" type="button" aria-label="Read message">➤</button>
+    </div>
+  </div>
   <div class="tabs" role="tablist">
     <button class="tab on" data-v="days" type="button">Daily statement</button>
     <button class="tab" data-v="monthly" type="button">Monthly</button>
@@ -327,14 +346,7 @@ body.locked main,body.locked header,body.locked .composer,body.locked .side{visi
 </main>
 </div>
 
-<div class="composer" id="composer"><div class="wrap selbar" id="selBar" hidden><button class="btn ghost sm" id="selCancel" type="button">Cancel</button><span class="grow" id="selCount">0 selected</span><button class="btn danger sm" id="selDel" type="button" disabled>Delete</button></div><div class="wrap" id="cMain" style="flex-direction:column;align-items:stretch;gap:0">
-  <div class="cfor" id="cfor"></div>
-  <div style="display:flex;align-items:flex-end;gap:8px">
-    <button class="cbtn plus" id="fab" type="button" aria-label="Add entry by hand">+</button>
-    <div class="cbox"><textarea id="cText" rows="1" placeholder="Paste WhatsApp message" aria-label="Paste WhatsApp message"></textarea></div>
-    <button class="cbtn send" id="cSend" type="button" aria-label="Read message">➤</button>
-  </div>
-</div></div>
+<div class="composer" id="composer" hidden><div class="wrap selbar" id="selBar"><button class="btn ghost sm" id="selCancel" type="button">Cancel</button><span class="grow" id="selCount">0 selected</span><button class="btn danger sm" id="selDel" type="button" disabled>Delete</button></div></div>
 <div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" type="button" hidden>Undo</button></div>
 
 <div class="lock" id="lock" hidden>
@@ -726,7 +738,7 @@ function render(){
   $('navPartners').innerHTML=state.partners.map(p=>{const t=totals(p),b=bal(t.due);return `<button class="nav${view==='partner'&&p===cur?' on':''}" type="button" data-prof="${esc(p)}">
     <span class="ni">${esc(p.charAt(0).toUpperCase())}</span><span style="min-width:0">${esc(p)}<small class="${b.cls}">${b.word==='Settled'?'Settled ৳0':b.word+' '+sbal(t.due)}</small></span></button>`}).join('');
   document.querySelector('.nav[data-go="dash"]').classList.toggle('on',view==='dash');
-  $('v-dash').hidden=view!=='dash';$('v-partner').hidden=view!=='partner';$('composer').hidden=view!=='partner';
+  $('v-dash').hidden=view!=='dash';$('v-partner').hidden=view!=='partner';$('composer').hidden=!(view==='partner'&&selMode);
   $('crumb').textContent=view==='dash'?'Dashboard':cur;
   if(view==='dash')renderDash();
   if(cur){
@@ -787,7 +799,7 @@ function renderDash(){
   mrow.sort((a,b)=>a.m<b.m?1:a.m>b.m?-1:state.partners.indexOf(a.p)-state.partners.indexOf(b.p));
   // recent entries with balance after each
   const afterAll={};for(const p of state.partners){let run=0;for(const e of sorted(state.entries.filter(x=>x.partner===p))){run+=effect(e);afterAll[e.id]=run}}
-  const recent=[...state.entries].sort((a,b)=>a.date===b.date?a.ts-b.ts:a.date<b.date?-1:1).slice(-10);
+  const recent=[...state.entries].sort((a,b)=>a.date===b.date?a.ts-b.ts:a.date<b.date?-1:1).slice(-10).reverse();
   const mName=m=>{const[y,mo]=m.split('-');return new Date(y,mo-1).toLocaleString('en',{month:'short',year:'numeric'})};
   $('v-dash').innerHTML=`<h2 class="pg">Dashboard</h2><div class="hint">All partners · ${dayName(t0)}</div>
   <div class="kpis">
@@ -817,9 +829,9 @@ function renderDash(){
   <div class="recent">${recent.length?'<div class="colh"><span>Number</span><span>Partner</span><span>Amount</span><span>Balance</span></div>'+recent.map(e=>rowHtml(e,afterAll[e.id],e.partner)).join(''):'<p class="hint" style="padding:16px;margin:0">No entries yet. Open a partner from the sidebar to add one.</p>'}</div>
   <div style="height:24px"></div>`;
 }
-function setSel(on){selMode=on;sel.clear();$('selBar').hidden=!on;$('cMain').hidden=on;$('selBtn').textContent=on?'Done':'Select';drawSel();renderDays()}
+function setSel(on){selMode=on;sel.clear();$('composer').hidden=!on;document.body.classList.toggle('selmode',on);$('cMain').hidden=on;$('selBtn').textContent=on?'Done':'Select';drawSel();renderDays()}
 function drawSel(){$('selCount').textContent=sel.size+' selected';$('selDel').disabled=!sel.size}
-function toLatest(){if(view!=='partner'||$('v-days').hidden)return;requestAnimationFrame(()=>scrollTo({top:document.documentElement.scrollHeight,behavior:'auto'}))}
+function toLatest(){if(view!=='partner')return;requestAnimationFrame(()=>scrollTo({top:0,behavior:'auto'}))}
 function renderDays(){
   if(!cur){$('list').innerHTML='';$('filterSum').textContent='';return}
   const ft=$('fType').value,q=normDigits($('fSearch').value).trim().toLowerCase(),from=$('fFrom').value,to=$('fTo').value;
@@ -828,18 +840,18 @@ function renderDays(){
   let n=0;shownDays.forEach(d=>n+=d.shown.length);
   const filtered=ft||q||from||to;
   $('filterSum').textContent=n?`${shownDays.length} day${shownDays.length>1?'s':''} · ${n} entr${n>1?'ies':'y'}${filtered?' (filtered)':''}`:'';
-  if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message in the box below, or tap <b>+</b>.`}</div>`;return}
-  const start=Math.max(0,shownDays.length-120),last=shownDays.length-1;
-  $('list').innerHTML=(start?'<p class="hint">Showing the latest 120 days. Use the date filter for older days.</p>':'')+'<div class="days">'+shownDays.slice(start).map((d,k)=>{const i=start+k,o=bal(d.open),c=bal(d.close);return `<section class="day${(last-i)%2?' alt':''}">
+  if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message in the box above, or tap <b>+</b>.`}</div>`;return}
+  shownDays.reverse();// latest day first
+  $('list').innerHTML='<div class="days">'+shownDays.slice(0,120).map((d,i)=>{const o=bal(d.open),c=bal(d.close);return `<section class="day${i%2?' alt':''}">
     <div class="dh"><div><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div><div class="dbtns"><button class="copy" type="button" data-copyday="${i}">⧉ Copy</button><button class="copy share" type="button" data-shareday="${i}">↗ Share</button></div></div>
     <div class="colh"><span>Number</span><span>Note</span><span>Amount</span><span>Balance</span></div>
-    ${d.shown.map(e=>rowHtml(e,d.after[e.id])).join('')}
+    ${d.shown.slice().reverse().map(e=>rowHtml(e,d.after[e.id])).join('')}
     <div class="df">
       <span>Previous: <span class="${o.cls}">${sbal(d.open)}</span></span>
       <span>${d.sent?'Sent today '+tk(d.sent):''}</span>
       <span>${d.recv?'Received today <b class="green">'+tk(d.recv)+'</b>':''}</span>
       <div class="end"><small>Balance · ${c.word}</small><b class="${c.cls}">${sbal(d.close)}</b></div>
-    </div></section>`}).join('')+'</div>';
+    </div></section>`}).join('')+'</div>'+(shownDays.length>120?'<p class="hint">Showing the latest 120 days. Use the date filter for older days.</p>':'');
 }
 function renderMonthly(){
   if(!cur){$('monthly').innerHTML='';return}
@@ -1146,6 +1158,8 @@ $('addP').onclick=addPartner;
 $('setCharge').onchange=e=>{state.settings.chargeToPartner=e.target.checked;save();render()};
 $('wipeBtn').onclick=async()=>{$('dlgMenu').close();if(await ask('This deletes every entry for all profiles. Save a backup first. Type DELETE to confirm.',{ok:'Delete all',danger:true,typed:'DELETE'})){state.entries=[];save();render();toast('All entries deleted')}};
 loadFonts();
+try{if(matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<700&&innerWidth>=900&&!store.get('partnerHisab.dsok'))$('dsNote').hidden=false}catch(e){}
+$('dsClose').onclick=()=>{$('dsNote').hidden=true;store.set('partnerHisab.dsok','1')};
 init();
 </script>
 
