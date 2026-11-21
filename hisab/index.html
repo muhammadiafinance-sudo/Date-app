@@ -245,6 +245,28 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 .recent{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
 .ptag{display:inline-block;font-size:11px;font-weight:700;padding:0 6px;border-radius:6px;background:var(--chip);color:var(--muted);margin-right:4px}
 
+/* desktop */
+#hero{margin-top:14px}
+.dgrid{display:grid;gap:0 16px}
+@media (min-width:1100px){
+  main.wrap{max-width:1240px;padding-left:28px;padding-right:28px}
+  #v-partner{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:0 24px;align-items:start}
+  #v-partner>#hero{grid-column:2;grid-row:1 / span 4;position:sticky;top:80px;margin-top:20px}
+  #v-partner>.tabs,#v-partner>#v-days,#v-partner>#v-monthly{grid-column:1}
+  #v-partner>.tabs{margin-top:20px}
+  .hero .big{font-size:36px}
+  .composer #cMain,.composer #selBar{max-width:1240px;padding-left:28px;padding-right:calc(28px + 364px)}
+  .composer #cMain .cfor{margin-left:54px}
+  .dgrid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+  .pcards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .kpi b{font-size:26px}
+  .pg{font-size:28px;margin-top:22px}
+  .colh,.row{grid-template-columns:9em minmax(0,1fr) 8.5em 8.5em}
+  .day .dh{padding:14px 16px 6px}
+  .df{padding:12px 16px 14px}
+}
+@media (min-width:1500px){main.wrap{max-width:1400px}}
+
 /* lock screen */
 .lock{position:fixed;inset:0;z-index:40;background:var(--bg);display:grid;place-items:center;padding:24px}
 .lock .box{width:min(340px,100%);text-align:center}
@@ -275,7 +297,7 @@ body.locked main,body.locked header,body.locked .composer,body.locked .side{visi
 <main class="wrap">
   <section id="v-dash" hidden><div class="empty" style="margin-top:16px">Loading your hisab…</div></section>
   <section id="v-partner">
-  <section id="hero" style="margin-top:14px"><div class="empty">Loading your hisab…</div></section>
+  <section id="hero"><div class="empty">Loading your hisab…</div></section>
 
   <div class="tabs" role="tablist">
     <button class="tab on" data-v="days" type="button">Daily statement</button>
@@ -784,12 +806,13 @@ function renderDash(){
     <div class="kv"><span>This month sent</span><b>${tk(ms)}</b></div>
     <div class="kv"><span>This month received</span><b class="green">${tk(mr)}</b></div>
     <div class="kv"><span>Last entry</span><b>${t.last?fmtDate(t.last):'–'}</b></div></button>`}).join('')}</div>
-  <div class="sec">Last 7 days</div>
+  <div class="dgrid"><div><div class="sec">Last 7 days</div>
   <div class="card tbl"><table><tr><th>Day</th>${state.partners.map(p=>`<th>${esc(p)} sent</th><th>${esc(p)} received</th>`).join('')}</tr>
     ${days.map(d=>`<tr><td>${new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</td>${state.partners.map(p=>{const r=agg[d+'|'+p];return `<td>${r&&r.s?tk(r.s):'–'}</td><td class="green">${r&&r.r?tk(r.r):'–'}</td>`}).join('')}</tr>`).join('')}</table></div>
-  <div class="sec">Monthly summary</div>
+  </div><div><div class="sec">Monthly summary</div>
   <div class="card tbl">${mrow.length?`<table><tr><th>Month</th><th>Partner</th><th>Sent</th><th>Received</th><th>Month-end balance</th></tr>
     ${mrow.map(r=>`<tr><td>${mName(r.m)}</td><td>${esc(r.p)}</td><td>${tk(r.s)}</td><td class="green">${r.r?tk(r.r):'–'}</td><td class="${bal(r.end).cls}"><b>${sbal(r.end)}</b></td></tr>`).join('')}</table>`:'<p class="hint" style="padding:16px;margin:0">No entries yet.</p>'}</div>
+  </div></div>
   <div class="sec">Latest entries</div>
   <div class="recent">${recent.length?'<div class="colh"><span>Number</span><span>Partner</span><span>Amount</span><span>Balance</span></div>'+recent.map(e=>rowHtml(e,afterAll[e.id],e.partner)).join(''):'<p class="hint" style="padding:16px;margin:0">No entries yet. Open a partner from the sidebar to add one.</p>'}</div>
   <div style="height:24px"></div>`;
@@ -1070,6 +1093,11 @@ $('selDel').onclick=async()=>{const n=sel.size;if(!n)return;
   toast(`Deleted ${n} entr${n>1?'ies':'y'}`,()=>{state.entries.push(...gone);save();render();toast('Restored')})};
 function growC(){const t=$('cText');t.style.height='38px';t.style.height=Math.min(t.scrollHeight,120)+'px'}
 $('cText').addEventListener('input',growC);
+document.addEventListener('paste',e=>{
+  if(view!=='partner'||!cur||document.querySelector('dialog[open]')||document.body.classList.contains('locked'))return;
+  const tg=e.target;if(tg&&(tg.tagName==='INPUT'||tg.tagName==='TEXTAREA'))return;
+  const txt=(e.clipboardData||window.clipboardData)?.getData('text');if(!txt||!/\d{5}|[০-৯]{5}/.test(txt))return;
+  e.preventDefault();openPaste(cur,txt)});
 $('cSend').onclick=()=>{const t=$('cText');if(!cur)return;if(!t.value.trim()){t.focus();return toast('Paste the WhatsApp message in the box first')}const v=t.value;t.value='';growC();openPaste(cur,v)};
 $('menuBtn').onclick=()=>$('dlgMenu').showModal();
 $('navBtn').onclick=openNav;$('scrim').onclick=closeNav;
