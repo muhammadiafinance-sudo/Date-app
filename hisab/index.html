@@ -39,7 +39,7 @@
   --recv-soft:#1d3d2a;--recv-ink:#7fdca2;
   --chip:#252a30;--shadow:none;--toast:#eceef1;--on-toast:#0e1012;--scrim:rgba(0,0,0,.6);color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);padding-bottom:96px;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);padding-bottom:calc(92px + env(safe-area-inset-bottom,0px));-webkit-tap-highlight-color:transparent}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
 .num,.amt{font-variant-numeric:tabular-nums}
 .wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -84,10 +84,6 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var
 .btn.sm{padding:6px 12px;font-size:14px;border-radius:10px}
 .btn:disabled{opacity:.5;cursor:default}
 .btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.paste{margin-top:12px;border:1.5px dashed var(--line);border-radius:14px;padding:10px;display:flex;gap:8px;align-items:center;background:var(--bg)}
-.paste textarea{flex:1;min-width:0;border:0;background:transparent;resize:none;height:44px;font:inherit;font-size:15px;color:var(--ink);padding:2px 4px}
-.paste textarea:focus{outline:none}
-.paste:focus-within{border-color:var(--brand)}
 .meta-line{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)}
 .linkish{background:none;border:0;padding:0;color:var(--brand);font-weight:600;cursor:pointer;font-size:14px}
 .sync{font-size:12px;color:var(--muted);margin:8px 2px 0;display:flex;align-items:center;gap:6px}
@@ -148,7 +144,16 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .tbl td{padding:8px 14px;border-top:1px solid var(--line);white-space:nowrap}
 
 /* fab, dialogs, toast */
-.fab{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:18px;font-size:28px;line-height:1;box-shadow:0 6px 18px rgba(0,0,0,.22);z-index:6;padding:0}
+.composer{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-top:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.composer .wrap{display:flex;align-items:flex-end;gap:8px}
+.cbtn{flex:none;width:46px;height:46px;border-radius:50%;border:0;display:grid;place-items:center;font-size:22px;line-height:1;cursor:pointer;padding:0}
+.cbtn.plus{background:var(--chip);color:var(--ink);font-size:26px}
+.cbtn.send{background:var(--brand);color:var(--on-brand)}
+.cbox{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:23px;padding:4px 14px;display:flex;align-items:center}
+.cbox:focus-within{border-color:var(--brand)}
+.cbox textarea{width:100%;border:0;background:transparent;resize:none;font:inherit;font-size:16px;color:var(--ink);padding:8px 0;height:38px;max-height:120px;line-height:1.35}
+.cbox textarea:focus{outline:none}
+.cfor{font-size:12px;color:var(--muted);margin:0 0 4px 60px}
 dialog{border:0;border-radius:18px;padding:0;width:min(520px,calc(100vw - 24px));background:var(--surface);color:var(--ink)}
 dialog::backdrop{background:var(--scrim)}
 .dhd{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -177,7 +182,7 @@ dialog::backdrop{background:var(--scrim)}
 .psum{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 0;border-top:2px solid var(--line);font-variant-numeric:tabular-nums}
 pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12px;font:14px/1.5 var(--font);max-height:46vh;overflow:auto;font-variant-numeric:tabular-nums;user-select:all;margin:0 0 12px}
 .hint{font-size:13px;color:var(--muted)}
-.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--toast);color:var(--on-toast);padding:10px 12px 10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;max-width:calc(100vw - 32px);display:flex;gap:12px;align-items:center}
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--toast);color:var(--on-toast);padding:10px 12px 10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;max-width:calc(100vw - 32px);display:flex;gap:12px;align-items:center}
 .toast.show{opacity:1;pointer-events:auto}
 .toast button{background:none;border:0;color:inherit;font-weight:700;text-decoration:underline;cursor:pointer;padding:2px 4px}
 
@@ -186,7 +191,7 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 .lock .box{width:min(340px,100%);text-align:center}
 .lock .logo{margin:0 auto 12px;width:52px;height:52px;font-size:26px;border-radius:14px}
 .lock input{text-align:center;font-size:26px;letter-spacing:.4em;margin:14px 0 10px}
-body.locked main,body.locked header,body.locked .fab{visibility:hidden}
+body.locked main,body.locked header,body.locked .composer{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
 @media (max-width:380px){.hero .big{font-size:34px}.actions{grid-template-columns:1fr}}
 </style>
@@ -227,7 +232,14 @@ body.locked main,body.locked header,body.locked .fab{visibility:hidden}
   <section id="v-monthly" hidden><div class="card tbl" id="monthly"></div></section>
 </main>
 
-<button class="btn fab" id="fab" type="button" aria-label="Add entry">+</button>
+<div class="composer" id="composer"><div class="wrap" style="flex-direction:column;align-items:stretch;gap:0">
+  <div class="cfor" id="cfor"></div>
+  <div style="display:flex;align-items:flex-end;gap:8px">
+    <button class="cbtn plus" id="fab" type="button" aria-label="Add entry by hand">+</button>
+    <div class="cbox"><textarea id="cText" rows="1" placeholder="Paste WhatsApp message" aria-label="Paste WhatsApp message"></textarea></div>
+    <button class="cbtn send" id="cSend" type="button" aria-label="Read message">➤</button>
+  </div>
+</div></div>
 <div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" type="button" hidden>Undo</button></div>
 
 <div class="lock" id="lock" hidden>
@@ -421,7 +433,7 @@ function save(){
 function startDb(){
   let gotM=false,gotC=false;
   const timer=setTimeout(()=>{if(!loaded)status('Still connecting… your hisab will appear when the connection is back.',true)},10000);
-  const ready=()=>{if(gotM&&gotC&&!loaded){loaded=true;clearTimeout(timer);status(canWrite?'Saved online · same on every device':'View only · you cannot change this hisab')}render()};
+  const ready=()=>{if(gotM&&gotC&&!loaded){loaded=true;clearTimeout(timer);status(canWrite?'Saved online · same on every device':'View only · you cannot change this hisab');render();toLatest();return}render()};
   db.collection('months').onSnapshot(snap=>{
     const ents=[];written={};
     snap.docs.forEach(d=>{const v=d.data()||{};written[d.id]=JSON.stringify(v.entries||{});Object.values(v.entries||{}).forEach(e=>ents.push(e))});
@@ -443,7 +455,7 @@ async function init(){
   $('writeNote').textContent=db?'Online data: only you (and people you give Editor access) can change it. Viewers can only read.':'This copy keeps data in this browser only. Save a backup file regularly.';
   if(db){startDb();return}
   try{const s=JSON.parse(store.get(LKEY));if(s&&Array.isArray(s.entries)){state=s;state.settings=state.settings||{chargeToPartner:true}}}catch(e){}
-  loaded=true;status('Saved in this browser only · take a backup from Menu');render();
+  loaded=true;status('Saved in this browser only · take a backup from Menu');render();toLatest();
 }
 
 // ================= PIN lock (this device) =================
@@ -631,10 +643,10 @@ function render(){
         <button class="btn" type="button" data-new="send">Money sent</button>
         <button class="btn soft" type="button" data-new="bank">Payment received</button>
       </div>
-      <div class="paste"><textarea data-paste="${esc(p)}" rows="1" placeholder="Paste WhatsApp message here" aria-label="Paste WhatsApp message for ${esc(p)}"></textarea><button class="btn sm" type="button" data-read="${esc(p)}">Read</button></div>
       <div class="meta-line"><span>${pc?'WhatsApp amounts get +'+pc+'%':'WhatsApp amounts are added exactly'}${t.charge?' · charges '+tk(t.charge):''}</span><button class="linkish" type="button" data-full="${esc(p)}">Full statement</button></div>
     </div>`;
   }else $('hero').innerHTML='<div class="empty">Add a profile from Menu → Profiles.</div>';
+  $('cfor').textContent=cur?`Paste for ${cur}${rate(cur)?' · +'+rate(cur)+'%':' · exact amount'}`:'';$('cText').dataset.paste=cur||'';
   $('ePartner').innerHTML=state.partners.map(p=>`<option>${esc(p)}</option>`).join('');
   $('stmtBtns').innerHTML=state.partners.map(p=>`<button class="btn ghost" type="button" data-full="${esc(p)}">${esc(p)}</button>`).join('');
   $('partnerEdit').innerHTML=state.partners.map((p,i)=>`<div class="btns" style="margin-bottom:8px"><input value="${esc(p)}" style="flex:1;min-width:120px" data-ren="${i}" aria-label="Profile name"><label style="display:flex;align-items:center;gap:4px;margin:0;color:var(--ink)">+<input type="number" step="any" min="0" value="${rate(p)}" data-pct="${esc(p)}" style="width:70px" aria-label="Extra percent for ${esc(p)}">%</label><button class="btn ghost sm" type="button" data-rm="${i}">Remove</button></div>`).join('');
@@ -642,16 +654,18 @@ function render(){
   drawPin();renderDays();renderMonthly();
 }
 let shownDays=[];
+function toLatest(){if($('v-days').hidden)return;requestAnimationFrame(()=>scrollTo({top:document.documentElement.scrollHeight,behavior:'auto'}))}
 function renderDays(){
   if(!cur){$('list').innerHTML='';$('filterSum').textContent='';return}
   const ft=$('fType').value,q=normDigits($('fSearch').value).trim().toLowerCase(),from=$('fFrom').value,to=$('fTo').value;
   const match=e=>(!ft||e.type===ft)&&(!q||[e.number,e.note,e.method,e.holder,e.bank,e.account,String(e.amount),String(e.base||'')].join(' ').toLowerCase().includes(q));
-  shownDays=dayGroups(cur).filter(d=>(!from||d.date>=from)&&(!to||d.date<=to)).map(d=>({...d,shown:d.items.filter(match)})).filter(d=>d.shown.length).reverse();
+  shownDays=dayGroups(cur).filter(d=>(!from||d.date>=from)&&(!to||d.date<=to)).map(d=>({...d,shown:d.items.filter(match)})).filter(d=>d.shown.length);
   let n=0;shownDays.forEach(d=>n+=d.shown.length);
   const filtered=ft||q||from||to;
   $('filterSum').textContent=n?`${shownDays.length} day${shownDays.length>1?'s':''} · ${n} entr${n>1?'ies':'y'}${filtered?' (filtered)':''}`:'';
-  if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message above, or tap <b>Money sent</b>.`}</div>`;return}
-  $('list').innerHTML='<div class="days">'+shownDays.slice(0,120).map((d,i)=>{const o=bal(d.open),c=bal(d.close);return `<section class="day${i%2?' alt':''}">
+  if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message in the box below, or tap <b>+</b>.`}</div>`;return}
+  const start=Math.max(0,shownDays.length-120),last=shownDays.length-1;
+  $('list').innerHTML=(start?'<p class="hint">Showing the latest 120 days. Use the date filter for older days.</p>':'')+'<div class="days">'+shownDays.slice(start).map((d,k)=>{const i=start+k,o=bal(d.open),c=bal(d.close);return `<section class="day${(last-i)%2?' alt':''}">
     <div class="dh"><div><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div><div class="dbtns"><button class="copy" type="button" data-copyday="${i}">⧉ Copy</button><button class="copy share" type="button" data-shareday="${i}">↗ Share</button></div></div>
     ${d.shown.map(e=>`<button class="row${e.type==='bank'?' recv':''}" type="button" data-edit="${e.id}">
       <div><div class="t">${e.type==='send'?esc(e.number||'Money sent')+`<span class="chip">${esc(e.method)}</span>`:(e.method==='Bank'?'Bank payment':e.method==='Cash'?'Cash received':'Received')+`<span class="chip in">${esc(e.method)}</span>`}</div>
@@ -663,7 +677,7 @@ function renderDays(){
       <span>${d.sent?'Sent today '+tk(d.sent):''}</span>
       <span>${d.recv?'Received today <b class="green">'+tk(d.recv)+'</b>':''}</span>
       <div class="end"><small>Balance · ${c.word}</small><b class="${c.cls}">${sbal(d.close)}</b></div>
-    </div></section>`}).join('')+'</div>'+(shownDays.length>120?'<p class="hint">Showing the latest 120 days. Use the date filter for older days.</p>':'');
+    </div></section>`}).join('')+'</div>';
 }
 function renderMonthly(){
   if(!cur){$('monthly').innerHTML='';return}
@@ -739,7 +753,7 @@ function saveEntry(more){
     number:num,charge:curType==='send'?(parseFloat($('eCharge').value)||0):0,note:$('eNote').value.trim().slice(0,200)};
   if(curType==='bank'&&e.method==='Bank'){const h=$('eHolder').value.trim().slice(0,60),bk=$('eBank').value.trim().slice(0,60),ac=normDigits($('eAcct').value).trim().slice(0,30);if(h)e.holder=h;if(bk)e.bank=bk;if(ac)e.account=ac}
   if(old)state.entries[state.entries.indexOf(old)]=e;else state.entries.push(e);
-  cur=p;save();render();toast('Saved');
+  cur=p;save();render();toLatest();toast('Saved');
   if(more){['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='');fillNumbers();updTotal();$('eNumber').focus()}
   else $('dlgEntry').close();
 }
@@ -804,7 +818,7 @@ function addPaste(){
   let ts=Date.now();const ids=[];
   on.forEach(r=>{const id=uid();ids.push(id);state.entries.push({id,ts:ts++,type:'send',partner:p,date:d,method:r.method||def,amount:addPct(r.base,pc),...(pc?{base:r.base,pct:pc}:{}),number:r.number,charge:0,note:(r.note||'').slice(0,200)})});
   if(pc!==rate(p))state.settings.pct={...(state.settings.pct||{}),[p]:pc};
-  cur=p;save();render();$('dlgPaste').close();
+  cur=p;save();render();$('dlgPaste').close();toLatest();
   toast(`Added ${on.length} to ${p}`,()=>{state.entries=state.entries.filter(e=>!ids.includes(e.id));save();render();toast('Removed again')});
 }
 function parseAmt(v){v=normDigits(v).trim().replace(/,/g,'');const k=/k$/i.test(v);const n=parseFloat(v);return n>0?(k?n*1000:n):0}
@@ -880,7 +894,7 @@ function restore(inp){
 }
 
 // ================= profiles =================
-function setProfile(p){cur=p;store.set(PROF_KEY,p);render();scrollTo({top:0})}
+function setProfile(p){cur=p;store.set(PROF_KEY,p);render();toLatest()}
 function addPartner(){const n=$('newPartner').value.trim().slice(0,40);if(!n)return;if(state.partners.includes(n))return toast(n+' already exists');state.partners.push(n);$('newPartner').value='';save();render()}
 function renamePartner(i,n){n=n.trim().slice(0,40);const old=state.partners[i];if(!n||n===old)return;if(state.partners.includes(n)){render();return toast(n+' already exists')}
   if(state.settings.pct&&old in state.settings.pct){state.settings.pct[n]=state.settings.pct[old];delete state.settings.pct[old]}
@@ -892,10 +906,13 @@ let tt,toastFn=null;
 function toast(m,undo){$('toastMsg').textContent=m;toastFn=undo||null;$('toastAct').hidden=!undo;$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>{$('toast').classList.remove('show');toastFn=null},undo?6000:2600)}
 $('toastAct').onclick=()=>{const f=toastFn;toastFn=null;$('toast').classList.remove('show');if(f)f()};
 $('fab').onclick=()=>openEntry(null,'send');
+function growC(){const t=$('cText');t.style.height='38px';t.style.height=Math.min(t.scrollHeight,120)+'px'}
+$('cText').addEventListener('input',growC);
+$('cSend').onclick=()=>{const t=$('cText');if(!cur)return;if(!t.value.trim()){t.focus();return toast('Paste the WhatsApp message in the box first')}const v=t.value;t.value='';growC();openPaste(cur,v)};
 $('menuBtn').onclick=()=>$('dlgMenu').showModal();
 $('clearF').onclick=()=>{['fType','fSearch','fFrom','fTo'].forEach(i=>$(i).value='');renderDays()};
 ['fType','fFrom','fTo'].forEach(i=>$(i).addEventListener('change',renderDays));$('fSearch').addEventListener('input',renderDays);
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));['days','monthly'].forEach(v=>$('v-'+v).hidden=v!==t.dataset.v)});
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));['days','monthly'].forEach(v=>$('v-'+v).hidden=v!==t.dataset.v);toLatest()});
 document.querySelectorAll('#dlgEntry .seg button').forEach(b=>b.onclick=()=>setType(b.dataset.t));
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d&&d.id!=='dlgAsk')d.close()}));
@@ -925,7 +942,7 @@ $('pRows').addEventListener('change',e=>{const i=e.target.dataset.pi;if(i===unde
 const pasteLen=new WeakMap();
 document.addEventListener('input',e=>{const t=e.target;if(t.dataset.paste===undefined)return;
   const prev=pasteLen.get(t)||0;pasteLen.set(t,t.value.length);
-  if(t.value.length-prev>=11&&/[01০১]/.test(t.value)&&/\d{3}|[০-৯]{3}/.test(t.value)){const v=t.value;t.value='';pasteLen.set(t,0);openPaste(t.dataset.paste,v)}});
+  if(t.value.length-prev>=11&&/[01০১]/.test(t.value)&&/\d{3}|[০-৯]{3}/.test(t.value)){const v=t.value;t.value='';pasteLen.set(t,0);if(t.id==='cText')growC();openPaste(t.dataset.paste,v)}});
 $('copyBtn').onclick=()=>copyText($('sText').textContent,$('sText'));
 $('expBtn').onclick=exportXlsx;
 $('impBtn').onclick=()=>$('impFile').click();$('impFile').onchange=e=>importFile(e.target);
