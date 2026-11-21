@@ -122,6 +122,8 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .row .t{font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .row .s{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
 .row .amt{font-weight:700;font-size:17px;text-align:right}
+.row .rb{font-size:13px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.row .rb small{font-weight:400;color:var(--muted);margin-right:3px}
 .chip{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--chip);color:var(--muted);margin-left:6px;vertical-align:2px}
 .chip.in{background:var(--green-soft);color:var(--green)}
 .df{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 14px 12px;border-top:1px dashed var(--day-line);font-size:14px;font-variant-numeric:tabular-nums}
@@ -376,6 +378,8 @@ const sorted=list=>[...list].sort((a,b)=>a.date===b.date?a.ts-b.ts:a.date<b.date
 // Balance wording: owes you = Due (red), paid more than due = Advance (green), zero = Settled
 const EPS=0.005;
 function bal(v){return v>EPS?{word:'Due',cls:'red'}:v<-EPS?{word:'Advance',cls:'green'}:{word:'Settled',cls:''}}
+// Balance from the partner's side: Advance = +amount (green), Due = −amount (red)
+function sbal(v,minus='\u2212'){return v>EPS?minus+tk(v):v<-EPS?'+'+tk(v):'৳0'}
 function status(msg,warn){$('status').innerHTML=msg?`<i></i>${esc(msg)}`:'';$('status').classList.toggle('warn',!!warn)}
 function validAmount(n){return n>0&&n<MAX_AMOUNT}
 
@@ -466,30 +470,31 @@ function dayGroups(p){
   const days=[];let run=0,d=null;
   for(const e of sorted(state.entries.filter(x=>x.partner===p))){
     if(!d||d.date!==e.date){d={date:e.date,open:run,items:[],sent:0,recv:0,close:run};days.push(d)}
-    run+=effect(e);d.items.push(e);e.type==='send'?d.sent+=effect(e):d.recv+=+e.amount;d.close=run;
+    run+=effect(e);d.items.push(e);(d.after=d.after||{})[e.id]=run;e.type==='send'?d.sent+=effect(e):d.recv+=+e.amount;d.close=run;
   }
   return days;
 }
 
 // ================= text for chats =================
-function entryLine(e,i){
-  if(e.type==='bank')return `Bank payment received: ${tk(e.amount)}${e.method!=='Bank'?' ('+e.method+')':''}${e.note?' · '+e.note:''}`;
+function entryLine(e,i,after){
+  const b=after===undefined?'':`  |  Bal ${sbal(after,'-')}`;
+  if(e.type==='bank')return `Bank payment received: ${tk(e.amount)}${e.method!=='Bank'?' ('+e.method+')':''}${e.note?' · '+e.note:''}${b}`;
   const amt=e.base?`${money(e.base)} + ${e.pct}% = ${tk(e.amount)}`:tk(e.amount);
-  return `${i}) ${e.number||'—'}  ${amt}${e.method!=='bKash'?' ('+e.method+')':''}${e.charge?' + charge '+tk(e.charge):''}${e.note?' · '+e.note:''}`;
+  return `${i}) ${e.number||'—'}  ${amt}${e.method!=='bKash'?' ('+e.method+')':''}${e.charge?' + charge '+tk(e.charge):''}${e.note?' · '+e.note:''}${b}`;
 }
-function balLine(label,v){const b=bal(v);return `${label}: ${b.word==='Settled'?'Settled (৳0)':b.word+' '+tk(v)}`}
+function balLine(label,v){const b=bal(v);return `${label}: ${sbal(v,'-')}${b.word==='Settled'?' (settled)':' ('+b.word.toLowerCase()+')'}`}
 function dayText(p,d,withName=true){
   let i=0;
   return `${withName?p+' — ':''}${dayName(d.date)}\n`+
-    d.items.map(e=>entryLine(e,e.type==='send'?++i:0)).join('\n')+
+    d.items.map(e=>entryLine(e,e.type==='send'?++i:0,d.after[e.id])).join('\n')+
     `\n——————————\n`+(d.open?balLine('Previous',d.open)+'\n':'')+
     (d.sent?`Sent today: ${tk(d.sent)}\n`:'')+(d.recv?`Received today: ${tk(d.recv)}\n`:'')+
-    balLine('Now',d.close);
+    balLine('Balance now',d.close);
 }
 function fullText(p){
   const t=totals(p),b=bal(t.due);
   return `Hisab — ${p}\nAs of ${fmtDate(today())}\n\nTotal sent: ${tk(t.sent)}`+(t.charge&&state.settings.chargeToPartner?`\nCharges: ${tk(t.charge)}`:'')+
-    `\nTotal received: ${tk(t.bank)}\n${b.word==='Settled'?'Settled (৳0)':b.word.toUpperCase()+': '+tk(t.due)}\n\n`+
+    `\nTotal received: ${tk(t.bank)}\nBALANCE: ${sbal(t.due,'-')}${b.word==='Settled'?' (settled)':' ('+b.word.toLowerCase()+')'}\n\n`+
     (dayGroups(p).map(d=>dayText(p,d,false)).join('\n\n')||'No entries');
 }
 function copyText(txt,fallbackEl){
@@ -522,7 +527,7 @@ async function dayCanvas(p,d){
   x.fillStyle=IMG.white;x.font=`700 54px ${IF}`;x.textAlign='center';x.fillText(p.charAt(0).toUpperCase(),W-P-55,149);x.textAlign='left';
   // column heads
   let y=headH+50;
-  x.font=`600 26px ${IF}`;x.fillStyle=IMG.muted;x.fillText('NUMBER',P,y);x.textAlign='right';x.fillText('AMOUNT',W-P,y);x.textAlign='left';
+  x.font=`600 26px ${IF}`;x.fillStyle=IMG.muted;x.fillText('NUMBER',P,y);x.textAlign='right';x.fillText('AMOUNT · BALANCE',W-P,y);x.textAlign='left';
   y+=22;x.fillStyle=IMG.line;x.fillRect(P,y,W-2*P,2);y+=10;
   // rows
   let n=0;
@@ -532,8 +537,10 @@ async function dayCanvas(p,d){
     x.fillStyle=IMG.muted;x.font=`600 30px ${IF}`;x.fillText(send?String(++n).padStart(2,' ')+'.':'',P,y+50);
     x.fillStyle=send?IMG.ink:IMG.green;x.font=`700 40px ${IF}`;x.fillText(send?(e.number||'Money sent'):'Bank payment',P+62,y+50);
     const sub=[e.method,e.base?money(e.base)+' + '+e.pct+'%':'',e.charge?'charge '+tk(e.charge):'',e.note||''].filter(Boolean).join('  ·  ');
-    x.fillStyle=IMG.muted;x.font=`400 28px ${IF}`;x.fillText(fit(x,sub,W-2*P-62-300),P+62,y+88);
-    x.textAlign='right';x.fillStyle=send?IMG.ink:IMG.green;x.font=`700 44px ${IF}`;x.fillText(tk(e.amount),W-P,y+66);x.textAlign='left';
+    x.fillStyle=IMG.muted;x.font=`400 28px ${IF}`;x.fillText(fit(x,sub,W-2*P-62-330),P+62,y+88);
+    const ab=d.after[e.id],abc=bal(ab).cls;
+    x.textAlign='right';x.fillStyle=send?IMG.ink:IMG.green;x.font=`700 44px ${IF}`;x.fillText(tk(e.amount),W-P,y+52);
+    x.font=`600 28px ${IF}`;x.fillStyle=abc==='red'?IMG.red:abc==='green'?IMG.green:IMG.muted;x.fillText('Bal '+sbal(ab),W-P,y+90);x.textAlign='left';
     y+=rowH;
   });
   x.fillStyle=IMG.line;x.fillRect(P,y,W-2*P,2);y+=50;
@@ -545,12 +552,12 @@ async function dayCanvas(p,d){
     x.font=`400 34px ${IF}`;x.fillStyle=IMG.muted;x.fillText(lbl,P+16,yy);
     x.textAlign='right';x.font=`600 36px ${IF}`;
     x.fillStyle=kind==='green'?IMG.green:kind==='bal'?(b.cls==='red'?IMG.red:b.cls==='green'?IMG.green:IMG.ink):IMG.ink;
-    x.fillText(kind==='bal'?(b.word==='Settled'?'৳0':b.word+'  '+tk(v)):tk(v),W-P-16,yy);x.textAlign='left';yy+=58;
+    x.fillText(kind==='bal'?sbal(v):tk(v),W-P-16,yy);x.textAlign='left';yy+=58;
   });
   x.fillStyle=IMG.line;x.fillRect(P+16,yy-24,W-2*P-32,2);
   const fb=bal(d.close);
-  x.font=`700 34px ${IF}`;x.fillStyle=IMG.muted;x.fillText(fb.word==='Due'?'DUE NOW':fb.word==='Advance'?'ADVANCE':'SETTLED',P+16,yy+60);
-  x.textAlign='right';x.font=`700 72px ${IF}`;x.fillStyle=fb.cls==='red'?IMG.red:fb.cls==='green'?IMG.green:IMG.ink;x.fillText(tk(d.close),W-P-16,yy+72);x.textAlign='left';
+  x.font=`700 34px ${IF}`;x.fillStyle=IMG.muted;x.fillText('BALANCE · '+fb.word.toUpperCase(),P+16,yy+60);
+  x.textAlign='right';x.font=`700 72px ${IF}`;x.fillStyle=fb.cls==='red'?IMG.red:fb.cls==='green'?IMG.green:IMG.ink;x.fillText(sbal(d.close),W-P-16,yy+72);x.textAlign='left';
   // footer
   const now=new Date();
   x.font=`400 26px ${IF}`;x.fillStyle=IMG.muted;x.textAlign='center';
@@ -589,13 +596,13 @@ function render(){
   if(!state.partners.includes(cur))cur=state.partners[0]||null;
   $('profiles').innerHTML=state.partners.map(p=>{const t=totals(p),b=bal(t.due);return `<button class="prof${p===cur?' on':''}" type="button" data-prof="${esc(p)}" aria-pressed="${p===cur}">
     <span class="av">${esc(p.charAt(0).toUpperCase())}</span><span style="min-width:0"><span class="pn">${esc(p)}</span>
-    <span class="pd ${b.cls}">${b.word==='Settled'?'Settled':b.word+' '+tk(t.due)}</span></span></button>`}).join('');
+    <span class="pd ${b.cls}">${b.word==='Settled'?'Settled ৳0':b.word+' '+sbal(t.due)}</span></span></button>`}).join('');
   if(cur){
     const p=cur,t=totals(p),b=bal(t.due),pc=rate(p);
     const head=b.word==='Due'?`${esc(p)} owes you`:b.word==='Advance'?`Advance · extra received from ${esc(p)}`:'All settled';
     $('hero').innerHTML=`<div class="card hero">
       <div class="lbl">${head}</div>
-      <div class="big ${b.cls}">${tk(t.due)}</div>
+      <div class="big ${b.cls}">${sbal(t.due)}</div>
       <div class="stats">
         <div class="stat"><span>Total sent · ${t.cnt}</span><b>${tk(t.sent)}</b></div>
         <div class="stat"><span>Received by bank</span><b class="green">${tk(t.bank)}</b></div>
@@ -629,12 +636,12 @@ function renderDays(){
     ${d.shown.map(e=>`<button class="row" type="button" data-edit="${e.id}">
       <div><div class="t">${e.type==='send'?esc(e.number||'Money sent')+`<span class="chip">${esc(e.method)}</span>`:'Bank payment'+`<span class="chip in">${esc(e.method)}</span>`}</div>
         ${(e.base||e.charge||e.note)?`<div class="s">${e.base?money(e.base)+' + '+e.pct+'%':''}${e.charge?(e.base?' · ':'')+'charge '+tk(e.charge):''}${e.note?((e.base||e.charge)?' · ':'')+esc(e.note):''}</div>`:''}</div>
-      <div class="amt${e.type==='bank'?' green':''}">${tk(e.amount)}</div></button>`).join('')}
+      <div><div class="amt${e.type==='bank'?' green':''}">${tk(e.amount)}</div><div class="rb ${bal(d.after[e.id]).cls}"><small>Bal</small>${sbal(d.after[e.id])}</div></div></button>`).join('')}
     <div class="df">
-      <span>Previous: <span class="${o.cls}">${o.word==='Settled'?'৳0':o.word+' '+tk(d.open)}</span></span>
+      <span>Previous: <span class="${o.cls}">${sbal(d.open)}</span></span>
       <span>${d.sent?'Sent today '+tk(d.sent):''}</span>
       <span>${d.recv?'Received today <b class="green">'+tk(d.recv)+'</b>':''}</span>
-      <div class="end"><small>${c.word}</small><b class="${c.cls}">${tk(d.close)}</b></div>
+      <div class="end"><small>Balance · ${c.word}</small><b class="${c.cls}">${sbal(d.close)}</b></div>
     </div></section>`}).join('')+'</div>'+(shownDays.length>120?'<p class="hint">Showing the latest 120 days. Use the date filter for older days.</p>':'');
 }
 function renderMonthly(){
@@ -780,9 +787,9 @@ function exportXlsx(){
   }
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rowsAll.length?rowsAll:[{Date:''}]),'All entries');
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(state.partners.map(p=>{const t=totals(p),b=bal(t.due);return{Profile:p,'Total Sent':t.sent,Charges:t.charge,'Total Received':t.bank,Status:b.word,Amount:Math.abs(t.due)}})),'Summary');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(state.partners.map(p=>{const t=totals(p),b=bal(t.due);return{Profile:p,'Total Sent':t.sent,Charges:t.charge,'Total Received':t.bank,Status:b.word,Balance:Math.round(-t.due*100)/100}})),'Summary');
   for(const p of state.partners){
-    let run=0;const r=sorted(state.entries.filter(e=>e.partner===p)).map(e=>{run+=effect(e);const b=bal(run);return{Date:e.date,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Base Amount':e.base||'','Extra %':e.base?e.pct:'',Sent:e.type==='send'?e.amount:'',Received:e.type==='bank'?e.amount:'',Charge:e.charge||'',Status:b.word,Balance:Math.abs(run),Note:e.note}});
+    let run=0;const r=sorted(state.entries.filter(e=>e.partner===p)).map(e=>{run+=effect(e);const b=bal(run);return{Date:e.date,Type:e.type==='send'?'Sent':'Received',Method:e.method,Number:e.number,'Base Amount':e.base||'','Extra %':e.base?e.pct:'',Sent:e.type==='send'?e.amount:'',Received:e.type==='bank'?e.amount:'',Charge:e.charge||'',Status:b.word,Balance:Math.round(-run*100)/100,Note:e.note}});
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r.length?r:[{Date:''}]),p.replace(/[\\\/?*\[\]:]/g,' ').slice(0,31));
   }
   giveFile(`Hisab_${today()}.xlsx`,new Uint8Array(XLSX.write(wb,{type:'array',bookType:'xlsx'})),'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
