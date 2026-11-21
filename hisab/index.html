@@ -13,19 +13,19 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* Theme: dark charcoal with an ember accent (one deliberate dark look; no light variant) */
+/* Theme: warm off-white with a deep forest-green accent; day bands alternate solid white and soft carbon gray */
 :root{
-  --bg:#121214;--surface:#1c1c1f;--raised:#242428;--ink:#f1f1f3;--muted:#9b9ba4;--line:#2e2e33;
-  --brand:#ff6a2b;--brand-2:#e8401c;--on-brand:#ffffff;--brand-soft:#3a1e14;
-  --brand-grad:linear-gradient(135deg,#ff7a3d 0%,#e8401c 100%);
-  --red:#ff5d6e;--red-soft:#3a1519;--green:#46d483;--green-soft:#12301f;
-  --day-a:#1c1c1f;--day-b:#242428;--day-line:#303036;
-  --recv-soft:#15301f;--recv-ink:#6fe3a0;
-  --chip:#2a2a2f;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 8px 24px rgba(0,0,0,.25);
-  --toast:#f1f1f3;--on-toast:#121214;--scrim:rgba(0,0,0,.6);
-  --series-ember:#e8571f;--series-green:#2aa863;--series-gray:#5a5a63;
+  --bg:#f3f4ef;--surface:#ffffff;--raised:#f6f7f3;--ink:#1b1f1c;--muted:#6b726c;--line:#e4e6df;
+  --brand:#1f5c45;--brand-2:#163f30;--on-brand:#ffffff;--brand-soft:#e3eee8;
+  --brand-grad:linear-gradient(135deg,#2a6e53 0%,#173f31 100%);
+  --red:#c8382e;--red-soft:#fbe9e7;--green:#1b7f4b;--green-soft:#e3f3e9;
+  --day-a:#ffffff;--day-b:#eef0eb;--day-line:#e1e4dc;
+  --recv-soft:#dcefe2;--recv-ink:#14663a;
+  --chip:#eceee8;--shadow:0 1px 2px rgba(27,31,28,.05),0 4px 14px rgba(27,31,28,.05);
+  --toast:#1b1f1c;--on-toast:#ffffff;--scrim:rgba(20,24,21,.45);
+  --s1:#1f7a4d;--s2:#b8860b;--s3:#3b6fb6;--s-faint:#d9ddd5;
   --font:"Hind Siliguri",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  color-scheme:dark;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);-webkit-tap-highlight-color:transparent}
@@ -61,7 +61,8 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var
 .stat span{display:block;font-size:12px;color:var(--muted)}
 .stat b{font-size:18px;font-variant-numeric:tabular-nums}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer;background:var(--brand-grad);color:var(--on-brand);font-size:15px;box-shadow:0 6px 16px rgba(232,64,28,.25)}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer;background:var(--brand-grad);color:var(--on-brand);font-size:15px;box-shadow:0 4px 12px rgba(23,63,49,.18);transition:transform .12s,box-shadow .2s}
+.btn:active{transform:scale(.97)}
 .btn.ghost,.btn.soft{box-shadow:none}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
 .btn.soft{background:var(--chip);color:var(--ink)}
@@ -189,10 +190,10 @@ pre.stmt{white-space:pre-wrap;background:var(--bg);padding:12px;border-radius:12
 .side .navlbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 10px 4px}
 .nav{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;border-radius:10px;padding:9px 10px;cursor:pointer;text-align:left;font-size:15px;font-weight:600;color:var(--ink)}
 .nav:hover{background:var(--chip)}
-.nav.on{background:var(--brand-grad);color:#fff;box-shadow:0 6px 16px rgba(232,64,28,.25)}
-.nav.on small{color:rgba(255,255,255,.85)!important}
+.nav{transition:background .2s,color .2s}
+.nav.on{background:var(--chip);color:var(--ink);box-shadow:inset 3px 0 0 var(--brand)}
 .nav .ni{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--chip);font-size:15px;flex:none}
-.nav.on .ni{background:rgba(255,255,255,.18);color:#fff}
+.nav.on .ni{background:var(--brand-grad);color:#fff}
 .nav small{display:block;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted)}
 .nav small.red{color:var(--red)}.nav small.green{color:var(--green)}
 .sidefoot{margin-top:auto;padding:10px;font-size:12px;color:var(--muted)}
@@ -323,12 +324,12 @@ header{flex:none;position:relative;top:auto}
 
 /* dashboard (dark, ember) */
 .dhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-top:6px}
-.kpi.hot{background:var(--brand-grad);border-radius:16px;color:#fff;box-shadow:0 10px 28px rgba(232,64,28,.3)}
+.kpi.hot{background:var(--brand-grad);border-radius:16px;color:#fff;box-shadow:0 10px 26px rgba(23,63,49,.25)}
 .kpi.hot span,.kpi.hot small{color:rgba(255,255,255,.85)}.kpi.hot b{color:#fff;font-size:28px;white-space:nowrap}
 .kpi b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:699px){.kpi.hot b,.kpi b{font-size:20px}.kfoot .spark{width:64px}.ch-stats{gap:14px}.ch-stats b{font-size:19px}}
 .kfoot{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-top:4px}
-.kfoot .spark{width:90px;height:30px;color:var(--muted)}.kfoot .green .spark{color:var(--series-green)}
+.kfoot .spark{width:90px;height:30px;color:var(--muted)}.kfoot .green .spark{color:var(--s1)}
 .dgrid2{display:grid;gap:12px;margin-top:12px;align-items:start}
 @media (min-width:1100px){.dgrid2{grid-template-columns:minmax(0,1fr) 340px}}
 .side2{display:grid;gap:12px;align-content:start}
@@ -339,7 +340,7 @@ header{flex:none;position:relative;top:auto}
 .ch-stats span{display:block;font-size:12px;color:var(--muted)}.ch-stats b{font-size:24px;font-variant-numeric:tabular-nums}.ch-stats small{font-size:12px;color:var(--muted);font-weight:400}
 .seg2{display:flex;background:var(--raised);border-radius:10px;padding:3px}
 .seg2 button{border:0;background:transparent;color:var(--muted);padding:5px 10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
-.seg2 button.on{background:var(--ink);color:var(--bg)}
+.seg2 button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .chipbtn{border:1px solid var(--line);background:var(--raised);color:var(--ink);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer}
 .chipbtn.on{background:var(--brand-grad);border-color:transparent;color:#fff}
@@ -347,12 +348,12 @@ header{flex:none;position:relative;top:auto}
 .chartbox svg{display:block;max-width:100%;height:auto}
 .chartbox .grid{stroke:var(--line);stroke-width:1}
 .chartbox .ax{fill:var(--muted);font:11px var(--font)}.chartbox .ax.now{fill:var(--ink);font-weight:700}
-.chartbox .avg{stroke:var(--series-ember);stroke-width:1.5;stroke-dasharray:5 5;opacity:.8}
+.chartbox .avg{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:4 5;opacity:.5}
 .chartbox .pill{fill:#fff;font:600 11px var(--font)}
 .chartbox .zero{stroke:var(--line);stroke-dasharray:3 4}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
-.legend i.dash{width:16px;height:0;border-radius:0;border-top:2px dashed var(--series-ember);vertical-align:3px}
+.legend i.dash{width:16px;height:0;border-radius:0;border-top:2px dashed var(--muted);vertical-align:3px}
 .wallet .wbig{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;margin:2px 0 8px}
 .wrow{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
 .wrow span{display:block;font-size:12px;color:var(--muted)}.wrow b{font-variant-numeric:tabular-nums}
@@ -360,11 +361,31 @@ header{flex:none;position:relative;top:auto}
 .gaugecard{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .gk{display:flex;gap:8px;font-size:14px;margin-top:6px}.gk span{color:var(--muted);min-width:64px}.gk b{font-variant-numeric:tabular-nums}
 .gnum{fill:var(--ink);font:700 26px var(--font)}
-.tip{position:fixed;z-index:60;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;pointer-events:none;box-shadow:0 10px 24px rgba(0,0,0,.4);font-variant-numeric:tabular-nums;max-width:240px}
-.tip b.green{color:var(--green)}.tip b.red{color:var(--red)}
+.tip{position:fixed;z-index:60;background:#1b1f1c;color:#fff;border:0;border-radius:10px;padding:8px 10px;font-size:13px;pointer-events:none;box-shadow:0 10px 24px rgba(0,0,0,.4);font-variant-numeric:tabular-nums;max-width:240px}
+.tip b.green{color:#6fe3a0}.tip b.red{color:#ff8a80}.tip .hint{color:#b9bfba}.tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}.tip .tr{display:flex;justify-content:space-between;gap:14px}
 .card{background:var(--surface);border-color:var(--line)}
 .hero{background:var(--surface)}
 .kpi b.green{color:var(--green)}
+
+/* motion: views rise in with a stagger; bars grow from the baseline; lines draw; hovering a bar dims the rest */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes gauge{from{stroke-dashoffset:var(--c)}}
+@keyframes flash{0%{background:#fff3c4}100%{background:transparent}}
+.anim [data-a]{animation:rise .6s cubic-bezier(.2,.8,.2,1) calc(var(--i,0)*70ms) both}
+.anim .bar{transform-box:fill-box;transform-origin:50% 100%;animation:grow .75s cubic-bezier(.2,.8,.2,1) calc(250ms + var(--d,0ms)) both}
+.anim .draw{stroke-dasharray:1;animation:draw 1.1s cubic-bezier(.4,0,.2,1) .35s both}
+.anim .afill{animation:fadein .8s ease .7s both}
+.anim .pop{transform-box:fill-box;transform-origin:center;animation:pop .45s ease 1.3s both}
+.anim .gfill{animation:gauge 1.2s cubic-bezier(.2,.8,.2,1) .4s both}
+.bars .bar{transition:opacity .2s}
+.bars:hover .bar{opacity:.3}.bars .bar:hover{opacity:1}
+.row.flash{animation:flash 1.8s ease-out}
+.nav .ni,.chipbtn,.seg2 button,.tab{transition:background .2s,color .2s,box-shadow .2s}
+@media (prefers-reduced-motion:reduce){.anim *,.row.flash{animation:none!important}}
 
 /* lock screen */
 .lock{position:fixed;inset:0;z-index:40;background:var(--bg);display:grid;place-items:center;padding:24px}
@@ -631,7 +652,7 @@ function save(){
 function startDb(){
   let gotM=false,gotC=false;
   const timer=setTimeout(()=>{if(!loaded)status('Still connecting… your hisab will appear when the connection is back.',true)},10000);
-  const ready=()=>{if(gotM&&gotC&&!loaded){loaded=true;clearTimeout(timer);status(canWrite?'Saved online · same on every device':'View only · you cannot change this hisab');render();toLatest();return}render()};
+  const ready=()=>{if(gotM&&gotC&&!loaded){loaded=true;clearTimeout(timer);status(canWrite?'Saved online · same on every device':'View only · you cannot change this hisab');render();toLatest();playAnim(view==='dash'?$('v-dash'):$('v-partner'));return}render()};
   db.collection('months').onSnapshot(snap=>{
     const ents=[];written={};
     snap.docs.forEach(d=>{const v=d.data()||{};written[d.id]=JSON.stringify(v.entries||{});Object.values(v.entries||{}).forEach(e=>ents.push(e))});
@@ -653,7 +674,7 @@ async function init(){
   $('writeNote').textContent=db?'Online data: only you (and people you give Editor access) can change it. Viewers can only read.':'This copy keeps data in this browser only. Save a backup file regularly.';
   if(db){startDb();return}
   try{const s=JSON.parse(store.get(LKEY));if(s&&Array.isArray(s.entries)){state=s;state.settings=state.settings||{chargeToPartner:true}}}catch(e){}
-  loaded=true;status('Saved in this browser only · take a backup from Menu');render();toLatest();
+  loaded=true;status('Saved in this browser only · take a backup from Menu');render();toLatest();playAnim(view==='dash'?$('v-dash'):$('v-partner'));
 }
 
 // ================= PIN lock (this device) =================
@@ -861,7 +882,7 @@ function render(){
   if(cur){
     const p=cur,t=totals(p),b=bal(t.due),pc=rate(p);
     const head=b.word==='Due'?`${esc(p)} owes you`:b.word==='Advance'?`Advance from ${esc(p)}`:'All settled';
-    $('hero').innerHTML=`<div class="card hero">
+    $('hero').innerHTML=`<div class="card hero" data-a>
       <div class="hrow"><div><div class="lbl">${head}</div>
       <div class="big ${b.cls}">${sbal(t.due)}</div></div>
       <div class="stats">
@@ -884,6 +905,10 @@ function render(){
   drawPin();renderDays();renderMonthly();
 }
 let shownDays=[],selMode=false;const sel=new Set();
+let flashIds=new Set(),flashT;function flashRows(ids){flashIds=new Set(ids);clearTimeout(flashT);flashT=setTimeout(()=>{flashIds=new Set()},2500)}
+let animT;function playAnim(root){if(!root)return;root.classList.remove('anim');void root.offsetWidth;
+  root.querySelectorAll('[data-a]').forEach((el,k)=>el.style.setProperty('--i',Math.min(k,12)));root.classList.add('anim');
+  clearTimeout(animT);animT=setTimeout(()=>root.classList.remove('anim'),2600)}
 // one entry = one line: number | note | amount | balance
 function noteHtml(e){
   if(e.type==='bank')return [...bankDetail(e),e.note].filter(Boolean).map(esc).join(' · ')||`<i>${esc(e.method)}</i>`;
@@ -892,7 +917,7 @@ function noteHtml(e){
 }
 function rowHtml(e,after,tag){
   const lbl=e.type==='send'?(e.number||'Sent'):(e.method==='Bank'?'Bank':e.method==='Cash'?'Cash':e.method);
-  return `<button class="row${e.type==='bank'?' recv':''}${selMode&&sel.has(e.id)?' sel':''}" type="button" data-edit="${e.id}" title="${esc([e.number,e.note,...(e.type==='bank'?bankDetail(e):[])].filter(Boolean).join(' · '))}">
+  return `<button class="row${e.type==='bank'?' recv':''}${selMode&&sel.has(e.id)?' sel':''}${flashIds.has(e.id)?' flash':''}" type="button" data-edit="${e.id}" title="${esc([e.number,e.note,...(e.type==='bank'?bankDetail(e):[])].filter(Boolean).join(' · '))}">
     <span class="c-num">${selMode?'<span class="tick">✓</span>':''}${esc(lbl)}</span>
     <span class="c-note">${tag?`<b>${esc(tag)}</b>`:noteHtml(e)}</span>
     <span class="c-amt">${tk(e.amount)}</span>
@@ -908,47 +933,51 @@ function niceMax(v){if(v<=0)return 1000;const p=Math.pow(10,Math.floor(Math.log1
 // per-day series for the chosen partner(s)
 function daySeries(n,who){
   const days=[...Array(n)].map((_,i)=>isoDay(n-1-i)),idx=Object.fromEntries(days.map((d,i)=>[d,i]));
-  const sent=Array(n).fill(0),recv=Array(n).fill(0),cnt=Array(n).fill(0);
-  for(const e of state.entries){if(who!=='all'&&e.partner!==who)continue;const i=idx[e.date];if(i===undefined)continue;cnt[i]++;e.type==='send'?sent[i]+=effect(e):recv[i]+=+e.amount}
+  const sent=Array(n).fill(0),recv=Array(n).fill(0),cnt=Array(n).fill(0),keys=who==='all'?[...state.partners]:[who],byP=Object.fromEntries(keys.map(p=>[p,Array(n).fill(0)]));
+  for(const e of state.entries){if(who!=='all'&&e.partner!==who)continue;const i=idx[e.date];if(i===undefined)continue;cnt[i]++;if(e.type==='send'){sent[i]+=effect(e);if(byP[e.partner])byP[e.partner][i]+=effect(e)}else recv[i]+=+e.amount}
   // balance at the end of each day (internal: + = they owe), shown as − due / + advance
   const parts=who==='all'?state.partners:[who],bal0=Array(n).fill(0);
   for(const p of parts){let run=0,k=0;const list=sorted(state.entries.filter(x=>x.partner===p));
     for(let i=0;i<n;i++){while(k<list.length&&list[k].date<=days[i]){run+=effect(list[k]);k++}bal0[i]+=run}}
-  return{days,sent,recv,cnt,bal:bal0};
+  return{days,sent,recv,cnt,bal:bal0,keys,byP};
 }
 function spark(vals,w=120,h=34){const mx=Math.max(...vals,1),st=w/(vals.length-1||1);
   const pts=vals.map((v,i)=>`${(i*st).toFixed(1)},${(h-3-(v/mx)*(h-8)).toFixed(1)}`);const l=pts[pts.length-1].split(',');
-  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.join(' ')}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/><circle cx="${l[0]}" cy="${l[1]}" r="2.6" fill="currentColor"/></svg>`}
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline class="draw" pathLength="1" points="${pts.join(' ')}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/><circle cx="${l[0]}" cy="${l[1]}" r="2.6" fill="currentColor"/></svg>`}
+const PCOL=['var(--s1)','var(--s2)','var(--s3)'];
+const pColor=p=>PCOL[state.partners.indexOf(p)%PCOL.length]||'var(--muted)';
 function lollipop(S,W){
   const H=250,ml=46,mr=12,mt=16,mb=30,iw=W-ml-mr,ih=H-mt-mb,n=S.days.length;
   const sentDays=S.sent.filter(v=>v>0),avg=sentDays.length?sentDays.reduce((a,b)=>a+b,0)/sentDays.length:0;
-  const mx=niceMax(Math.max(...S.sent,avg)),y=v=>mt+ih-(v/mx)*ih,step=iw/n,cx=i=>ml+step*(i+.5);
+  const mx=niceMax(Math.max(...S.sent,avg)),y=v=>mt+ih-(v/mx)*ih,step=iw/n,bw=Math.max(5,Math.min(30,step*.58));
   let g='';for(let k=0;k<=4;k++){const v=mx*k/4,yy=y(v);g+=`<line x1="${ml}" x2="${W-mr}" y1="${yy}" y2="${yy}" class="grid"/><text x="${ml-8}" y="${yy+4}" class="ax" text-anchor="end">${k?'৳'+kfmt(v):'0'}</text>`}
-  let m='';const every=Math.max(1,Math.ceil(n*52/iw));
-  S.days.forEach((d,i)=>{const v=S.sent[i],x0=cx(i),hi=v>0&&v>=avg,col=v>0?(hi?'var(--series-ember)':'var(--series-gray)'):'var(--line)';
-    if(v>0)m+=`<line x1="${x0}" x2="${x0}" y1="${y(0)}" y2="${y(v)+6}" stroke="${col}" stroke-width="${n>20?2:3}" stroke-linecap="round"/><circle cx="${x0}" cy="${y(v)}" r="${n>20?5:6.5}" fill="${col}" stroke="var(--surface)" stroke-width="2"/>`;
-    else m+=`<circle cx="${x0}" cy="${y(0)}" r="3" fill="var(--line)"/>`;
-    if((i%every===0&&n-1-i>=every*.7)||i===n-1)m+=`<text x="${x0}" y="${H-8}" class="ax${d===today()?' now':''}" text-anchor="middle">${shortDay(d)}</text>`;
-    m+=`<rect x="${x0-step/2}" y="${mt}" width="${step}" height="${ih}" fill="transparent" data-tip="${i}"/>`});
-  const ay=y(avg),avgL=avg?`<line x1="${ml}" x2="${W-mr}" y1="${ay}" y2="${ay}" class="avg"/><g transform="translate(${ml-44},${ay-11})"><rect width="40" height="22" rx="6" fill="var(--series-ember)"/><text x="20" y="15" text-anchor="middle" class="pill">avg</text></g>`:'';
-  return{svg:`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Money sent per day">${g}${avgL}${m}</svg>`,avg};
+  let bars='',lab='';const every=Math.max(1,Math.ceil(n*52/iw));
+  S.days.forEach((d,i)=>{const x0=ml+step*i+(step-bw)/2;let top=y(0),segs='';
+    const parts=S.keys.map(p=>[p,S.byP[p][i]]).filter(([,v])=>v>0);
+    parts.forEach(([p,v],k)=>{const h=(v/mx)*ih,yy=top-h;const last=k===parts.length-1;
+      segs+=`<path d="${last?`M${x0},${top} V${yy+4} q0,-4 4,-4 H${x0+bw-4} q4,0 4,4 V${top} Z`:`M${x0},${top} V${yy} H${x0+bw} V${top} Z`}" fill="${pColor(p)}"/>`;top=yy-(last?0:2)});
+    if(!parts.length)segs=`<rect x="${x0}" y="${y(0)-3}" width="${bw}" height="3" rx="1.5" fill="var(--s-faint)"/>`;
+    bars+=`<g class="bar" style="--d:${i*35}ms">${segs}<rect x="${ml+step*i}" y="${mt}" width="${step}" height="${ih}" fill="transparent" data-tip="${i}"/></g>`;
+    if((i%every===0&&n-1-i>=every*.7)||i===n-1)lab+=`<text x="${ml+step*(i+.5)}" y="${H-8}" class="ax${d===today()?' now':''}" text-anchor="middle">${shortDay(d)}</text>`});
+  const ay=y(avg),avgL=avg?`<line x1="${ml}" x2="${W-mr}" y1="${ay}" y2="${ay}" class="avg"/><text x="${W-mr}" y="${ay-6}" class="ax" text-anchor="end">avg ৳${kfmt(avg)}</text>`:'';
+  return{svg:`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Money sent per day">${g}<g class="bars">${bars}</g>${avgL}${lab}</svg>`,avg};
 }
 function areaChart(S,W){
   const H=150,ml=8,mr=8,mt=12,mb=8,iw=W-ml-mr,ih=H-mt-mb,n=S.days.length,vals=S.bal.map(v=>-v);// + advance, − due
   let lo=Math.min(0,...vals),hi=Math.max(0,...vals);if(lo===hi){hi+=1}const pad=(hi-lo)*.12;lo-=pad;hi+=pad;
   const x=i=>ml+iw*i/(n-1||1),y=v=>mt+ih-(v-lo)/(hi-lo)*ih;
   const pts=vals.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Balance over time"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8571f" stop-opacity=".45"/><stop offset="1" stop-color="#e8571f" stop-opacity="0"/></linearGradient></defs>
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Balance over time"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f7a4d" stop-opacity=".28"/><stop offset="1" stop-color="#1f7a4d" stop-opacity="0"/></linearGradient></defs>
     <line x1="${ml}" x2="${W-mr}" y1="${y(0)}" y2="${y(0)}" class="zero"/>
-    <polygon points="${x(0)},${y(lo)} ${pts} ${x(n-1)},${y(lo)}" fill="url(#ag)"/>
-    <polyline points="${pts}" fill="none" stroke="var(--series-ember)" stroke-width="2" stroke-linejoin="round"/>
-    <circle cx="${x(n-1)}" cy="${y(vals[n-1])}" r="4.5" fill="var(--series-ember)" stroke="var(--surface)" stroke-width="2"/>
+    <polygon class="afill" points="${x(0)},${y(lo)} ${pts} ${x(n-1)},${y(lo)}" fill="url(#ag)"/>
+    <polyline class="draw" pathLength="1" points="${pts}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="${x(n-1)}" cy="${y(vals[n-1])}" r="4.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2" class="pop"/>
     ${S.days.map((d,i)=>`<rect x="${x(i)-iw/(2*(n-1||1))}" y="0" width="${iw/(n-1||1)}" height="${H}" fill="transparent" data-btip="${i}"/>`).join('')}</svg>`;
 }
 function gauge(pct){const r=52,c=2*Math.PI*r,v=Math.max(0,Math.min(100,pct));
-  return `<svg viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="${Math.round(pct)} percent recovered"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a3d"/><stop offset="1" stop-color="#e8401c"/></linearGradient></defs>
+  return `<svg viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="${Math.round(pct)} percent recovered"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a8a5e"/><stop offset="1" stop-color="#173f31"/></linearGradient></defs>
   <circle cx="70" cy="70" r="${r}" fill="none" stroke="var(--line)" stroke-width="12" stroke-dasharray="2 4"/>
-  <circle cx="70" cy="70" r="${r}" fill="none" stroke="url(#gg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c*v/100} ${c}" transform="rotate(-90 70 70)"/>
+  <circle cx="70" cy="70" r="${r}" fill="none" stroke="url(#gg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c} ${c}" stroke-dashoffset="${c*(1-v/100)}" style="--c:${c}" class="gfill" transform="rotate(-90 70 70)"/>
   <text x="70" y="76" text-anchor="middle" class="gnum">${Math.round(pct)}%</text></svg>`}
 let dashS=null,dashBS=null;
 function renderDash(){
@@ -976,26 +1005,26 @@ function renderDash(){
   const mName=m=>{const[y,mo]=m.split('-');return new Date(y,mo-1).toLocaleString('en',{month:'short',year:'numeric'})};
   const chips=['all',...state.partners].map(p=>`<button class="chipbtn${p===who?' on':''}" type="button" data-dp="${esc(p)}">${p==='all'?'All':esc(p)}</button>`).join('');
   $('v-dash').innerHTML=`
-  <div class="dhead"><div><h2 class="pg">Overview</h2><div class="hint">${dayName(t0)} · ${state.entries.length} entries in total</div></div>
+  <div class="dhead" data-a><div><h2 class="pg">Overview</h2><div class="hint">${dayName(t0)} · ${state.entries.length} entries in total</div></div>
     <div class="btns"><button class="btn ghost sm" type="button" data-go2="excel">⇩ Excel</button><button class="btn sm" type="button" data-go2="add">＋ New entry</button></div></div>
   <div class="kpis">
-    <div class="kpi hot"><span>Total balance · all partners</span><b>${sbal(all)}</b>
+    <div class="kpi hot" data-a><span>Total balance · all partners</span><b>${sbal(all)}</b>
       <small>${ab.word==='Due'?'Partners owe you':ab.word==='Advance'?'Extra received in total':'All settled'}</small></div>
-    <div class="card kpi"><span>Sent this month</span><b>${tk(mS)}</b><div class="kfoot"><small>${new Date().toLocaleString('en',{month:'long'})}</small>${spark(S14.sent)}</div></div>
-    <div class="card kpi"><span>Received this month</span><b class="green">${tk(mR)}</b><div class="kfoot"><small>Bank &amp; cash</small><span class="green">${spark(S14.recv)}</span></div></div>
-    <div class="card kpi"><span>Today</span><b>${tk(dS)}</b><div class="kfoot"><small>${dN} entr${dN===1?'y':'ies'}</small>${spark(S14.cnt)}</div></div>
+    <div class="card kpi" data-a><span>Sent this month</span><b>${tk(mS)}</b><div class="kfoot"><small>${new Date().toLocaleString('en',{month:'long'})}</small>${spark(S14.sent)}</div></div>
+    <div class="card kpi" data-a><span>Received this month</span><b class="green">${tk(mR)}</b><div class="kfoot"><small>Bank &amp; cash</small><span class="green">${spark(S14.recv)}</span></div></div>
+    <div class="card kpi" data-a><span>Today</span><b>${tk(dS)}</b><div class="kfoot"><small>${dN} entr${dN===1?'y':'ies'}</small>${spark(S14.cnt)}</div></div>
   </div>
   <div class="dgrid2">
-    <div class="card chartcard">
-      <div class="ch-head"><div><div class="ch-t">Money sent per day</div><div class="hint">Ember days beat the average · grey days were below it</div></div>
+    <div class="card chartcard" data-a>
+      <div class="ch-head"><div><div class="ch-t">Money sent per day</div><div class="hint">${who==='all'?'Stacked by partner':esc(who)} · hover a bar for the day</div></div>
         <div class="seg2">${[14,30].map(r=>`<button type="button" class="${r===dashRange?'on':''}" data-dr="${r}">${r} days</button>`).join('')}</div></div>
       <div class="ch-stats"><div><span>Sent</span><b>${tk(rS)}</b></div><div><span>Active days</span><b>${activeDays}<small> of ${dashRange}</small></b></div><div><span>Best day</span><b>${best?tk(best):'–'}</b><small>${best?' · '+shortDay(dashS.days[bestI]):''}</small></div></div>
       <div class="chips">${chips}</div>
       <div class="chartbox" id="lolli"></div>
-      <div class="legend"><span><i style="background:var(--series-ember)"></i>Above average</span><span><i style="background:var(--series-gray)"></i>Below average</span><span><i class="dash"></i>Average per active day</span></div>
+      <div class="legend">${dashS.keys.map(p=>`<span><i style="background:${pColor(p)}"></i>${esc(p)}</span>`).join('')}<span><i class="dash"></i>Average per active day</span></div>
     </div>
     <div class="side2">
-      <div class="card chartcard wallet">
+      <div class="card chartcard wallet" data-a>
         <div class="ch-t">${who==='all'?'Balance · all partners':'Balance · '+esc(who)}</div>
         <div class="hint">${sb.word==='Due'?'Owed to you':sb.word==='Advance'?'Advance received':'Settled'}</div>
         <div class="wbig ${sb.cls}">${sbal(selBal)}</div>
@@ -1003,7 +1032,7 @@ function renderDash(){
         <div class="wrow">${per.map(({p,t})=>{const b=bal(t.due);return `<div><span>${esc(p)}</span><b class="${b.cls}">${sbal(t.due)}</b></div>`}).join('')}</div>
         ${who!=='all'?`<button class="btn wide" type="button" data-prof="${esc(who)}">Open ${esc(who)}</button>`:`<div class="hint" style="margin-top:8px">Last 30 days · tap the chart for a day</div>`}
       </div>
-      <div class="card chartcard gaugecard">
+      <div class="card chartcard gaugecard" data-a>
         <div><div class="ch-t">Recovered this month</div><div class="hint">${who==='all'?'All partners':esc(who)}: received ÷ sent</div>
           <div class="gk"><span>Sent</span><b>${tk(sel?sel.ms:0)}</b></div><div class="gk"><span>Received</span><b class="green">${tk(sel?sel.mr:0)}</b></div></div>
         ${gauge(rec)}
@@ -1011,8 +1040,8 @@ function renderDash(){
     </div>
   </div>
   <div class="sec">Partners</div>
-  <div class="pcards">${per.map(({p,t,ms,mr})=>{const b=bal(t.due);return `<button class="card pc" type="button" data-prof="${esc(p)}">
-    <div class="top"><span class="av">${esc(p.charAt(0).toUpperCase())}</span><span class="nm">${esc(p)}</span><span class="hint" style="margin-left:auto">${rate(p)?'+'+rate(p)+'%':'exact'}</span></div>
+  <div class="pcards">${per.map(({p,t,ms,mr})=>{const b=bal(t.due);return `<button class="card pc" data-a type="button" data-prof="${esc(p)}">
+    <div class="top"><span class="av" style="background:${pColor(p)}">${esc(p.charAt(0).toUpperCase())}</span><span class="nm">${esc(p)}</span><span class="hint" style="margin-left:auto">${rate(p)?'+'+rate(p)+'%':'exact'}</span></div>
     <div class="hint">${b.word==='Due'?esc(p)+' owes you':b.word==='Advance'?'Advance from '+esc(p):'Settled'}</div>
     <div class="big2 ${b.cls}">${sbal(t.due)}</div>
     <div class="kv"><span>Total sent · ${t.cnt}</span><b>${tk(t.sent)}</b></div>
@@ -1021,14 +1050,14 @@ function renderDash(){
     <div class="kv"><span>This month received</span><b class="green">${tk(mr)}</b></div>
     <div class="kv"><span>Last entry</span><b>${t.last?fmtDate(t.last):'–'}</b></div></button>`}).join('')}</div>
   <div class="dgrid"><div><div class="sec">Last 7 days</div>
-  <div class="card tbl"><table><tr><th>Day</th>${state.partners.map(p=>`<th>${esc(p)} sent</th><th>${esc(p)} received</th>`).join('')}</tr>
+  <div class="card tbl" data-a><table><tr><th>Day</th>${state.partners.map(p=>`<th>${esc(p)} sent</th><th>${esc(p)} received</th>`).join('')}</tr>
     ${days7.map(d=>`<tr><td>${shortDay(d)}</td>${state.partners.map(p=>{const r=agg[d+'|'+p];return `<td>${r&&r.s?tk(r.s):'–'}</td><td class="green">${r&&r.r?tk(r.r):'–'}</td>`}).join('')}</tr>`).join('')}</table></div>
   </div><div><div class="sec">Monthly summary</div>
-  <div class="card tbl">${mrow.length?`<table><tr><th>Month</th><th>Partner</th><th>Sent</th><th>Received</th><th>Month-end balance</th></tr>
+  <div class="card tbl" data-a>${mrow.length?`<table><tr><th>Month</th><th>Partner</th><th>Sent</th><th>Received</th><th>Month-end balance</th></tr>
     ${mrow.map(r=>`<tr><td>${mName(r.m)}</td><td>${esc(r.p)}</td><td>${tk(r.s)}</td><td class="green">${r.r?tk(r.r):'–'}</td><td class="${bal(r.end).cls}"><b>${sbal(r.end)}</b></td></tr>`).join('')}</table>`:'<p class="hint" style="padding:16px;margin:0">No entries yet.</p>'}</div>
   </div></div>
   <div class="sec">Latest entries</div>
-  <div class="recent">${recent.length?'<div class="colh"><span>Number</span><span>Partner</span><span>Amount</span><span>Balance</span></div>'+recent.map(e=>rowHtml(e,afterAll[e.id],e.partner)).join(''):'<p class="hint" style="padding:16px;margin:0">No entries yet. Open a partner from the sidebar to add one.</p>'}</div>
+  <div class="recent" data-a>${recent.length?'<div class="colh"><span>Number</span><span>Partner</span><span>Amount</span><span>Balance</span></div>'+recent.map(e=>rowHtml(e,afterAll[e.id],e.partner)).join(''):'<p class="hint" style="padding:16px;margin:0">No entries yet. Open a partner from the sidebar to add one.</p>'}</div>
   <div style="height:24px"></div>`;
   drawDashCharts();
 }
@@ -1043,13 +1072,13 @@ function showTip(ev,html){const t=$('tip');t.innerHTML=html;t.hidden=false;const
 function hideTip(){$('tip').hidden=true}
 document.addEventListener('pointermove',ev=>{
   const a=ev.target.closest&&ev.target.closest('[data-tip],[data-btip]');if(!a){hideTip();return}
-  if(a.dataset.tip!==undefined){const i=+a.dataset.tip,S=dashS;showTip(ev,`<b>${dayName(S.days[i])}</b><div>Sent <b>${tk(S.sent[i])}</b></div>${S.recv[i]?`<div>Received <b class="green">${tk(S.recv[i])}</b></div>`:''}<div class="hint">${S.cnt[i]} entr${S.cnt[i]===1?'y':'ies'}</div>`)}
+  if(a.dataset.tip!==undefined){const i=+a.dataset.tip,S=dashS;showTip(ev,`<b>${dayName(S.days[i])}</b>${S.keys.length>1?S.keys.map(p=>`<div class="tr"><span><i style="background:${pColor(p)}"></i>${esc(p)}</span><b>${tk(S.byP[p][i])}</b></div>`).join(''):''}<div class="tr"><span>Sent total</span><b>${tk(S.sent[i])}</b></div>${S.recv[i]?`<div class="tr"><span>Received</span><b class="green">${tk(S.recv[i])}</b></div>`:''}<div class="hint">${S.cnt[i]} entr${S.cnt[i]===1?'y':'ies'}</div>`)}
   else{const i=+a.dataset.btip,S=dashBS,v=S.bal[i],b=bal(v);showTip(ev,`<b>${dayName(S.days[i])}</b><div>Balance <b class="${b.cls}">${sbal(v)}</b></div>`)}
 });
 document.addEventListener('pointerdown',ev=>{if(!(ev.target.closest&&ev.target.closest('[data-tip],[data-btip]')))hideTip()});
 let rsz;addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(()=>{if(view==='dash')drawDashCharts()},120)});
 document.addEventListener('click',e=>{const t=e.target.closest('[data-dp],[data-dr],[data-go2]');if(!t)return;
-  if(t.dataset.dp!==undefined){dashP=t.dataset.dp;renderDash()}else if(t.dataset.dr!==undefined){dashRange=+t.dataset.dr;renderDash()}
+  if(t.dataset.dp!==undefined){dashP=t.dataset.dp;renderDash();playAnim($('v-dash'))}else if(t.dataset.dr!==undefined){dashRange=+t.dataset.dr;renderDash();playAnim($('v-dash'))}
   else if(t.dataset.go2==='add')openEntry(null,'send');else if(t.dataset.go2==='excel')exportXlsx()});
 
 function setSel(on){selMode=on;sel.clear();$('selBar').hidden=!on;$('cMain').hidden=on;$('cfor').hidden=on;$('selBtn').textContent=on?'Done':'Select';drawSel();renderDays()}
@@ -1065,7 +1094,7 @@ function renderDays(){
   $('filterSum').textContent=n?`${shownDays.length} day${shownDays.length>1?'s':''} · ${n} entr${n>1?'ies':'y'}${filtered?' (filtered)':''}`:'';
   if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message in the box below, or tap <b>+</b>.`}</div>`;return}
   const start=Math.max(0,shownDays.length-120),last=shownDays.length-1;
-  $('list').innerHTML=(start?'<p class="hint" style="padding:8px 14px;margin:0">Showing the latest 120 days. Use the date filter for older days.</p>':'')+'<div class="days">'+shownDays.slice(start).map((d,k)=>{const i=start+k,o=bal(d.open),c=bal(d.close);return `<section class="day${(last-i)%2?' alt':''}">
+  $('list').innerHTML=(start?'<p class="hint" style="padding:8px 14px;margin:0">Showing the latest 120 days. Use the date filter for older days.</p>':'')+'<div class="days">'+shownDays.slice(start).map((d,k)=>{const i=start+k,o=bal(d.open),c=bal(d.close);return `<section class="day${(last-i)%2?' alt':''}"${last-i<6?' data-a':''}>
     <div class="dh"><div class="dd"><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div>
       <div class="dbtns"><button class="copy" type="button" data-copyday="${i}" aria-label="Copy this day" title="Copy">⧉<span class="bl"> Copy</span></button><button class="copy share" type="button" data-shareday="${i}" aria-label="Share this day as image" title="Share">↗<span class="bl"> Share</span></button></div></div>
     <div class="colh"><span>Number</span><span>Note</span><span>Amount</span><span>Balance</span></div>
@@ -1148,7 +1177,7 @@ function saveEntry(more){
     number:num,charge:curType==='send'?(parseFloat($('eCharge').value)||0):0,note:$('eNote').value.trim().slice(0,200)};
   if(curType==='bank'&&e.method==='Bank'){const h=$('eHolder').value.trim().slice(0,60),bk=$('eBank').value.trim().slice(0,60),ac=normDigits($('eAcct').value).trim().slice(0,30);if(h)e.holder=h;if(bk)e.bank=bk;if(ac)e.account=ac}
   if(old)state.entries[state.entries.indexOf(old)]=e;else state.entries.push(e);
-  cur=p;save();render();toLatest();toast('Saved');
+  if(!old)flashRows([e.id]);cur=p;save();render();toLatest();toast('Saved');
   if(more){['eAmount','eNumber','eCharge','eNote'].forEach(i=>$(i).value='');fillNumbers();updTotal();$('eNumber').focus()}
   else $('dlgEntry').close();
 }
@@ -1228,7 +1257,7 @@ function addPaste(){
   let ts=Date.now();const ids=[];
   on.forEach(r=>{const id=uid();ids.push(id);state.entries.push({id,ts:ts++,type:'send',partner:p,date:d,method:r.method||def,amount:addPct(r.base,pc),...(pc?{base:r.base,pct:pc}:{}),number:r.number,charge:0,note:(r.note||'').slice(0,200)})});
   if(pc!==rate(p))state.settings.pct={...(state.settings.pct||{}),[p]:pc};
-  cur=p;save();render();$('dlgPaste').close();toLatest();
+  flashRows(ids);cur=p;save();render();$('dlgPaste').close();toLatest();
   toast(`Added ${on.length} to ${p}`,()=>{state.entries=state.entries.filter(e=>!ids.includes(e.id));save();render();toast('Removed again')});
 }
 function parseAmt(v){v=normDigits(v).trim().replace(/,/g,'');const k=/k$/i.test(v);const n=parseFloat(v);return n>0?(k?n*1000:n):0}
@@ -1304,8 +1333,8 @@ function restore(inp){
 }
 
 // ================= profiles =================
-function setProfile(p){cur=p;view='partner';store.set(PROF_KEY,p);if(selMode)setSel(false);closeNav();render();toLatest()}
-function showDash(){view='dash';store.set(PROF_KEY,'__dash__');if(selMode)setSel(false);closeNav();render();scrollTo({top:0})}
+function setProfile(p){cur=p;view='partner';store.set(PROF_KEY,p);if(selMode)setSel(false);closeNav();render();toLatest();playAnim($('v-partner'))}
+function showDash(){view='dash';store.set(PROF_KEY,'__dash__');if(selMode)setSel(false);closeNav();render();document.querySelector('.shell>main').scrollTop=0;playAnim($('v-dash'))}
 function openNav(){$('side').classList.add('open');$('scrim').hidden=false}
 function closeNav(){$('side').classList.remove('open');$('scrim').hidden=true}
 function addPartner(){const n=$('newPartner').value.trim().slice(0,40);if(!n)return;if(state.partners.includes(n))return toast(n+' already exists');state.partners.push(n);$('newPartner').value='';save();render()}
