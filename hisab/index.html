@@ -112,6 +112,10 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .dh b{font-size:16px}
 .dh small{display:block;font-size:12px;color:var(--muted);font-weight:400}
 .copy{border:1px solid var(--day-line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;flex:none}
+.dbtns{display:flex;gap:6px;flex:none}
+.copy.share{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.imgwrap{background:var(--bg);border-radius:12px;padding:8px;margin-bottom:12px;max-height:60vh;overflow:auto}
+.imgwrap img{display:block;width:100%;border-radius:6px}
 .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:9px 14px;border:0;background:transparent;width:100%;text-align:left;cursor:pointer}
 .row+.row{border-top:1px solid var(--day-line)}
 .row:hover{background:rgba(127,127,127,.07)}
@@ -322,6 +326,15 @@ body.locked main,body.locked header,body.locked .fab{visibility:hidden}
   </div>
 </dialog>
 
+<dialog id="dlgImg">
+  <div class="dhd"><h3 id="iTitle">Statement image</h3><button class="x" type="button" data-close aria-label="Close">×</button></div>
+  <div class="dbd">
+    <div class="imgwrap"><img id="iImg" alt="Statement image"></div>
+    <div class="btns"><button class="btn" id="iSave" type="button">Save image</button><button class="btn ghost" id="iCopy" type="button">Copy image</button><button class="btn ghost" id="iShare" type="button" hidden>Share</button></div>
+    <p class="hint" style="margin-bottom:0">You can also press and hold the image to share or save it.</p>
+  </div>
+</dialog>
+
 <dialog id="dlgAsk">
   <div class="dbd">
     <p id="askMsg" style="margin-top:0"></p>
@@ -485,6 +498,91 @@ function copyText(txt,fallbackEl){
 }
 function showText(title,txt){$('sTitle').textContent=title;$('sText').textContent=txt;if($('dlgMenu').open)$('dlgMenu').close();$('dlgStmt').showModal()}
 
+// ================= statement image =================
+const IMG={brand:'#0f5f57',ink:'#14171a',muted:'#5d6670',line:'#d7dbe0',alt:'#eef0f2',box:'#f3f4f6',red:'#c62828',green:'#1b7a44',white:'#ffffff'};
+const IF='"Hind Siliguri",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+let fontsReady=null;
+function loadFonts(){if(!fontsReady)fontsReady=Promise.all(['400','600','700'].map(w=>document.fonts?document.fonts.load(`${w} 40px "Hind Siliguri"`,'৳0123').catch(()=>{}):null));return fontsReady}
+function fit(ctx,t,w){t=String(t);if(ctx.measureText(t).width<=w)return t;while(t.length>1&&ctx.measureText(t+'…').width>w)t=t.slice(0,-1);return t+'…'}
+function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+async function dayCanvas(p,d){
+  await Promise.race([loadFonts(),new Promise(r=>setTimeout(r,1500))]);
+  const W=1080,P=60,rowH=108,headH=250;
+  const sums=[];if(d.open)sums.push(['Previous',d.open,'bal']);if(d.sent)sums.push(['Sent today',d.sent,'ink']);if(d.recv)sums.push(['Received today',d.recv,'green']);
+  const boxH=60+sums.length*58+130;
+  const H=headH+50+52+d.items.length*rowH+50+boxH+120;
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  x.fillStyle=IMG.white;x.fillRect(0,0,W,H);
+  // header band
+  x.fillStyle=IMG.brand;x.fillRect(0,0,W,headH);
+  x.fillStyle='rgba(255,255,255,.75)';x.font=`600 28px ${IF}`;x.fillText('PARTNER HISAB · DAILY STATEMENT',P,78);
+  x.fillStyle=IMG.white;x.font=`700 72px ${IF}`;x.fillText(fit(x,p,W-2*P-140),P,162);
+  x.font=`400 36px ${IF}`;x.fillStyle='rgba(255,255,255,.9)';x.fillText(dayName(d.date),P,214);
+  x.beginPath();x.arc(W-P-55,130,55,0,Math.PI*2);x.fillStyle='rgba(255,255,255,.16)';x.fill();
+  x.fillStyle=IMG.white;x.font=`700 54px ${IF}`;x.textAlign='center';x.fillText(p.charAt(0).toUpperCase(),W-P-55,149);x.textAlign='left';
+  // column heads
+  let y=headH+50;
+  x.font=`600 26px ${IF}`;x.fillStyle=IMG.muted;x.fillText('NUMBER',P,y);x.textAlign='right';x.fillText('AMOUNT',W-P,y);x.textAlign='left';
+  y+=22;x.fillStyle=IMG.line;x.fillRect(P,y,W-2*P,2);y+=10;
+  // rows
+  let n=0;
+  d.items.forEach((e,i)=>{
+    if(i%2){x.fillStyle=IMG.alt;x.fillRect(P-20,y,W-2*P+40,rowH)}
+    const send=e.type==='send';
+    x.fillStyle=IMG.muted;x.font=`600 30px ${IF}`;x.fillText(send?String(++n).padStart(2,' ')+'.':'',P,y+50);
+    x.fillStyle=send?IMG.ink:IMG.green;x.font=`700 40px ${IF}`;x.fillText(send?(e.number||'Money sent'):'Bank payment',P+62,y+50);
+    const sub=[e.method,e.base?money(e.base)+' + '+e.pct+'%':'',e.charge?'charge '+tk(e.charge):'',e.note||''].filter(Boolean).join('  ·  ');
+    x.fillStyle=IMG.muted;x.font=`400 28px ${IF}`;x.fillText(fit(x,sub,W-2*P-62-300),P+62,y+88);
+    x.textAlign='right';x.fillStyle=send?IMG.ink:IMG.green;x.font=`700 44px ${IF}`;x.fillText(tk(e.amount),W-P,y+66);x.textAlign='left';
+    y+=rowH;
+  });
+  x.fillStyle=IMG.line;x.fillRect(P,y,W-2*P,2);y+=50;
+  // summary box
+  x.fillStyle=IMG.box;rrect(x,P-20,y,W-2*P+40,boxH,28);x.fill();
+  let yy=y+70;
+  sums.forEach(([lbl,v,kind])=>{
+    const b=bal(v);
+    x.font=`400 34px ${IF}`;x.fillStyle=IMG.muted;x.fillText(lbl,P+16,yy);
+    x.textAlign='right';x.font=`600 36px ${IF}`;
+    x.fillStyle=kind==='green'?IMG.green:kind==='bal'?(b.cls==='red'?IMG.red:b.cls==='green'?IMG.green:IMG.ink):IMG.ink;
+    x.fillText(kind==='bal'?(b.word==='Settled'?'৳0':b.word+'  '+tk(v)):tk(v),W-P-16,yy);x.textAlign='left';yy+=58;
+  });
+  x.fillStyle=IMG.line;x.fillRect(P+16,yy-24,W-2*P-32,2);
+  const fb=bal(d.close);
+  x.font=`700 34px ${IF}`;x.fillStyle=IMG.muted;x.fillText(fb.word==='Due'?'DUE NOW':fb.word==='Advance'?'ADVANCE':'SETTLED',P+16,yy+60);
+  x.textAlign='right';x.font=`700 72px ${IF}`;x.fillStyle=fb.cls==='red'?IMG.red:fb.cls==='green'?IMG.green:IMG.ink;x.fillText(tk(d.close),W-P-16,yy+72);x.textAlign='left';
+  // footer
+  const now=new Date();
+  x.font=`400 26px ${IF}`;x.fillStyle=IMG.muted;x.textAlign='center';
+  x.fillText(`${d.items.length} entr${d.items.length>1?'ies':'y'}  ·  made ${fmtDate(today())} ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`,W/2,H-50);x.textAlign='left';
+  return c;
+}
+const toBlob=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
+let imgState=null;
+async function shareDay(i){
+  const d=shownDays[i];if(!d||!cur)return;
+  const p=cur,name=`${p}_${d.date}.jpg`.replace(/[^\w.\-]+/g,'_');
+  const c=await dayCanvas(p,d),blob=await toBlob(c,'image/jpeg',0.92);
+  if(!blob)return toast('Could not make the image');
+  const file=new File([blob],name,{type:'image/jpeg'});
+  imgState={c,blob,name,file,title:`${p} · ${dayName(d.date)}`};
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:imgState.title});return}catch(e){if(e&&e.name==='AbortError')return}
+  }
+  showImage();
+}
+function showImage(){
+  const s=imgState;if(!s)return;
+  const old=$('iImg').src;if(old.startsWith('blob:'))URL.revokeObjectURL(old);
+  $('iImg').src=URL.createObjectURL(s.blob);$('iTitle').textContent=s.title;
+  $('iShare').hidden=!(navigator.canShare&&navigator.canShare({files:[s.file]}));
+  $('iCopy').hidden=!(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write);
+  $('dlgImg').showModal();
+}
+$('iSave').onclick=()=>{if(imgState)giveFile(imgState.name,imgState.blob,'image/jpeg')};
+$('iShare').onclick=()=>{if(imgState)navigator.share({files:[imgState.file],title:imgState.title}).catch(()=>{})};
+$('iCopy').onclick=()=>{if(!imgState)return;try{navigator.clipboard.write([new ClipboardItem({'image/png':toBlob(imgState.c,'image/png')})]).then(()=>toast('Image copied. Paste it in a chat'),()=>toast('This app does not allow copying images. Use Save image.'))}catch(e){toast('This app does not allow copying images. Use Save image.')}};
+
 // ================= render =================
 function render(){
   if(!loaded)return;
@@ -527,7 +625,7 @@ function renderDays(){
   $('filterSum').textContent=n?`${shownDays.length} day${shownDays.length>1?'s':''} · ${n} entr${n>1?'ies':'y'}${filtered?' (filtered)':''}`:'';
   if(!n){$('list').innerHTML=`<div class="empty">${state.entries.some(e=>e.partner===cur)?'Nothing matches this search.':`No entries for ${esc(cur)} yet.<br>Paste a WhatsApp message above, or tap <b>Money sent</b>.`}</div>`;return}
   $('list').innerHTML='<div class="days">'+shownDays.slice(0,120).map((d,i)=>{const o=bal(d.open),c=bal(d.close);return `<section class="day${i%2?' alt':''}">
-    <div class="dh"><div><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div><button class="copy" type="button" data-copyday="${i}">⧉ Copy</button></div>
+    <div class="dh"><div><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div><div class="dbtns"><button class="copy" type="button" data-copyday="${i}">⧉ Copy</button><button class="copy share" type="button" data-shareday="${i}">↗ Share</button></div></div>
     ${d.shown.map(e=>`<button class="row" type="button" data-edit="${e.id}">
       <div><div class="t">${e.type==='send'?esc(e.number||'Money sent')+`<span class="chip">${esc(e.method)}</span>`:'Bank payment'+`<span class="chip in">${esc(e.method)}</span>`}</div>
         ${(e.base||e.charge||e.note)?`<div class="s">${e.base?money(e.base)+' + '+e.pct+'%':''}${e.charge?(e.base?' · ':'')+'charge '+tk(e.charge):''}${e.note?((e.base||e.charge)?' · ':'')+esc(e.note):''}</div>`:''}</div>
@@ -759,13 +857,14 @@ document.querySelectorAll('#dlgEntry .seg button').forEach(b=>b.onclick=()=>setT
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d&&d.id!=='dlgAsk')d.close()}));
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-prof],[data-full],[data-edit],[data-rm],[data-read],[data-new],[data-copyday]');if(!t)return;
+  const t=e.target.closest('[data-prof],[data-full],[data-edit],[data-rm],[data-read],[data-new],[data-copyday],[data-shareday]');if(!t)return;
   const ds=t.dataset;
   if(ds.prof!==undefined)return setProfile(ds.prof);
   if(ds.full!==undefined){const txt=fullText(ds.full);return showText('Statement · '+ds.full,txt)}
   if(ds.edit!==undefined)return openEntry(ds.edit);
   if(ds.new!==undefined)return openEntry(null,ds.new);
   if(ds.rm!==undefined)return removePartner(+ds.rm);
+  if(ds.shareday!==undefined)return shareDay(+ds.shareday);
   if(ds.copyday!==undefined){const d=shownDays[+ds.copyday];if(d)copyText(dayText(cur,d));return}
   if(ds.read!==undefined){const ta=document.querySelector(`[data-paste="${CSS.escape(ds.read)}"]`);if(!ta.value.trim())return toast('Paste the WhatsApp message in the box first');const v=ta.value;ta.value='';return openPaste(ds.read,v)}
 });
@@ -791,6 +890,7 @@ $('rsBtn').onclick=()=>$('resFile').click();$('resFile').onchange=e=>restore(e.t
 $('addP').onclick=addPartner;
 $('setCharge').onchange=e=>{state.settings.chargeToPartner=e.target.checked;save();render()};
 $('wipeBtn').onclick=async()=>{$('dlgMenu').close();if(await ask('This deletes every entry for all profiles. Save a backup first. Type DELETE to confirm.',{ok:'Delete all',danger:true,typed:'DELETE'})){state.entries=[];save();render();toast('All entries deleted')}};
+loadFonts();
 init();
 </script>
 
