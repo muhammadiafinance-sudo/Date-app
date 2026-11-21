@@ -697,64 +697,91 @@ let fontsReady=null;
 function loadFonts(){if(!fontsReady)fontsReady=Promise.all(['400','600','700'].map(w=>document.fonts?document.fonts.load(`${w} 40px "Hind Siliguri"`,'৳0123').catch(()=>{}):null));return fontsReady}
 function fit(ctx,t,w){t=String(t);if(ctx.measureText(t).width<=w)return t;while(t.length>1&&ctx.measureText(t+'…').width>w)t=t.slice(0,-1);return t+'…'}
 function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+// Bank-statement style image for one day
+function wrapText(ctx,t,w,max){const words=String(t).split(/\s+/),lines=[];let l='';
+  for(const wd of words){const tr=l?l+' '+wd:wd;if(ctx.measureText(tr).width<=w)l=tr;else{if(l)lines.push(l);l=wd}}
+  if(l)lines.push(l);if(lines.length>max){const k=lines.slice(0,max);k[max-1]=fit(ctx,k[max-1]+' '+lines.slice(max).join(' '),w);return k}return lines}
 async function dayCanvas(p,d){
   await Promise.race([loadFonts(),new Promise(r=>setTimeout(r,1500))]);
-  const W=1080,P=60,rowH=108,headH=250;
-  const sums=[];if(d.open)sums.push(['Previous',d.open,'bal']);if(d.sent)sums.push(['Sent today',d.sent,'ink']);if(d.recv)sums.push(['Received today',d.recv,'green']);
-  const boxH=60+sums.length*58+130;
-  // received rows get extra lines for account details and narration
-  const subs=d.items.map(e=>e.type==='send'?[[e.method,e.base?money(e.base)+' + '+e.pct+'%':'',e.charge?'charge '+tk(e.charge):'',e.note||''].filter(Boolean).join('  ·  ')]
-    :[[e.holder,e.bank].filter(Boolean).join('  ·  '),e.account?'A/C '+e.account:'',e.note?'Narration: '+e.note:''].filter(Boolean));
-  const hs=subs.map(l=>rowH+Math.max(0,l.length-1)*38);
-  const H=headH+50+52+hs.reduce((a,b)=>a+b,0)+50+boxH+120;
-  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
-  x.fillStyle=IMG.white;x.fillRect(0,0,W,H);
-  // header band
-  x.fillStyle=IMG.brand;x.fillRect(0,0,W,headH);
-  x.fillStyle='rgba(255,255,255,.75)';x.font=`600 28px ${IF}`;x.fillText('SM · DAILY STATEMENT',P,78);
-  x.fillStyle=IMG.white;x.font=`700 72px ${IF}`;x.fillText(fit(x,p,W-2*P-140),P,162);
-  x.font=`400 36px ${IF}`;x.fillStyle='rgba(255,255,255,.9)';x.fillText(dayName(d.date),P,214);
-  x.beginPath();x.arc(W-P-55,130,55,0,Math.PI*2);x.fillStyle='rgba(255,255,255,.16)';x.fill();
-  x.fillStyle=IMG.white;x.font=`700 54px ${IF}`;x.textAlign='center';x.fillText(p.charAt(0).toUpperCase(),W-P-55,149);x.textAlign='left';
-  // column heads
-  let y=headH+50;
-  x.font=`600 26px ${IF}`;x.fillStyle=IMG.muted;x.fillText('NUMBER',P,y);x.textAlign='right';x.fillText('AMOUNT · BALANCE',W-P,y);x.textAlign='left';
-  y+=22;x.fillStyle=IMG.line;x.fillRect(P,y,W-2*P,2);y+=10;
-  // rows
-  let n=0;
-  d.items.forEach((e,i)=>{
+  const W=1240,P=64,TW=W-2*P;
+  const C={ink:'#1a1d21',muted:'#5f6770',faint:'#8a929b',line:'#d9dde2',head:'#0f5f57',zebra:'#f5f6f8',recv:'#eef7f1',red:'#b3261e',green:'#1b7a44',white:'#ffffff'};
+  // columns: SL | Particulars | Sent | Received | Balance
+  const col=[{x:P,w:70},{x:P+70,w:TW-70-180-180-210},{x:0,w:180},{x:0,w:180},{x:0,w:210}];
+  col[2].x=col[1].x+col[1].w;col[3].x=col[2].x+col[2].w;col[4].x=col[3].x+col[3].w;
+  const meas=document.createElement('canvas').getContext('2d');
+  const rows=d.items.map(e=>{
     const send=e.type==='send';
-    const h=hs[i];
-    if(!send){x.fillStyle=IMG.recv;x.fillRect(P-20,y,W-2*P+40,h)}else if(i%2){x.fillStyle=IMG.alt;x.fillRect(P-20,y,W-2*P+40,h)}
-    if(i){x.fillStyle=IMG.line;x.fillRect(P-20,y,W-2*P+40,1)}
-    x.fillStyle=IMG.muted;x.font=`600 30px ${IF}`;x.fillText(send?String(++n).padStart(2,' ')+'.':'',P,y+50);
-    x.fillStyle=send?IMG.ink:IMG.green;x.font=`700 40px ${IF}`;x.fillText(send?(e.number||'Money sent'):(e.method==='Bank'?'Bank payment':e.method==='Cash'?'Cash received':'Received · '+e.method),P+62,y+50);
-    x.fillStyle=send?IMG.muted:IMG.ink;x.font=`400 28px ${IF}`;
-    subs[i].forEach((t,k)=>x.fillText(fit(x,t,W-2*P-62-(k?0:330)),P+62,y+88+k*38));
-    const ab=d.after[e.id],abc=bal(ab).cls;
-    x.textAlign='right';x.fillStyle=send?IMG.ink:IMG.green;x.font=`700 44px ${IF}`;x.fillText(tk(e.amount),W-P,y+52);
-    x.font=`600 28px ${IF}`;x.fillStyle=abc==='red'?IMG.red:abc==='green'?IMG.green:IMG.muted;x.fillText('Bal '+sbal(ab),W-P,y+90);x.textAlign='left';
-    y+=hs[i];
+    const title=send?(e.number||'Money sent'):(e.method==='Bank'?'Bank payment received':e.method==='Cash'?'Cash received':'Received · '+e.method);
+    const sub=send?[e.method,e.base?money(e.base)+' + '+e.pct+'%':'',e.charge?'charge '+tk(e.charge):'',e.note||''].filter(Boolean).join('  ·  ')
+                  :[e.holder,e.bank,e.account?'A/C '+e.account:'',e.note?'Narration: '+e.note:''].filter(Boolean).join('  ·  ');
+    meas.font=`400 24px ${IF}`;const lines=sub?wrapText(meas,sub,col[1].w-24,send?2:3):[];
+    return{e,send,title,lines,h:58+lines.length*30};
   });
-  x.fillStyle=IMG.line;x.fillRect(P,y,W-2*P,2);y+=50;
-  // summary box
-  x.fillStyle=IMG.box;rrect(x,P-20,y,W-2*P+40,boxH,28);x.fill();
-  let yy=y+70;
-  sums.forEach(([lbl,v,kind])=>{
-    const b=bal(v);
-    x.font=`400 34px ${IF}`;x.fillStyle=IMG.muted;x.fillText(lbl,P+16,yy);
-    x.textAlign='right';x.font=`600 36px ${IF}`;
-    x.fillStyle=kind==='green'?IMG.green:kind==='bal'?(b.cls==='red'?IMG.red:b.cls==='green'?IMG.green:IMG.ink):IMG.ink;
-    x.fillText(kind==='bal'?sbal(v):tk(v),W-P-16,yy);x.textAlign='left';yy+=58;
-  });
-  x.fillStyle=IMG.line;x.fillRect(P+16,yy-24,W-2*P-32,2);
-  const fb=bal(d.close);
-  x.font=`700 34px ${IF}`;x.fillStyle=IMG.muted;x.fillText('BALANCE · '+fb.word.toUpperCase(),P+16,yy+60);
-  x.textAlign='right';x.font=`700 72px ${IF}`;x.fillStyle=fb.cls==='red'?IMG.red:fb.cls==='green'?IMG.green:IMG.ink;x.fillText(sbal(d.close),W-P-16,yy+72);x.textAlign='left';
-  // footer
+  const headH=300,infoH=160,sumH=120,thH=56,openH=56,totH=64,footH=130;
+  const H=headH+infoH+sumH+40+thH+openH+rows.reduce((a,r)=>a+r.h,0)+totH+footH;
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const T=(t,px,py,font,color,align='left')=>{x.font=font;x.fillStyle=color;x.textAlign=align;x.fillText(t,px,py);x.textAlign='left'};
+  const balColor=v=>bal(v).cls==='red'?C.red:bal(v).cls==='green'?C.green:C.ink;
+  x.fillStyle=C.white;x.fillRect(0,0,W,H);
+  // top rule + letterhead
+  x.fillStyle=C.head;x.fillRect(0,0,W,12);
+  x.fillStyle=C.head;rrect(x,P,62,84,84,16);x.fill();T('SM',P+42,118,`700 34px ${IF}`,C.white,'center');
+  T('SM',P+108,100,`700 40px ${IF}`,C.ink);T('Statement of Account',P+108,138,`400 26px ${IF}`,C.muted);
+  T('DAILY STATEMENT',W-P,92,`600 22px ${IF}`,C.faint,'right');
+  T(dayName(d.date),W-P,128,`700 30px ${IF}`,C.ink,'right');
   const now=new Date();
-  x.font=`400 26px ${IF}`;x.fillStyle=IMG.muted;x.textAlign='center';
-  x.fillText(`${d.items.length} entr${d.items.length>1?'ies':'y'}  ·  made ${fmtDate(today())} ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`,W/2,H-50);x.textAlign='left';
+  T(`Generated ${fmtDate(today())} ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`,W-P,162,`400 22px ${IF}`,C.muted,'right');
+  x.fillStyle=C.line;x.fillRect(P,200,TW,2);
+  // account info
+  let y=200+40;
+  const info=[['Account name',p],['Statement date',fmtDate(d.date)],['Rate',rate(p)?'+'+rate(p)+'% on WhatsApp amounts':'Exact amount'],['Entries',String(d.items.length)]];
+  info.forEach(([k,v],i)=>{const cx=i%2?P+TW/2:P,cy=y+Math.floor(i/2)*70;T(k.toUpperCase(),cx,cy,`600 19px ${IF}`,C.faint);T(v,cx,cy+32,`600 26px ${IF}`,C.ink)});
+  y=headH+infoH-40;
+  // summary boxes
+  const sums=[['Opening balance',sbal(d.open),balColor(d.open)],['Total sent',tk(d.sent),C.ink],['Total received',tk(d.recv),C.green],['Closing balance',sbal(d.close),balColor(d.close)]];
+  const bw=(TW-3*16)/4;
+  sums.forEach(([k,v,col2],i)=>{const bx=P+i*(bw+16);x.strokeStyle=C.line;x.lineWidth=2;rrect(x,bx,y,bw,sumH-16,14);x.stroke();
+    T(k.toUpperCase(),bx+18,y+36,`600 18px ${IF}`,C.faint);T(fit((x.font=`700 30px ${IF}`,x),v,bw-36),bx+18,y+80,`700 30px ${IF}`,col2)});
+  y+=sumH+24;
+  // table head
+  x.fillStyle=C.head;x.fillRect(P,y,TW,thH);
+  const th=['SL','Particulars','Sent','Received','Balance'];
+  th.forEach((t,i)=>T(t.toUpperCase(),i<2?col[i].x+14:col[i].x+col[i].w-14,y+36,`600 20px ${IF}`,C.white,i<2?'left':'right'));
+  y+=thH;
+  const hline=yy=>{x.fillStyle=C.line;x.fillRect(P,yy,TW,1)};
+  // opening balance row
+  x.fillStyle=C.zebra;x.fillRect(P,y,TW,openH);
+  T('Opening balance',col[1].x+14,y+36,`italic 400 24px ${IF}`,C.muted);
+  T(sbal(d.open),col[4].x+col[4].w-14,y+36,`600 24px ${IF}`,balColor(d.open),'right');
+  y+=openH;hline(y);
+  // entries
+  let n=0;
+  rows.forEach((r,i)=>{
+    if(!r.send){x.fillStyle=C.recv;x.fillRect(P,y,TW,r.h)}else if(i%2){x.fillStyle=C.zebra;x.fillRect(P,y,TW,r.h)}
+    T(String(++n),col[0].x+14,y+38,`400 24px ${IF}`,C.muted);
+    T(r.title,col[1].x+14,y+38,`700 27px ${IF}`,r.send?C.ink:C.green);
+    r.lines.forEach((l,k)=>T(l,col[1].x+14,y+70+k*30,`400 22px ${IF}`,C.muted));
+    if(r.send)T(tk(r.e.amount),col[2].x+col[2].w-14,y+38,`600 26px ${IF}`,C.ink,'right');
+    else T(tk(r.e.amount),col[3].x+col[3].w-14,y+38,`600 26px ${IF}`,C.green,'right');
+    const ab=d.after[r.e.id];T(sbal(ab),col[4].x+col[4].w-14,y+38,`600 26px ${IF}`,balColor(ab),'right');
+    y+=r.h;hline(y);
+  });
+  // totals row
+  x.fillStyle='#e9ecef';x.fillRect(P,y,TW,totH);
+  T('Total',col[1].x+14,y+41,`700 26px ${IF}`,C.ink);
+  T(tk(d.sent),col[2].x+col[2].w-14,y+41,`700 26px ${IF}`,C.ink,'right');
+  T(tk(d.recv),col[3].x+col[3].w-14,y+41,`700 26px ${IF}`,C.green,'right');
+  T(sbal(d.close),col[4].x+col[4].w-14,y+41,`700 28px ${IF}`,balColor(d.close),'right');
+  // column separators and outer border
+  const top=headH+infoH+sumH-40+24+0;
+  x.fillStyle=C.line;[1,2,3,4].forEach(i=>x.fillRect(col[i].x,top+thH,1,y+totH-(top+thH)));
+  x.strokeStyle=C.line;x.lineWidth=2;x.strokeRect(P,top,TW,y+totH-top);
+  y+=totH;
+  // footer
+  T('Balance: − (minus) = due, partner owes you   ·   + (plus) = advance, extra received',P,y+50,`400 21px ${IF}`,C.muted);
+  x.fillStyle=C.line;x.fillRect(P,y+76,TW,1);
+  T('This is a system generated statement from SM.',P,y+108,`400 20px ${IF}`,C.faint);
+  T(`${p} · ${fmtDate(d.date)}`,W-P,y+108,`400 20px ${IF}`,C.faint,'right');
   return c;
 }
 const toBlob=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
