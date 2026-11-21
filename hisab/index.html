@@ -119,6 +119,12 @@ input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
 .row+.row{border-top:1px solid var(--day-line)}
 .row:hover{background:rgba(127,127,127,.07)}
 .row.recv{background:var(--recv-soft)}
+.row.sel,.row.sel.recv{background:var(--brand-soft);box-shadow:inset 4px 0 0 var(--brand)}
+.tick{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);margin-right:8px;vertical-align:-3px;font-size:12px;color:var(--on-brand)}
+.row.sel .tick{background:var(--brand);border-color:var(--brand)}
+.sumbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.selbar{display:flex;align-items:center;gap:8px}
+.selbar .grow{flex:1;font-weight:600}
 .row.recv:hover{background:var(--recv-soft);filter:brightness(.97)}
 .row .det{font-size:13px;color:var(--ink);opacity:.8;overflow-wrap:anywhere}
 .row .det b{font-weight:600}
@@ -225,14 +231,14 @@ body.locked main,body.locked header,body.locked .composer{visibility:hidden}
         <div><label for="fTo">To</label><input type="date" id="fTo"></div>
       </div>
     </details>
-    <div class="sumtxt" id="filterSum"></div>
+    <div class="sumbar"><div class="sumtxt" id="filterSum" style="margin:0"></div><button class="linkish" id="selBtn" type="button">Select</button></div>
     <div id="list"></div>
   </section>
 
   <section id="v-monthly" hidden><div class="card tbl" id="monthly"></div></section>
 </main>
 
-<div class="composer" id="composer"><div class="wrap" style="flex-direction:column;align-items:stretch;gap:0">
+<div class="composer" id="composer"><div class="wrap selbar" id="selBar" hidden><button class="btn ghost sm" id="selCancel" type="button">Cancel</button><span class="grow" id="selCount">0 selected</span><button class="btn danger sm" id="selDel" type="button" disabled>Delete</button></div><div class="wrap" id="cMain" style="flex-direction:column;align-items:stretch;gap:0">
   <div class="cfor" id="cfor"></div>
   <div style="display:flex;align-items:flex-end;gap:8px">
     <button class="cbtn plus" id="fab" type="button" aria-label="Add entry by hand">+</button>
@@ -653,7 +659,9 @@ function render(){
   $('setCharge').checked=!!state.settings.chargeToPartner;
   drawPin();renderDays();renderMonthly();
 }
-let shownDays=[];
+let shownDays=[],selMode=false;const sel=new Set();
+function setSel(on){selMode=on;sel.clear();$('selBar').hidden=!on;$('cMain').hidden=on;$('selBtn').textContent=on?'Done':'Select';drawSel();renderDays()}
+function drawSel(){$('selCount').textContent=sel.size+' selected';$('selDel').disabled=!sel.size}
 function toLatest(){if($('v-days').hidden)return;requestAnimationFrame(()=>scrollTo({top:document.documentElement.scrollHeight,behavior:'auto'}))}
 function renderDays(){
   if(!cur){$('list').innerHTML='';$('filterSum').textContent='';return}
@@ -667,8 +675,8 @@ function renderDays(){
   const start=Math.max(0,shownDays.length-120),last=shownDays.length-1;
   $('list').innerHTML=(start?'<p class="hint">Showing the latest 120 days. Use the date filter for older days.</p>':'')+'<div class="days">'+shownDays.slice(start).map((d,k)=>{const i=start+k,o=bal(d.open),c=bal(d.close);return `<section class="day${(last-i)%2?' alt':''}">
     <div class="dh"><div><b>${dayName(d.date)}</b><small>${d.items.length} entr${d.items.length>1?'ies':'y'}</small></div><div class="dbtns"><button class="copy" type="button" data-copyday="${i}">⧉ Copy</button><button class="copy share" type="button" data-shareday="${i}">↗ Share</button></div></div>
-    ${d.shown.map(e=>`<button class="row${e.type==='bank'?' recv':''}" type="button" data-edit="${e.id}">
-      <div><div class="t">${e.type==='send'?esc(e.number||'Money sent')+`<span class="chip">${esc(e.method)}</span>`:(e.method==='Bank'?'Bank payment':e.method==='Cash'?'Cash received':'Received')+`<span class="chip in">${esc(e.method)}</span>`}</div>
+    ${d.shown.map(e=>`<button class="row${e.type==='bank'?' recv':''}${selMode&&sel.has(e.id)?' sel':''}" type="button" data-edit="${e.id}">
+      <div><div class="t">${selMode?'<span class="tick">✓</span>':''}${e.type==='send'?esc(e.number||'Money sent')+`<span class="chip">${esc(e.method)}</span>`:(e.method==='Bank'?'Bank payment':e.method==='Cash'?'Cash received':'Received')+`<span class="chip in">${esc(e.method)}</span>`}</div>
         ${e.type==='bank'&&bankDetail(e).length?`<div class="det">${bankDetail(e).map(esc).join(' · ')}</div>`:''}
         ${(e.base||e.charge||e.note)?`<div class="s">${e.base?money(e.base)+' + '+e.pct+'%':''}${e.charge?(e.base?' · ':'')+'charge '+tk(e.charge):''}${e.note?((e.base||e.charge)?' · ':'')+esc(e.note):''}</div>`:''}</div>
       <div><div class="amt${e.type==='bank'?' green':''}">${tk(e.amount)}</div><div class="rb ${bal(d.after[e.id]).cls}"><small>Bal</small>${sbal(d.after[e.id])}</div></div></button>`).join('')}
@@ -768,26 +776,40 @@ const WA_HEAD=/^\s*\[?\d{1,2}[\/.\-]\d{1,2}(?:[\/.\-]\d{2,4})?,?\s+\d{1,2}[:.]\d
 const blank=m=>' '.repeat(m.length);
 function lineMethod(l){return /nagad|নগদ/i.test(l)?'Nagad':/rocket|রকেট/i.test(l)?'Rocket':/upay|উপায়/i.test(l)?'Upay':/bkash|b kash|বিকাশ/i.test(l)?'bKash':null}
 const NOISE=/\b(?:bkash|b kash|nagad|rocket|upay|tk|taka|personal|agent|cash ?out|send ?money|forwarded|plz|pls|please)\b|বিকাশ|নগদ|রকেট|টাকা|হাজার|৳|\/-/gi;
+// Lines that are not money-sent lines: summaries and headings from statements copied out of this app
+const SKIP_LINE=/^\s*(?:previous|sent today|received|balance|now\b|total|hisab|as of|day:|due[: ]|advance|settled|narration|bank payment|cash received|[—━─-]{3,})/i;
+const MONTH_DATE=/\b(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*,?\s+\d{1,2}\s+[a-z]{3,9}\s+\d{4}\b|\b\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{4}\b/gi;
+let pasteFromApp=false;
 function parseWA(text){
-  const items=[],notes=[];let msg=-1;
-  normDigits(text).replace(/[​-‏‪-‮⁦-⁩﻿]/g,'').replace(/ /g,' ').split(/\r?\n/).forEach(raw=>{
+  const items=[],msgNums={},lineNotes=[],msgNotes=[];let msg=-1,li=-1;
+  const clean=normDigits(text).replace(/[​-‏‪-‮⁦-⁩﻿]/g,'').replace(/ /g,' ');
+  pasteFromApp=/\|\s*Bal\b|Balance now|Sent today/i.test(clean);
+  clean.split(/\r?\n/).forEach(raw=>{
     const head=raw.match(WA_HEAD);
-    if(head&&head[0].trim()||msg<0){msg++;notes[msg]=''}
-    let line=head?raw.slice(head[0].length):raw;const meth=lineMethod(line),found=[];
-    line=line.replace(/(?<![\d+])(?:(?:\+|00)?\(?\s*88\)?[\s-]*)?(?:0[\s-]*)?(1[3-9](?:[\s-]?\d){8})(?!\d)/g,(m,n,off)=>{found.push({kind:'num',val:'0'+n.replace(/\D/g,''),pos:off,meth,msg});return blank(m)});
+    if(head&&head[0].trim()||msg<0){msg++;msgNotes[msg]=''}
+    let line=head?raw.slice(head[0].length):raw;
+    if(SKIP_LINE.test(line)||/^\s*\S.*\s[—-]\s.*\d{4}\s*$/.test(line)&&MONTH_DATE.test(line)){MONTH_DATE.lastIndex=0;return}
+    MONTH_DATE.lastIndex=0;
+    li++;lineNotes[li]='';
+    // drop parts this app adds when copying: "| Bal …", "= ৳total", "+ 2%", "1) " list numbers, "charge ৳x"
+    line=line.replace(/\|\s*bal\b.*$/i,'').replace(/=\s*৳?\s*[\d,]+(?:\.\d+)?/g,' ').replace(/\+\s*charge\s*৳?\s*[\d,.]+/gi,' ').replace(/\+?\s*\d+(?:\.\d+)?\s*%/g,' ').replace(/^\s*\d{1,3}[).]\s+/,'').replace(MONTH_DATE,' ');
+    const meth=lineMethod(line),found=[];
+    line=line.replace(/(?<![\d+])(?:(?:\+|00)?\(?\s*88\)?[\s-]*)?(?:0[\s-]*)?(1[3-9](?:[\s-]?\d){8})(?!\d)/g,(m,n,off)=>{found.push({kind:'num',val:'0'+n.replace(/\D/g,''),pos:off,meth,msg,li});msgNums[msg]=(msgNums[msg]||0)+1;return blank(m)});
     line=line.replace(/\d{1,2}\/\d{1,2}(?:\/\d{2,4})?|\d{1,2}-\d{1,2}-\d{2,4}/g,blank).replace(/\d{1,2}:\d{2}\s*(?:[ap]\.?m\.?)?/gi,blank);
     line=line.replace(/(?<![\d.,])(\d{1,3}(?:,\d{2,3})+|\d+(?:\.\d+)?)\s*(?:([kK])(?![a-zA-Z])|(হাজার|thousand))?(?![\d])/g,(m,n,k,h,off)=>{
       let v=parseFloat(n.replace(/,/g,''));if(k||h)v*=1000;
-      if(v>=10){found.push({kind:'amt',val:v,pos:off,meth,msg});return blank(m)}return m});
-    const left=line.replace(NOISE,' ').replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();
-    if(left.length>1)notes[msg]=(notes[msg]?notes[msg]+' ':'')+left;
+      if(v>=10){found.push({kind:'amt',val:v,pos:off,meth,msg,li});return blank(m)}return m});
+    const left=line.replace(NOISE,' ').replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\b\d\b/g,' ').replace(/\s+/g,' ').trim();
+    if(left.length>1){lineNotes[li]=left;msgNotes[msg]=(msgNotes[msg]?msgNotes[msg]+' ':'')+left}
     found.sort((a,b)=>a.pos-b.pos);items.push(...found);
   });
+  // a note belongs to the whole message only when that message has one number; otherwise to the number's own line
+  const noteFor=n=>((msgNums[n.msg]===1?msgNotes[n.msg]:lineNotes[n.li])||'').slice(0,60);
   const rows=[];
   for(let i=0;i<items.length;){
     const a=items[i],b=items[i+1];
-    if(b&&a.kind!==b.kind){const n=a.kind==='num'?a:b,m=a.kind==='num'?b:a;rows.push({number:n.val,base:m.val,method:n.meth||m.meth,note:notes[n.msg]||''});i+=2}
-    else{if(a.kind==='num')rows.push({number:a.val,base:0,method:a.meth,note:notes[a.msg]||''});i++}
+    if(b&&a.kind!==b.kind){const n=a.kind==='num'?a:b,m=a.kind==='num'?b:a;rows.push({number:n.val,base:m.val,method:n.meth||m.meth,note:noteFor(n)});i+=2}
+    else{if(a.kind==='num')rows.push({number:a.val,base:0,method:a.meth,note:noteFor(a)});i++}
   }
   return rows;
 }
@@ -808,6 +830,7 @@ function drawPaste(){
       <input data-pi="${i}" data-f="base" value="${r.base||''}" inputmode="decimal" placeholder="amount" aria-label="Amount">
       <span class="tot">${r.base?tk(addPct(r.base,pc)):'–'}</span>
       ${!r.base?'<span class="warn">Amount not found. Type it in.</span>':''}${r.number.length!==11?'<span class="warn">Number must be 11 digits.</span>':''}${r.note?`<span class="note">Note: ${esc(r.note)}</span>`:''}${r.dup?`<span class="warn">Looks already added on ${fmtDate(r.dup.date)}. Tick to add again.</span>`:''}</div>`).join('');
+  if(pasteFromApp)$('pRows').insertAdjacentHTML('afterbegin','<p class="hint" style="margin-top:0;color:var(--red)">This text was copied from this app. Only the number lines were read. Check that these are new entries before adding.</p>');
   const on=pRows.filter(r=>r.on&&validAmount(r.base)&&r.number.length===11);
   $('pSum').innerHTML=`<span>${on.length} entries · ${tk(on.reduce((a,r)=>a+r.base,0))}</span><b>${pc?'With '+pc+'%':'Total'}: ${tk(on.reduce((a,r)=>a+addPct(r.base,pc),0))}</b>`;
   $('pAdd').textContent=on.length?`Add ${on.length} to ${$('pPartner').value}`:'Add';$('pAdd').disabled=!on.length;
@@ -894,7 +917,7 @@ function restore(inp){
 }
 
 // ================= profiles =================
-function setProfile(p){cur=p;store.set(PROF_KEY,p);render();toLatest()}
+function setProfile(p){cur=p;store.set(PROF_KEY,p);if(selMode)setSel(false);render();toLatest()}
 function addPartner(){const n=$('newPartner').value.trim().slice(0,40);if(!n)return;if(state.partners.includes(n))return toast(n+' already exists');state.partners.push(n);$('newPartner').value='';save();render()}
 function renamePartner(i,n){n=n.trim().slice(0,40);const old=state.partners[i];if(!n||n===old)return;if(state.partners.includes(n)){render();return toast(n+' already exists')}
   if(state.settings.pct&&old in state.settings.pct){state.settings.pct[n]=state.settings.pct[old];delete state.settings.pct[old]}
@@ -906,6 +929,11 @@ let tt,toastFn=null;
 function toast(m,undo){$('toastMsg').textContent=m;toastFn=undo||null;$('toastAct').hidden=!undo;$('toast').classList.add('show');clearTimeout(tt);tt=setTimeout(()=>{$('toast').classList.remove('show');toastFn=null},undo?6000:2600)}
 $('toastAct').onclick=()=>{const f=toastFn;toastFn=null;$('toast').classList.remove('show');if(f)f()};
 $('fab').onclick=()=>openEntry(null,'send');
+$('selBtn').onclick=()=>setSel(!selMode);$('selCancel').onclick=()=>setSel(false);
+$('selDel').onclick=async()=>{const n=sel.size;if(!n)return;
+  if(!await ask(`Delete ${n} selected entr${n>1?'ies':'y'}?`,{ok:'Delete',danger:true}))return;
+  const gone=state.entries.filter(e=>sel.has(e.id));state.entries=state.entries.filter(e=>!sel.has(e.id));setSel(false);save();render();
+  toast(`Deleted ${n} entr${n>1?'ies':'y'}`,()=>{state.entries.push(...gone);save();render();toast('Restored')})};
 function growC(){const t=$('cText');t.style.height='38px';t.style.height=Math.min(t.scrollHeight,120)+'px'}
 $('cText').addEventListener('input',growC);
 $('cSend').onclick=()=>{const t=$('cText');if(!cur)return;if(!t.value.trim()){t.focus();return toast('Paste the WhatsApp message in the box first')}const v=t.value;t.value='';growC();openPaste(cur,v)};
@@ -921,7 +949,7 @@ document.addEventListener('click',e=>{
   const ds=t.dataset;
   if(ds.prof!==undefined)return setProfile(ds.prof);
   if(ds.full!==undefined){const txt=fullText(ds.full);return showText('Statement · '+ds.full,txt)}
-  if(ds.edit!==undefined)return openEntry(ds.edit);
+  if(ds.edit!==undefined){if(selMode){sel.has(ds.edit)?sel.delete(ds.edit):sel.add(ds.edit);t.classList.toggle('sel');drawSel();return}return openEntry(ds.edit)}
   if(ds.new!==undefined)return openEntry(null,ds.new);
   if(ds.rm!==undefined)return removePartner(+ds.rm);
   if(ds.shareday!==undefined)return shareDay(+ds.shareday);
